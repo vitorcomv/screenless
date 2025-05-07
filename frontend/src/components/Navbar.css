@@ -1,0 +1,35 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #F5FFFA;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-left .logo {
+    height: 60px;
+  }
+  
+  .nav-center a {
+    margin: 0 12px;
+    text-decoration: underline;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .nav-right a {
+    margin: 0 12px;
+    text-decoration: none;
+    color: white;
+    background-color: #1A9988;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .nav-right a:hover {
+    background-color: #157e70;
+  }
+  

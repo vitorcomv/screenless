@@ -1,22 +1,29 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Registro from './pages/Registro';
 
-function App() {
-  const [mensagem, setMensagem] = useState("Carregando...");
-
-  useEffect(() => {
-    fetch("/api/mensagem")
-      .then((res) => res.json())
-      .then((data) => setMensagem(data.mensagem))
-      .catch((err) => setMensagem("Erro ao buscar dados do backend"));
-  }, []);
+function AppWrapper() {
+  const location = useLocation();
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/registro';
 
   return (
-    <div style={{ fontFamily: "sans-serif", padding: "2rem" }}>
-      <h1>Mensagem do Backend:</h1>
-      <p>{mensagem}</p>
-    </div>
+    <>
+      {!hideNavbar && <Navbar />}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+      </Routes>
+    </>
   );
 }
 
-export default App;
-
+export default function App() {
+  return (
+    <Router>
+      <AppWrapper />
+    </Router>
+  );
+}
