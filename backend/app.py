@@ -4,6 +4,7 @@ from flask_cors import CORS
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__)
 CORS(app)
@@ -25,6 +26,10 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route("/api/mensagem")
 def mensagem():
@@ -106,25 +111,50 @@ def criar_evento():
         data = request.form['data']
         hora = request.form['hora']
         descricao = request.form['descricao']
-        imagem = request.files.get('imagem')
+        foto = request.files.get('foto')
         nome_arquivo = None
         nome_seguro = None 
 
-        if imagem and allowed_file(imagem.filename):
-            nome_seguro = secure_filename(imagem.filename)
+        if foto and allowed_file(foto.filename):
+            nome_seguro = secure_filename(foto.filename)
             nome_arquivo = os.path.join(app.config['UPLOAD_FOLDER'], nome_seguro)
-            imagem.save(nome_arquivo)
+            foto.save(nome_arquivo)
 
         data_hora_evento = f"{data} {hora}:00"
 
         sql = """
-        INSERT INTO EVENTO (titulo, organizador, endereco, data_hora, descricao, foto)
+        INSERT INTO EVENTO (titulo, organizador, endereco, data_hora, descricao, foto )
         VALUES (%s, %s, %s, %s, %s, %s)
         """
         values = (titulo, organizador, endereco, data_hora_evento, descricao, nome_seguro)
         cursor.execute(sql, values)
         conn.commit()
         return jsonify({"mensagem": "Evento criado com sucesso!"}), 201
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+
+        # Rota para obter todos os eventos
+@app.route("/api/eventos", methods=["GET"])
+def obter_eventos():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        sql = "SELECT ID_EVENTO, titulo, organizador, endereco, DATE_FORMAT(data_hora, '%d/%m/%Y às %H:%i') AS data_hora, descricao, foto FROM EVENTO"
+        cursor.execute(sql)
+        eventos = cursor.fetchall()
+
+        return jsonify(eventos), 200
 
     except Exception as e:
         return jsonify({"erro": str(e)}), 500

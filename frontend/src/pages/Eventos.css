@@ -1,0 +1,116 @@
+.lista-eventos-container {
+    background-color: #f0f8f7;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; /* Tornar o container pai um ponto de referência para o posicionamento absoluto */
+  }
+  
+  .lista-eventos-container h2 {
+    color: #26a69a;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .eventos-grid {
+    display: flex; /* Alterar para flexbox */
+    gap: 20px;
+    width: 90%;
+    margin-bottom: 20px; /* Reduzir a margem inferior para a imagem ficar mais perto */
+    justify-content: center; /* Centralizar os cards horizontalmente */
+  }
+  
+  .evento-card {
+    background-color: #00796b;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    width: 300px;
+    flex-shrink: 0;
+  }
+  
+  .evento-card img {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .evento-info {
+    padding: 0;
+    flex-grow: 1;
+    text-align: left;
+  }
+  
+  .evento-info h3 {
+    color: #ffff;
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
+  }
+  
+  .evento-info p {
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #ffff;
+  }
+  
+  .evento-info .organizador {
+    font-style: italic;
+  }
+  
+  .evento-info .descricao {
+    margin-top: 5px;
+    font-size: 12px;
+  }
+  
+  .proxima-imagem {
+    width: 100%;
+  }
+  
+.imagem-fundo{
+    max-height: 800px;
+}
+
+.xp{
+    color: white;
+    padding: 5px;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: end;
+}
+
+  .criar-seu-evento-container {
+    position: absolute; /* Posicionamento absoluto */
+    bottom: 30px; /* Ajuste a distância da parte inferior conforme necessário */
+    left: 50%; /* Centralizar horizontalmente */
+    transform: translateX(-50%); /* Ajustar para o centro exato */
+    z-index: 10; /* Garantir que o botão fique acima da imagem */
+  }
+  
+  .criar-seu-evento-button {
+    background-color: #26a69a;
+    color: white;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .criar-seu-evento-button:hover {
+    background-color: #00796b;
+  }
