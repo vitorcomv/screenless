@@ -57,15 +57,29 @@ def registrar_usuario():
         conn.commit()
         return jsonify({"mensagem": "Usuário registrado com sucesso!"}), 201
 
-    except mysql.connector.IntegrityError:
-        return jsonify({"erro": "Usuário ou CPF já existe"}), 400
+    except mysql.connector.IntegrityError as e:
+        error_message = str(e).lower()
+
+        if "for key 'usuario.cpf'" in error_message:
+            return jsonify({"erro": "CPF já cadastrado"}), 400
+        elif "for key 'usuario.usuario'" in error_message:
+            return jsonify({"erro": "Nome de usuário já está em uso"}), 400
+        elif "for key 'usuario.email'" in error_message:
+            return jsonify({"erro": "Email já cadastrado"}), 400
+        elif "for key 'usuario.telefone'" in error_message:
+            return jsonify({"erro": "Telefone já cadastrado"}), 400
+        else:
+            return jsonify({"erro": "Erro ao registrar usuário: " + str(e)}), 400
 
     except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+        return jsonify({"erro": "Erro no servidor: " + str(e)}), 500
 
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 
 # Rota de login
 @app.route("/api/login", methods=["POST"])
