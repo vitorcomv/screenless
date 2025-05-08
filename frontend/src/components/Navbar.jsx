@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import "./Navbar.css";
 import logo2 from "../assets/logo2.png";
 import { AuthContext } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const { usuarioLogado, logout } = useContext(AuthContext);
@@ -15,6 +15,8 @@ export default function Navbar() {
     }
   };
 
+  const navigate = useNavigate();
+
   return (
     <nav className="navbar">
       <div className="nav-left">
@@ -23,18 +25,38 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="nav-center">
-        <a
-          href="#"
+        <button
+          className="btn"
           onClick={(e) => {
             e.preventDefault();
             scrollToSection("comunidade");
           }}
         >
           Comunidade
-        </a>
-        <Link to="/eventos">Eventos</Link>
-        <a href="#desafios">Desafios</a>
+        </button>
+
+        <button
+          className="btn"
+          onClick={() => 
+            navigate("/eventos")}
+        >
+          Eventos
+        </button>
+
+        <button
+          className="btn"
+          onClick={() => {
+            const desafiosSection = document.querySelector("#desafios");
+            if (desafiosSection) {
+              desafiosSection.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >
+          Desafios
+        </button>
       </div>
+
+
       <div className="auth">
       {usuarioLogado ? (
         <>

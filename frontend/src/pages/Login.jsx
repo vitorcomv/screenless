@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import logo from "../assets/logo.png";
+import logo2 from "../assets/logo2.png";
 import "./Login.css"; // Importe o arquivo CSS específico para Login
 
 export default function Login() {
@@ -9,6 +9,8 @@ export default function Login() {
     usuario: "",
     senha: "",
   });
+
+  const [erroLogin, setErroLogin] = useState("");
 
   const navigate = useNavigate();
 
@@ -20,30 +22,36 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+    setErroLogin(""); // limpa erro anterior
+  
     const response = await fetch("http://localhost:5000/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-
+  
     const data = await response.json();
     if (response.ok) {
-      alert(data.mensagem);
       login(data.usuario);
-      navigate("/"); // Redirecione para a página principal após o login
+      navigate("/"); // Redireciona ao fazer login
     } else {
-      alert(data.erro);
+      setErroLogin(data.erro); // Mostra erro na tela
     }
   };
+  
 
   return (
     <div className="login-container">
       <form onSubmit={handleLogin} className="form-login">
-        <div className="div-imagem-login"><img src={logo} alt="Screenless" className="logo" /></div>
+        <Link to="/">
+          <div className="div-imagem-login">
+            <img src={logo2} alt="Screenless" className="logo" />
+          </div>
+        </Link>
+  
         <div className="input-group">
           <label htmlFor="usuario">Usuário</label>
-          <input className="input"
+          <input
             type="text"
             id="usuario"
             name="usuario"
@@ -52,9 +60,10 @@ export default function Login() {
             onChange={handleChange}
           />
         </div>
+  
         <div className="input-group">
           <label htmlFor="senha">Senha</label>
-          <input className="input"
+          <input
             type="password"
             id="senha"
             name="senha"
@@ -63,13 +72,14 @@ export default function Login() {
             onChange={handleChange}
           />
         </div>
-        <button type="submit" className="login-button">
-          Entrar
-        </button>
-        <Link to="/registro" className="register-link">
-          Cadastrar-se
-        </Link>
+  
+        {erroLogin && <p className="mensagem-erro">{erroLogin}</p>}
+
+        <div className="botoes-login-container">
+          <button type="submit" className="login-button">Entrar</button>
+          <Link to="/registro" className="register-link">Cadastrar-se</Link>
+        </div>
       </form>
     </div>
   );
-}
+}  

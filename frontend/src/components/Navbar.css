@@ -17,11 +17,12 @@
   .logo{
     margin-top: 10px;
   }
-  .nav-center a {
-    margin: 0 12px;
-    text-decoration: underline;
-    color: #333;
-    font-weight: 500;
+  .nav-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-right: 6vw;
   }
   
   .nav-right a {
@@ -65,4 +66,53 @@
     background-color: #157e70;
   }
   
+  .btn {
+    font-size: 17px;
+    background: transparent;
+    border: none;
+    padding: 1em 1.5em;
+    color: #000000;
+    text-transform: uppercase;
+    position: relative;
+    transition: 0.5s ease;
+    cursor: pointer;
+    z-index: 1;
+  }
+  
+  .btn::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0;
+    background-color: #4ECDC4;
+    transition: 0.5s ease;
+  }
+  
+  .btn:hover {
+    color: #1e1e2b;
+    transition-delay: 0.5s;
+  }
+  
+  .btn:hover::before {
+    width: 100%;
+  }
+  
+  .btn::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 0;
+    width: 100%;
+    background-color: #1A9988;
+    transition: 0.4s ease;
+    z-index: -1;
+  }
+  
+  .btn:hover::after {
+    height: 100%;
+    transition-delay: 0.4s;
+  }
   
