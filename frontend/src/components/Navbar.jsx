@@ -8,13 +8,28 @@ import { Link } from "react-router-dom";
 export default function Navbar() {
   const { usuarioLogado, logout } = useContext(AuthContext);
 
+  const scrollToSection = (id) => {
+    const section = document.getElementById(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="nav-left">
         <img src={logo} alt="logo" className="logo" />
       </div>
       <div className="nav-center">
-        <a href="#comunidade">Comunidade</a>
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            scrollToSection("comunidade");
+          }}
+        >
+          Comunidade
+        </a>
         <a href="#eventos">Eventos</a>
         <a href="#desafios">Desafios</a>
       </div>
