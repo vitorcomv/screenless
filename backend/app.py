@@ -177,6 +177,81 @@ def obter_eventos():
         if conn and conn.is_connected():
             conn.close()
 
+# Rota para criar desafio
+@app.route("/api/criar_desafio", methods=["POST"])
+def criar_desafio():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Obter os dados do formulário
+        nome_usuario = request.form['nome_usuario']
+        titulo = request.form['titulo']
+        descricao = request.form['descricao']
+        xp = int(request.form['xp'])
+        foto = request.files.get('foto')
+        nome_arquivo = None
+        nome_seguro = None 
+
+        # Salvar a foto se for fornecida
+        if foto and allowed_file(foto.filename):
+            nome_seguro = secure_filename(foto.filename)
+            nome_arquivo = os.path.join(app.config['UPLOAD_FOLDER'], nome_seguro)
+            foto.save(nome_arquivo)
+
+        # Atribuindo um valor fictício ao ID_USUARIO para o teste
+        id_usuario_falso = 1  # Usando um ID de teste para contornar a validação
+
+        # Inserir o desafio na tabela DESAFIOS
+        sql = """
+        INSERT INTO DESAFIOS (ID_USUARIO, nome_usuario, Titulo, Descricao, XP, foto)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        values = (id_usuario_falso, nome_usuario, titulo, descricao, xp, nome_seguro)
+        cursor.execute(sql, values)
+        conn.commit()
+
+        return jsonify({"mensagem": "Desafio criado com sucesso!"}), 201
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+# Rota para obter todos os desafios
+@app.route("/api/desafios", methods=["GET"])
+def obter_desafios():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Buscar todos os desafios
+        sql = """
+        SELECT ID_DESAFIO, nome_usuario, Titulo, Descricao, XP, foto 
+        FROM DESAFIOS
+        """
+        cursor.execute(sql)
+        desafios = cursor.fetchall()
+
+        return jsonify(desafios), 200
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
 # CORREÇÃO PARA ELASTIC BEANSTALK
 application = app
 

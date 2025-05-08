@@ -1,0 +1,79 @@
+.form-mini {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1rem;
+    background-color: #f8f9fa;
+  }
+  
+  .form {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .heading-mini {
+    margin: 0.5rem 0;
+    color: #333;
+    font-weight: 700;
+  }
+  
+  .input-mini {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+  }
+  
+  .input-mini:focus {
+    outline: none;
+    border-color: #0077ff;
+    box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.1);
+  }
+  
+  .upload-container {
+    text-align: left;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  
+  .upload-container input[type="file"] {
+    margin-top: 0.5rem;
+  }
+  
+  .btn-mini {
+    margin-top: 1.5rem;
+    background-color: #0077ff;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-mini:hover {
+    background-color: #005ec4;
+  }
+
+  .mensagem-erro {
+    color: #d8000c;
+    background-color: #ffd2d2;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+  
+  
