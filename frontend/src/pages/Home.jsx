@@ -22,14 +22,6 @@ const Home = () => {
             Mais vida!
           </h1>
           <p className="hero-subtitle">Crie momentos especiais com atividades!</p>
-          <div className="hero-buttons">
-            <button className="btn btn-primary">
-              Encontre um evento perto de você
-            </button>
-            <button className="btn btn-outline">
-              Planeje seu evento
-            </button>
-          </div>
         </div>
       </section>
 

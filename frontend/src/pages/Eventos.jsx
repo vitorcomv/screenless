@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Eventos.css"; // Crie um arquivo CSS para esta página
 import proximaImagem from '../assets/imagemfundo.png'; // Importe sua imagem
+import { Link } from "react-router-dom";
 
 export default function ListaEventos() {
   const [eventos, setEventos] = useState([]);
@@ -67,11 +68,7 @@ export default function ListaEventos() {
     {/* Nova seção para a imagem */}
     <div className="proxima-imagem">
         <img className="imagem-fundo" src={proximaImagem} alt="Imagem de fundo" style={{ width: '100%', display: 'block' }} />
-      </div>
-
-      {/* Botão "CRIE SEU EVENTO" fora da grade de eventos */}
-      <div className="criar-seu-evento-container">
-        <button className="criar-seu-evento-button">CRIE SEU EVENTO</button>
+      <Link to="/criar-eventos"><button className="criar-seu-evento-button"  >CRIE SEU EVENTO</button></Link>
       </div>
     </div>
   );
