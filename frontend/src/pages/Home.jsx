@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './Home.css';
 import imagem1 from '../assets/CriançasCorrendo.jpeg';
-import imagem2 from '../assets/PaieFilho.jpg';
+import imagem2 from '../assets/MulherCorrendo.jpeg';
 import imagem3 from '../assets/TimePark.jpeg';
+import imagemcard from '../assets/imagemcard.png';
 const Home = () => {
   const [mensagem, setMensagem] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -52,14 +53,14 @@ const Home = () => {
               )}
               {index === 1 && (
                 <>
-                  <h1 className="hero-title">Outra Mensagem</h1>
-                  <p className="hero-subtitle">Uma legenda diferente para a segunda imagem.</p>
+                  <h1 className="hero-title">Cada passo é <br />uma vitória !</h1>
+                  <p className="hero-subtitle">A corrida é a sua jornada de superação!</p>
                 </>
               )}
               {index === 2 && (
                 <>
-                  <h1 className="hero-title">Mais uma Mensagem</h1>
-                  <p className="hero-subtitle">E mais uma legenda para a terceira imagem.</p>
+                  <h1 className="hero-title">Alegria compartilhada!</h1>
+                  <p className="hero-subtitle">A felicidade ganha uma nova dimensão quando dividida</p>
                 </>
               )}
             </div>
@@ -159,19 +160,16 @@ const Home = () => {
             <div className="how-text">
               <h2 className="section-title">Como Funciona?</h2>
               <p className="section-text">
-                BrincarMais é um projeto social voltado para a promoção da saúde infantil, do brincar e de relações saudáveis entre crianças e adolescentes da comunidade. Através de eventos presenciais, atividades lúdicas, jogos educativos e um portal digital interativo, buscamos reduzir o tempo de tela das crianças e estimular o uso consciente da tecnologia e brincadeiras.&nbsp;
-              </p>
-              <p className="section-text">
-                Nossos monitores e voluntários se dedicam a promover jogos, esportes em grupo e atividades criativas com bom conteúdo.
+              Screenless é um projeto social voltado para a promoção da saúde mental, do bem-estar e da educação de qualidade entre crianças e adolescentes da comunidade.
+              Através de eventos presenciais, atividades dinâmicas, ações educativas e um ambiente digital interativo, o projeto busca prevenir a dependência de internet, incentivando o uso consciente da tecnologia e fortalecendo vínculos familiares e comunitários.
+              Screenless acredita que menos tela significa mais vida, mais conexão real e mais desenvolvimento social.
               </p>
               <button className="btn btn-primary">
                 Vamos começar!
               </button>
             </div>
             <div className="how-image">
-              <div className="image-container">
-                <span>Imagem de crianças brincando</span>
-              </div>
+              <img src={imagemcard} alt="Crianças brincando" style={{ width: '70%', height: 'auto' }} />
             </div>
           </div>
         </div>

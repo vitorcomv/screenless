@@ -1,139 +1,155 @@
 /* Reset básico */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  /* Estilos gerais */
-  .home-container {
-    width: 100%;
-    min-height: 100vh;
-  }
-  
-  .section-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
-  .section-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: white;
-  }
-  
-  .section-subtitle {
-    font-size: 1.1rem;
-    margin-bottom: 30px;
-    color: white;
-  }
-  
-  .section-text {
-    color: white;
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-  
-  /* Botões */
-  .btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    margin: 5px;
-  }
-  
-  .btn-primary {
-    background-color: #22c55e; /* cor verde */
-    color: white;
-    border: none;
-  }
-  
-  .btn-primary:hover {
-    background-color: #16a34a;
-  }
-  
-  .btn-outline {
-    background-color: transparent;
-    color: white;
-    border: 2px solid white;
-  }
-  
-  .btn-outline:hover {
-    background-color: white;
-    color: #f97316; /* cor laranja */
-  }
-  
-  /* Seção Hero */
-  .hero-section {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background-size: cover;
-    background-position: center;
-  }
-  .carousel-container {
-    overflow: hidden;
-    height: 100vh; /* Garante que a altura do container seja a da viewport */
-    position: relative; /* Necessário para posicionar os controles/indicadores, se houver */
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
 
-  .carousel-slide {
-    position: absolute; /* Sobrepõe os slides */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover; /* Para cobrir todo o fundo com a imagem */
-    background-position: center;
-    opacity: 0; /* Inicialmente todos os slides estão invisíveis */
-    transition: opacity 0.8s ease-in-out; /* Transição suave de fade */
-    z-index: 1; /* Garante que os slides fiquem abaixo do conteúdo */
-  }
+/* Estilos gerais */
+.home-container {
+  width: 100%;
+  min-height: 100vh;
+}
 
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
 
-  .carousel-slide.active {
-    opacity: 1; /* Torna o slide ativo visível */
-    z-index: 2; /* Garante que o slide ativo fique acima dos outros */
-  }
-  .hero-content {
-    text-align: center;
-    color: white;
-    padding: 20px;
-    z-index: 10;
-    position: absolute;
+.section-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.section-text {
+  color: white;
+  line-height: 1.6;
+  margin-top: 5px;
+  margin-bottom: 5px; 
+}
+
+/* Botões */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #22c55e; /* cor verde */
+  color: white;
+  border: none;
+  margin-top: 170px;
+}
+
+.btn-primary:hover {
+  background-color: #16a34a;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btn-outline:hover {
+  background-color: white;
+  color: #f97316; /* cor laranja */
+}
+
+/* Seção Hero */
+.hero-section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* Remova o filter daqui */
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px); /* Desfoque aplicado ao pseudo-elemento */
+  z-index: 0; /* Garante que o pseudo-elemento fique atrás do conteúdo */
+  /* Aqui vamos usar o backgroundImage do hero-section */
+}
+
+.carousel-container {
+  overflow: hidden;
+  height: 100vh; /* Garante que a altura do container seja a da viewport */
+  position: relative; /* Necessário para posicionar os controles/indicadores, se houver */
+  z-index: 1; /* Garante que o carrossel fique acima do pseudo-elemento */
+}
+
+.carousel-slide {
+  position: absolute; /* Sobrepõe os slides */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover; /* Para cobrir todo o fundo com a imagem */
+  background-position: center;
+  opacity: 0; /* Inicialmente todos os slides estão invisíveis */
+  transition: opacity 0.8s ease-in-out; /* Transição suave de fade */
+  z-index: 1; /* Garante que os slides fiquem acima do pseudo-elemento */
+}
+
+.carousel-slide.active {
+  opacity: 1; /* Torna o slide ativo visível */
+  z-index: 2; /* Garante que o slide ativo fique acima dos outros */
+}
+
+.hero-content {
+  text-align: center;
+  color: white;
+  padding: 20px;
+  z-index: 10;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90%; /* Ajuste a largura conforme necessário */
-  }
-  
-  .hero-title {
-    font-size: 3.5rem;
-    font-weight: bold;
-    margin-bottom: 16px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  }
-  
-  .hero-subtitle {
-    font-size: 1.5rem;
-    margin-bottom: 32px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  }
-  
-  /* Seção de Comunidade */
-  .events-section {
-    background-color: #2dd4bf; /* cor teal */
-    padding: 64px 0;
-  }
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  margin-bottom: 32px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Seção de Comunidade */
+.events-section {
+  background-color: #2dd4bf; /* cor teal */
+  padding: 64px 0;
+}
   
   .events-card {
     background-color: #e5e7eb; /* cor cinza claro */
@@ -276,7 +292,6 @@
     background-color: #16a34a;
   }  
 
-  /* Seção Como Funciona */
   .how-section {
     background-color: #2dd4bf; /* cor teal */
     padding: 32px 0 64px;
@@ -284,16 +299,18 @@
   
   .how-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Garante que os itens fiquem em coluna em todas as telas */
     gap: 32px;
   }
   
   .how-text {
-    flex: 1;
+    display: flex;
+    flex-direction: column; /* Garante que o título, texto e botão dentro fiquem em coluna */
+    align-items: center; /* Centraliza os itens horizontalmente */
+    text-align: center; /* Centraliza o texto */
   }
   
   .how-image {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -314,18 +331,40 @@
     color: #f97316;
   }
   
-  /* Media queries para responsividade */
-  @media (min-width: 768px) {
-    .hero-title {
-      font-size: 4rem;
-    }
-  
-    .hero-buttons {
-      flex-direction: row;
-      justify-content: center;
-    }
-  
-    .how-content {
-      flex-direction: row;
-    }
+/* Media queries para responsividade */
+@media (min-width: 768px) {
+  /* ... outros estilos ... */
+
+  .how-content {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
   }
+
+  .how-text {
+    align-items: flex-start;
+    text-align: left;
+    flex: 1;
+  }
+
+  .how-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 16px;
+    width: auto; /* A largura se ajusta ao conteúdo */
+    height: 300px; /* Defina a altura desejada */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-container span {
+    color: #f97316;
+  }
+}
