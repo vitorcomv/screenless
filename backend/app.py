@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -95,7 +95,6 @@ def login_usuario():
         cursor.close()
         conn.close()
 
-
 # Rota para criar evento
 @app.route("/api/criar_evento", methods=["POST"])
 def criar_evento():
@@ -140,8 +139,7 @@ def criar_evento():
         if conn and conn.is_connected():
             conn.close()
 
-
-        # Rota para obter todos os eventos
+# Rota para obter todos os eventos
 @app.route("/api/eventos", methods=["GET"])
 def obter_eventos():
     conn = None
@@ -164,6 +162,9 @@ def obter_eventos():
             cursor.close()
         if conn and conn.is_connected():
             conn.close()
+
+# CORREÇÃO PARA ELASTIC BEANSTALK
+application = app
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
