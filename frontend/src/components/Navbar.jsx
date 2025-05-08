@@ -36,12 +36,12 @@ export default function Navbar() {
         <a href="#desafios">Desafios</a>
       </div>
       <div className="auth">
-        {usuarioLogado ? (
-          <>
-            <span>Olá, {usuarioLogado}</span>
-            <button onClick={logout}>Sair</button>
-          </>
-        ) : (
+      {usuarioLogado ? (
+        <>
+          <span>Olá, {usuarioLogado}</span>
+          <button onClick={logout}>Sair</button>
+        </>
+      ) : (
           <div className="nav-right">
             <Link to="/login">Login</Link>
             <Link to="/registro">Cadastro</Link>

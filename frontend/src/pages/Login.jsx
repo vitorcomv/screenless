@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import logo from "../assets/logo.png";
 import "./Login.css"; // Importe o arquivo CSS específico para Login
 
@@ -10,6 +11,8 @@ export default function Login() {
   });
 
   const navigate = useNavigate();
+
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -27,7 +30,8 @@ export default function Login() {
     const data = await response.json();
     if (response.ok) {
       alert(data.mensagem);
-      navigate("/home"); // Redirecione para a página principal após o login
+      login(data.usuario);
+      navigate("/"); // Redirecione para a página principal após o login
     } else {
       alert(data.erro);
     }

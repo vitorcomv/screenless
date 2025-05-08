@@ -33,3 +33,30 @@
     background-color: #157e70;
   }
   
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espaçamento entre o texto e o botão */
+  }
+  
+  .user-info span {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .user-info button {
+    background-color: #1A9988;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .user-info button:hover {
+    background-color: #157e70;
+  }
+  
+  
