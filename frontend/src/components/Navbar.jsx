@@ -1,7 +1,7 @@
 // src/components/Navbar.jsx
 import React, { useContext } from "react";
 import "./Navbar.css";
-import logo from "../assets/logo.png";
+import logo2 from "../assets/logo2.png";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
@@ -18,7 +18,9 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-left">
-        <img src={logo} alt="logo" className="logo" />
+        <Link to="/">
+          <img src={logo2} alt="logo" className="logo" />
+        </Link>
       </div>
       <div className="nav-center">
         <a
