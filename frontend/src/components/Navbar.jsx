@@ -45,17 +45,12 @@ export default function Navbar() {
 
         <button
           className="btn"
-          onClick={() => {
-            const desafiosSection = document.querySelector("#desafios");
-            if (desafiosSection) {
-              desafiosSection.scrollIntoView({ behavior: "smooth" });
-            }
-          }}
+          onClick={() => 
+            navigate("/desafios")}
         >
           Desafios
         </button>
       </div>
-
 
       <div className="auth">
       {usuarioLogado ? (
