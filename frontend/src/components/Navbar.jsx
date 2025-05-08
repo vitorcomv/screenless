@@ -30,7 +30,7 @@ export default function Navbar() {
         >
           Comunidade
         </a>
-        <a href="#eventos">Eventos</a>
+        <Link to="/eventos">Eventos</Link>
         <a href="#desafios">Desafios</a>
       </div>
       <div className="auth">

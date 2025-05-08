@@ -1,0 +1,85 @@
+body{
+    background-color: #26a69a;
+}
+
+.form-container {
+    background-color: #f0f8f7; /* Cor de fundo clara */
+    border-radius: 10px;
+    padding: 30px;
+    width: 800px; /* AUMENTADO: Largura maior do formulário */
+    margin: 50px auto; /* Centraliza o formulário na página */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra suave */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .div-imagem{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .logo {
+    width: 200px; /* AUMENTADO: Tamanho maior do logo */
+    margin-bottom: 20px;
+  }
+  
+  input[type="email"],
+  input[type="text"],
+  input[type="password"] {
+    width: calc(100% - 20px); /* Largura total com um pouco de padding */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #b2dfdb; /* Borda verde clara */
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+    background-color: #e0f7f5; /* Fundo mais claro para os inputs */
+  }
+  
+  .inline-inputs {
+    display: flex;
+    gap: 10px; /* Espaço entre os inputs inline */
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .inline-inputs input[type="text"] {
+    width: calc(50% - 5px); /* Metade da largura com ajuste para o gap */
+  }
+  
+  button[type="submit"] {
+    background-color: #26a69a; /* Cor de fundo do botão verde */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #00796b; /* Verde mais escuro no hover */
+  }
+  
+  .link {
+    color: #26a69a;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s ease;
+  }
+  
+  .link:hover {
+    color: #00796b;
+  }
+  
+  /* Estilos para os labels (opcional, se você quiser adicionar labels explícitos) */
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: #37474f; /* Cor do texto mais escura */
+    font-weight: bold;
+  }

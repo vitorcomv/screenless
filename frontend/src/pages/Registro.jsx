@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.png";
+import "./Registro.css";
 
 export default function Registro() {
   const [form, setForm] = useState({
@@ -39,7 +40,7 @@ export default function Registro() {
   return (
     <div className="form-container">
       <form onSubmit={handleRegistro}>
-        <img src={logo} alt="Screenless" className="logo" />
+        <div className="div-imagem"><img src={logo} alt="Screenless" className="logo" /></div>
         <input type="email" name="email" placeholder="Insira seu email" value={form.email} onChange={handleChange} />
         <input type="text" name="usuario" placeholder="Insira seu usuário" value={form.usuario} onChange={handleChange} />
         <div className="inline-inputs">
