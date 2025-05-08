@@ -7,10 +7,16 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
+  .nav-left{
+    margin-bottom: -20px;
+  }
+  
   .nav-left .logo {
     height: 40px;
   }
-  
+  .logo{
+    margin-top: 10px;
+  }
   .nav-center a {
     margin: 0 12px;
     text-decoration: underline;
