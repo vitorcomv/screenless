@@ -15,7 +15,6 @@ const Home = () => {
     <div className="home-container">
       {/* Seção do Hero - Banner principal */}
       <section className="hero-section">
-        {/* Navbar removida conforme solicitado */}
 
         <div className="hero-content">
           <h1 className="hero-title">
@@ -34,36 +33,90 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Seção de Próximos Eventos */}
-      <section className="events-section">
+      {/* Seção de Comunidade */}
+      <section className="events-section" id="comunidade">
         <div className="section-container">
           <h2 className="section-title">Comunidade</h2>
-          <p className="section-subtitle">Veja abaixo os próximos eventos e atividades na sua cidade.</p>
+          <p className="section-subtitle">Relatos inspiradores de pessoas que transformaram seus hábitos digitais.</p>
           
           <div className="events-card">
-            <div className="event-item">
+            {/* Card 1 - Ana Silva */}
+            <div className="event-item expandable">
               <div className="event-header">
                 <div className="event-user">
                   <div className="user-avatar"></div>
-                  <span className="user-name">Nome da pessoa</span>
+                  <span className="user-name">Ana Silva</span>
+                  <span className="user-title">→</span>
+                  <h3 className="user-title">Redescobrindo o Quintal</h3>
                 </div>
                 <span className="event-date">09/09/2025</span>
               </div>
+              <div className="event-details">
+                <p>Antes eu passava o dia inteiro no celular, pulando de vídeo em vídeo. Um dia, minha avó me chamou pra plantar flores com ela. Achei chato no começo, mas agora é o melhor momento do meu dia. Eu aprendi a cuidar, esperar e até me sujar de terra. É muito melhor do que só deslizar o dedo na tela.</p>
+              </div>
             </div>
             
-            <div className="event-item">
-              {/* Conteúdo do evento */}
+            {/* Card 2 - Pedro Costa */}
+            <div className="event-item expandable">
+              <div className="event-header">
+                <div className="event-user">
+                  <div className="user-avatar"></div>
+                  <span className="user-name">Pedro Costa</span>
+                  <span className="user-title">→</span>
+                  <h3 className="user-title">O Som do Silêncio</h3>
+                </div>
+                <span className="event-date">15/09/2025</span>
+              </div>
+              <div className="event-details">
+                <p>Eu vivia com fone de ouvido e jogando online. Quando minha internet caiu por uns dias, comecei a tocar o violão do meu irmão. Hoje eu componho minhas músicas e me apresento na escola. Descobri que o silêncio também pode ser incrível quando a gente aprende a escutar a si mesmo.</p>
+              </div>
             </div>
             
-            <div className="event-item">
-              {/* Conteúdo do evento */}
+            {/* Card 3 - Marcela Oliveira */}
+            <div className="event-item expandable">
+              <div className="event-header">
+                <div className="event-user">
+                  <div className="user-avatar"></div>
+                  <span className="user-name">Marcela Oliveira</span>
+                  <span className="user-title">→</span>
+                  <h3 className="user-title">Mais Amigos, Menos Wi-Fi</h3>
+                </div>
+                <span className="event-date">22/09/2025</span>
+              </div>
+              <div className="event-details">
+                <p>Meu recorde era de 12 horas por dia no celular. Só percebi o quanto isso me deixava triste quando comecei a sair com meus vizinhos pra brincar no parque. Agora, minha tela favorita é ver os sorrisos dos meus amigos de verdade. Nunca pensei que jogar bola fosse mais divertido que ficar só assistindo os outros.</p>
+              </div>
             </div>
             
-            <div className="event-item">
-              {/* Conteúdo do evento */}
+            {/* Card 4 - Lucas Santos */}
+            <div className="event-item expandable">
+              <div className="event-header">
+                <div className="event-user">
+                  <div className="user-avatar"></div>
+                  <span className="user-name">Lucas Santos</span>
+                  <span className="user-title">→</span>
+                  <h3 className="user-title">Desconectar Pra Conectar</h3>
+                </div>
+                <span className="event-date">30/09/2025</span>
+              </div>
+              <div className="event-details">
+                <p>Sempre que eu tava nervoso ou triste, corria pro videogame. Mas isso só escondia o problema. Um dia decidi tentar basquete com a galera da rua. Errava tudo, mas eles riam comigo, não de mim. Aprendi que me conectar com pessoas reais me faz sentir mais forte e mais feliz.</p>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Mini formulário da Comunidade */}
+      <section className="form-mini">
+        <div className="form">
+          <h2 className="heading-mini">PARTICIPE!</h2>
+          <h3 className="heading-mini">Compartilhe seu relato</h3>
+          <input className="input-mini" type="text" placeholder="Título do Relato"/>
+          <textarea className="input-mini" placeholder="Escreva seu relato aqui..." rows={5} style={{ resize: 'none' }}></textarea>
+          <button className="btn-mini" type="submit">Enviar</button>
+        </div>
+      </section>
+
       </section>
 
       {/* Seção Como Funciona */}
