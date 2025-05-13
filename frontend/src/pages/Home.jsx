@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useLocation } from "react-router-dom";
 import './Home.css';
 import imagem1 from '../assets/CriançasCorrendo.jpeg';
 import imagem2 from '../assets/MulherCorrendo.jpeg';
@@ -8,6 +9,18 @@ const Home = () => {
   const [mensagem, setMensagem] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef(null);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.scrollTo) {
+      const section = document.getElementById(location.state.scrollTo);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [location]);
+
   const images = [
     imagem1,
     imagem2,

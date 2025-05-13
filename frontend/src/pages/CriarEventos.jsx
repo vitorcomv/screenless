@@ -6,7 +6,6 @@ import imagemcard from '../assets/imagemcard.png';
 export default function CriarEvento() {
   const [form, setForm] = useState({
     titulo: "",
-    organizador: "",
     endereco: "",
     data: "",
     hora: "",
@@ -27,6 +26,12 @@ export default function CriarEvento() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Você precisa estar logado para criar um evento");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("titulo", form.titulo);
     formData.append("organizador", form.organizador);
@@ -42,6 +47,9 @@ export default function CriarEvento() {
       const response = await fetch("http://localhost:5000/api/criar_evento", {
         method: "POST",
         body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       const data = await response.json();
@@ -89,17 +97,6 @@ export default function CriarEvento() {
                 name="titulo"
                 placeholder="Digite o título do evento"
                 value={form.titulo}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-group-identico">
-              <label htmlFor="organizador">Nome do organizador</label>
-              <input
-                type="text"
-                id="organizador"
-                name="organizador"
-                placeholder="Nome do organizador"
-                value={form.organizador}
                 onChange={handleChange}
               />
             </div>

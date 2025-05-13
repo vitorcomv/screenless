@@ -1,3 +1,5 @@
+import jwt
+import datetime
 import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -5,6 +7,28 @@ import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask import Flask, request, jsonify, send_from_directory
+from functools import wraps
+
+SECRET_KEY = 'screenlesskey'
+
+def token_obrigatorio(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        token = None
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].replace("Bearer ", "")
+        if not token:
+            return jsonify({'erro': 'Token não fornecido'}), 401
+        try:
+            dados = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            request.usuario_id = dados['id']
+            request.usuario_nome = dados['usuario']
+        except jwt.ExpiredSignatureError:
+            return jsonify({'erro': 'Token expirado'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'erro': 'Token inválido'}), 401
+        return f(*args, **kwargs)
+    return decorator
 
 app = Flask(__name__)
 CORS(app)
@@ -89,15 +113,21 @@ def login_usuario():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        sql = "SELECT * FROM USUARIO WHERE usuario = %s"
+        sql = "SELECT Id_USUARIO AS id, nome, usuario, senha FROM USUARIO WHERE usuario = %s"
         cursor.execute(sql, (data['usuario'],))
         user = cursor.fetchone()
 
         if user and check_password_hash(user["senha"], data["senha"]):
+            token = jwt.encode({
+                'id': user["id"],  # certifique-se de que esse é o campo certo
+                'usuario': user["usuario"],
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+            }, SECRET_KEY, algorithm="HS256")
             return jsonify({
                 "mensagem": "Login bem-sucedido",
                 "usuario": user["usuario"],
-                "nome": user["nome"]
+                "nome": user["nome"],
+                "token": token
             }), 200
         else:
             return jsonify({"erro": "Usuário ou senha inválidos"}), 401
@@ -106,11 +136,14 @@ def login_usuario():
         return jsonify({"erro": str(e)}), 500
 
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 # Rota para criar evento
 @app.route("/api/criar_evento", methods=["POST"])
+@token_obrigatorio
 def criar_evento():
     conn = None
     cursor = None
@@ -119,14 +152,15 @@ def criar_evento():
         cursor = conn.cursor()
 
         titulo = request.form['titulo']
-        organizador = request.form['organizador']
+        organizador = request.usuario_nome  # Substitui o input do frontend
         endereco = request.form['endereco']
         data = request.form['data']
         hora = request.form['hora']
         descricao = request.form['descricao']
         foto = request.files.get('foto')
         nome_arquivo = None
-        nome_seguro = None 
+        nome_seguro = None
+        id_usuario = request.usuario_id     # Para preencher a FK
 
         if foto and allowed_file(foto.filename):
             nome_seguro = secure_filename(foto.filename)
@@ -136,10 +170,10 @@ def criar_evento():
         data_hora_evento = f"{data} {hora}:00"
 
         sql = """
-        INSERT INTO EVENTO (titulo, organizador, endereco, data_hora, descricao, foto )
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO EVENTO (titulo, organizador, endereco, data_hora, descricao, foto, ID_USUARIO_CRIADOR)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
-        values = (titulo, organizador, endereco, data_hora_evento, descricao, nome_seguro)
+        values = (titulo, organizador, endereco, data_hora_evento, descricao, nome_seguro, id_usuario)
         cursor.execute(sql, values)
         conn.commit()
         return jsonify({"mensagem": "Evento criado com sucesso!"}), 201
@@ -179,6 +213,7 @@ def obter_eventos():
 
 # Rota para criar desafio
 @app.route("/api/criar_desafio", methods=["POST"])
+@token_obrigatorio
 def criar_desafio():
     conn = None
     cursor = None
@@ -187,7 +222,7 @@ def criar_desafio():
         cursor = conn.cursor()
 
         # Obter os dados do formulário
-        nome_usuario = request.form['nome_usuario']
+        nome_usuario = request.usuario_nome
         titulo = request.form['titulo']
         descricao = request.form['descricao']
         xp = int(request.form['xp'])
@@ -201,15 +236,14 @@ def criar_desafio():
             nome_arquivo = os.path.join(app.config['UPLOAD_FOLDER'], nome_seguro)
             foto.save(nome_arquivo)
 
-        # Atribuindo um valor fictício ao ID_USUARIO para o teste
-        id_usuario_falso = 1  # Usando um ID de teste para contornar a validação
+        id_usuario = request.usuario_id
 
         # Inserir o desafio na tabela DESAFIOS
         sql = """
         INSERT INTO DESAFIOS (ID_USUARIO, nome_usuario, Titulo, Descricao, XP, foto)
         VALUES (%s, %s, %s, %s, %s, %s)
         """
-        values = (id_usuario_falso, nome_usuario, titulo, descricao, xp, nome_seguro)
+        values = (id_usuario, nome_usuario, titulo, descricao, xp, nome_seguro)
         cursor.execute(sql, values)
         conn.commit()
 

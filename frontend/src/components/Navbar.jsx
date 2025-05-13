@@ -8,12 +8,16 @@ import { Link, useNavigate } from "react-router-dom";
 export default function Navbar() {
   const { usuarioLogado, logout } = useContext(AuthContext);
 
-  const scrollToSection = (id) => {
+  const handleScrollToSection = (id) => {
+  if (window.location.pathname !== "/") {
+    navigate("/", { state: { scrollTo: id } });
+  } else {
     const section = document.getElementById(id);
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
     }
-  };
+  }
+};
 
   const navigate = useNavigate();
 
@@ -29,7 +33,7 @@ export default function Navbar() {
           className="btn"
           onClick={(e) => {
             e.preventDefault();
-            scrollToSection("comunidade");
+            handleScrollToSection("comunidade");
           }}
         >
           Comunidade

@@ -4,7 +4,6 @@ import "./CriarDesafio.css";
 
 export default function CriarDesafio() {
   const [form, setForm] = useState({
-    nome_usuario: "",
     titulo: "",
     descricao: "",
     xp: "",
@@ -37,6 +36,12 @@ export default function CriarDesafio() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Você precisa estar logado para criar um desafio.");
+      return;
+    }
   
     const formData = new FormData();
     formData.append("nome_usuario", form.nome_usuario);
@@ -51,6 +56,9 @@ export default function CriarDesafio() {
       const response = await fetch("http://localhost:5000/api/criar_desafio", {
         method: "POST",
         body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
   
       const data = await response.json();
@@ -72,16 +80,6 @@ export default function CriarDesafio() {
       <form className="form" onSubmit={handleSubmit}>
         <h2 className="heading-mini">SUA VEZ!</h2>
         <h3 className="heading-mini">Crie um novo desafio</h3>
-
-        <input
-          className="input-mini"
-          type="text"
-          name="nome_usuario"
-          placeholder="Seu nome de usuário"
-          value={form.nome_usuario}
-          onChange={handleChange}
-          required
-        />
 
         <input
           className="input-mini"
