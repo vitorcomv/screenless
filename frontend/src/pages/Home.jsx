@@ -29,7 +29,7 @@ const Home = () => {
   const intervalTime = 5000; // Tempo em milissegundos para cada imagem (5 segundos)
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/mensagem')
+    fetch('http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/mensagem')
       .then((res) => res.json())
       .then((data) => setMensagem(data.mensagem))
       .catch((err) => console.error('Erro ao buscar mensagem da API:', err));

@@ -53,7 +53,7 @@ export default function CriarDesafio() {
     }
   
     try {
-      const response = await fetch("http://localhost:5000/api/criar_desafio", {
+      const response = await fetch("http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/criar_desafio", {
         method: "POST",
         body: formData,
         headers: {

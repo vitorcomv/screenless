@@ -44,7 +44,7 @@ export default function CriarEvento() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/criar_evento", {
+      const response = await fetch("http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/criar_evento", {
         method: "POST",
         body: formData,
         headers: {

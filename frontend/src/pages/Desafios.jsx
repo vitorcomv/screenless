@@ -11,7 +11,7 @@ export default function ListaDesafios() {
   useEffect(() => {
     const fetchDesafios = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/desafios");
+        const response = await fetch("http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/desafios");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -45,7 +45,7 @@ export default function ListaDesafios() {
             <div className="desafio-card" key={desafio.ID_DESAFIO}>
               {desafio.foto && (
                 <img
-                  src={`http://localhost:5000/uploads/${desafio.foto}`}
+                  src={`http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/uploads/${desafio.foto}`}
                   alt={desafio.Titulo}
                   onError={(e) => {
                     e.target.onerror = null;

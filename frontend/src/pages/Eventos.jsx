@@ -11,7 +11,7 @@ export default function ListaEventos() {
   useEffect(() => {
     const fetchEventos = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/eventos");
+        const response = await fetch("http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/eventos");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -46,7 +46,7 @@ export default function ListaEventos() {
           <div className="evento-card" key={evento.ID_EVENTO}>
             {evento.foto && (
               <img
-                src={`http://localhost:5000/uploads/${evento.foto}`}
+                src={`http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/uploads/${evento.foto}`}
                 alt={evento.titulo}
                 onError={(e) => {
                   e.target.onerror = null;

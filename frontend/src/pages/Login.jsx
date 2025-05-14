@@ -24,7 +24,7 @@ export default function Login() {
     e.preventDefault();
     setErroLogin(""); // limpa erro anterior
   
-    const response = await fetch("http://localhost:5000/api/login", {
+    const response = await fetch("http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),

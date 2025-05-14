@@ -6,7 +6,6 @@ from flask_cors import CORS
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from flask import Flask, request, jsonify, send_from_directory
 from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
@@ -37,7 +36,10 @@ def token_obrigatorio(f):
     return decorator
 
 app = Flask(__name__)
-CORS(app)
+CORS(app,
+     origins=["http://screenless-frontend.s3-website-us-east-1.amazonaws.com"],
+     methods=["GET", "POST", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization"])
 
 # Configuração do banco de dados usando variáveis de ambiente
 db_config = {
