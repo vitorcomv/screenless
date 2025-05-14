@@ -23,6 +23,8 @@ def token_obrigatorio(f):
             dados = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
             request.usuario_id = dados['id']
             request.usuario_nome = dados['usuario']
+            request.nome = dados['nome']
+            request.sobrenome = dados['sobrenome']
         except jwt.ExpiredSignatureError:
             return jsonify({'erro': 'Token expirado'}), 401
         except jwt.InvalidTokenError:
@@ -113,7 +115,7 @@ def login_usuario():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        sql = "SELECT Id_USUARIO AS id, nome, usuario, senha FROM USUARIO WHERE usuario = %s"
+        sql = "SELECT Id_USUARIO AS id, nome, sobrenome, usuario, senha FROM USUARIO WHERE usuario = %s"
         cursor.execute(sql, (data['usuario'],))
         user = cursor.fetchone()
 
@@ -121,6 +123,8 @@ def login_usuario():
             token = jwt.encode({
                 'id': user["id"],  # certifique-se de que esse é o campo certo
                 'usuario': user["usuario"],
+                'nome': user["nome"],
+                'sobrenome': user["sobrenome"],
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
             }, SECRET_KEY, algorithm="HS256")
             return jsonify({
@@ -152,7 +156,7 @@ def criar_evento():
         cursor = conn.cursor()
 
         titulo = request.form['titulo']
-        organizador = request.usuario_nome  # Substitui o input do frontend
+        organizador = f"{request.nome} {request.sobrenome}"  # Substitui o input do frontend
         endereco = request.form['endereco']
         data = request.form['data']
         hora = request.form['hora']
