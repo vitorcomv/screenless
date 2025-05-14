@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CriarEventos.css";
 import imagemcard from '../assets/imagemcard.png';
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 
 export default function CriarEvento() {
   const [form, setForm] = useState({
@@ -14,6 +17,7 @@ export default function CriarEvento() {
   });
 
   const navigate = useNavigate();
+  const { token } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,7 +30,6 @@ export default function CriarEvento() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
     if (!token) {
       alert("Você precisa estar logado para criar um evento");
       return;

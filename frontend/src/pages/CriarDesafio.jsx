@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CriarDesafio.css";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 
 export default function CriarDesafio() {
   const [form, setForm] = useState({
@@ -11,6 +14,8 @@ export default function CriarDesafio() {
   });
 
   const navigate = useNavigate();
+
+  const { token, usuarioLogado } = useContext(AuthContext);
 
   const [xpErro, setXpErro] = useState("");
 
@@ -44,7 +49,7 @@ export default function CriarDesafio() {
     }
   
     const formData = new FormData();
-    formData.append("nome_usuario", form.nome_usuario);
+    formData.append("nome_usuario", usuarioLogado);
     formData.append("titulo", form.titulo);
     formData.append("descricao", form.descricao);
     formData.append("xp", form.xp);

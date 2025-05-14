@@ -32,8 +32,7 @@ export default function Login() {
   
     const data = await response.json();
     if (response.ok) {
-      login(data.usuario);
-        localStorage.setItem("token", data.token); // armazena token para uso futuro
+      login(data.token, data.usuario);
       navigate("/"); // Redireciona ao fazer login
     } else {
       setErroLogin(data.erro); // Mostra erro na tela

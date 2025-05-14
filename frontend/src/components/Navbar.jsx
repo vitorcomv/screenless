@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const { usuarioLogado, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleScrollToSection = (id) => {
   if (window.location.pathname !== "/") {
@@ -19,7 +20,10 @@ export default function Navbar() {
   }
 };
 
-  const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();           // Limpa token e contexto
+    navigate("/");      // Redireciona para a home
+  };
 
   return (
     <nav className="navbar">
@@ -60,7 +64,7 @@ export default function Navbar() {
       {usuarioLogado ? (
         <>
           <span>Olá, {usuarioLogado}</span>
-          <button onClick={logout}>Sair</button>
+          <button onClick={handleLogout}>Sair</button>
         </>
       ) : (
           <div className="nav-right">
