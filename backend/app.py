@@ -8,9 +8,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask import Flask, request, jsonify, send_from_directory
 from functools import wraps
+from dotenv import load_dotenv
+load_dotenv()
 
+# Definindo a chave secreta para o JWT
 SECRET_KEY = 'screenlesskey'
 
+# Decorador para verificar se o token JWT é válido
 def token_obrigatorio(f):
     @wraps(f)
     def decorator(*args, **kwargs):
@@ -35,13 +39,18 @@ def token_obrigatorio(f):
 app = Flask(__name__)
 CORS(app)
 
+# Configuração do banco de dados usando variáveis de ambiente
 db_config = {
-    'host': 'localhost',
-    'user': 'screenless_user',
-    'password': 'screenless',
-    'database': 'screenless'
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASS'),
+    'database': os.getenv('DB_NAME'),
+    'port': 3306
 }
 
+print("Conectando ao banco:", db_config['host'])
+
+# Configuração do diretório de upload
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -121,7 +130,7 @@ def login_usuario():
 
         if user and check_password_hash(user["senha"], data["senha"]):
             token = jwt.encode({
-                'id': user["id"],  # certifique-se de que esse é o campo certo
+                'id': user["id"],
                 'usuario': user["usuario"],
                 'nome': user["nome"],
                 'sobrenome': user["sobrenome"],
@@ -289,9 +298,13 @@ def obter_desafios():
             cursor.close()
         if conn and conn.is_connected():
             conn.close()
+            
+@app.route("/")
+def index():
+    return jsonify({"mensagem": "Backend da API Screenless ativo!"})
 
 # CORREÇÃO PARA ELASTIC BEANSTALK
 application = app
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)), debug=False)
