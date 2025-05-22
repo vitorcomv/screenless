@@ -36,18 +36,16 @@ def token_obrigatorio(f):
     return decorator
 
 app = Flask(__name__)
-CORS(app,
-     origins=["http://screenless-frontend.s3-website-us-east-1.amazonaws.com"],
-     methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization"])
+CORS(app)
+
 
 # Configuração do banco de dados usando variáveis de ambiente
 db_config = {
-    'host': os.getenv('DB_HOST'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASS'),
-    'database': os.getenv('DB_NAME'),
-    'port': 40640
+    "host": os.getenv("DB_HOST"),
+    "port": int(os.getenv("DB_PORT")),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASS"),
+    "database": os.getenv("DB_NAME")
 }
 
 print("Conectando ao banco:", db_config['host'])
