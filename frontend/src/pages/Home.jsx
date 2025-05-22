@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import './Home.css';
 import imagem1 from '../assets/CriançasCorrendo.jpeg';
 import imagem2 from '../assets/MulherCorrendo.jpeg';
