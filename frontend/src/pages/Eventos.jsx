@@ -46,7 +46,7 @@ export default function ListaEventos() {
           <div className="evento-card" key={evento.ID_EVENTO}>
             {evento.foto && (
               <img
-                src={`http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/uploads/${evento.foto}`}
+                src={`/uploads/${evento.foto}`}
                 alt={evento.titulo}
                 onError={(e) => {
                   e.target.onerror = null;

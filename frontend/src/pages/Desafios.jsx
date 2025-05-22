@@ -45,7 +45,7 @@ export default function ListaDesafios() {
             <div className="desafio-card" key={desafio.ID_DESAFIO}>
               {desafio.foto && (
                 <img
-                  src={`http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/uploads/${desafio.foto}`}
+                  src={`/uploads/${desafio.foto}`}
                   alt={desafio.Titulo}
                   onError={(e) => {
                     e.target.onerror = null;
