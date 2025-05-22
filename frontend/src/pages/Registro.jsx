@@ -73,7 +73,7 @@ export default function Registro() {
     if (!validarFormulario()) return;
 
     try {
-      const response = await fetch("http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/registro", {
+      const response = await fetch("https://screenless-8k2p.onrender.com/api/registro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

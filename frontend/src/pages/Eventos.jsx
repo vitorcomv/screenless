@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "./Eventos.css"; // Crie um arquivo CSS para esta página
-import proximaImagem from '../assets/imagemfundo.png'; // Importe sua imagem
+import "./Eventos.css";
+import proximaImagem from '../assets/ilustracaocrianças.jpg';
 import { Link } from "react-router-dom";
 
 export default function ListaEventos() {
@@ -11,7 +11,7 @@ export default function ListaEventos() {
   useEffect(() => {
     const fetchEventos = async () => {
       try {
-        const response = await fetch("http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/eventos");
+        const response = await fetch("https://screenless-8k2p.onrender.com/api/eventos");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -59,7 +59,7 @@ export default function ListaEventos() {
               <p className="organizador">{evento.organizador}</p>
               <p className="endereco">{evento.endereco}</p>
               <p className="data-hora">{evento.data_hora}</p>
-              <p className="xp">xp: 80</p>
+              <p className="xp">XP: 80</p>
             </div>
           </div>
         ))}

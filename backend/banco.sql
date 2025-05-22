@@ -1,8 +1,8 @@
-CREATE DATABASE IF NOT EXISTS `screenless-db`;
-USE `screenless-db`;
+CREATE DATABASE IF NOT EXISTS `railway`;
+USE `railway`;
 
-CREATE USER IF NOT EXISTS 'admin'@'%' IDENTIFIED BY 'screenless';
-GRANT ALL PRIVILEGES ON `screenless-db`.* TO 'admin'@'%';
+CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY 'railway';
+GRANT ALL PRIVILEGES ON `railway`.* TO 'root'@'%';
 FLUSH PRIVILEGES;
 
 CREATE TABLE IF NOT EXISTS USUARIO (

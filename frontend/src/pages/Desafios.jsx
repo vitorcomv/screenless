@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Desafios.css";
-import exemploImg from "../assets/imagemcard.png";
+import exemploImg from "../assets/imagemfundo.jpg";
 import { Link } from "react-router-dom";
 
 export default function ListaDesafios() {
@@ -11,7 +11,7 @@ export default function ListaDesafios() {
   useEffect(() => {
     const fetchDesafios = async () => {
       try {
-        const response = await fetch("http://screenless-env.eba-cnrmxhn5.us-east-1.elasticbeanstalk.com/api/desafios");
+        const response = await fetch("https://screenless-8k2p.onrender.com/api/desafios");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -55,7 +55,7 @@ export default function ListaDesafios() {
               )}
               <div className="desafio-info">
                 <h3>{desafio.Titulo}</h3>
-                <p className="organizador">Organizado por: {desafio.nome_usuario}</p>
+                <p className="organizador">{desafio.nome_usuario}</p>
                 <p className="descricao">{desafio.Descricao}</p>
                 <p className="xp">XP: {desafio.XP}</p>
               </div>
