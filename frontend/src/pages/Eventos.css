@@ -114,3 +114,17 @@
   .criar-seu-evento-button:hover {
     background-color: #00796b;
   }
+
+  .inscrever-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.inscrever-button:hover {
+  background-color: #45a049;
+}

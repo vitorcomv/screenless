@@ -1,0 +1,58 @@
+.editar-evento-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.editar-evento-modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  position: relative;
+}
+
+.editar-evento-modal h2 {
+  margin-top: 0;
+  color: #00796b;
+}
+
+.editar-evento-modal input,
+.editar-evento-modal textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.salvar-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.salvar-btn:hover {
+  background-color: #45a049;
+}
+
+.fechar-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}

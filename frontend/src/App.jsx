@@ -7,6 +7,7 @@ import Eventos from './pages/Eventos';
 import CriarEventos from './pages/CriarEventos';
 import Desafios from './pages/Desafios';
 import CriarDesafio from './pages/CriarDesafio';
+import MeusEventos from "./pages/MeusEventos";
 
 function AppWrapper() {
   const location = useLocation();
@@ -23,6 +24,7 @@ function AppWrapper() {
         <Route path="/criar-eventos" element={<CriarEventos />} />
         <Route path="/desafios" element={<Desafios />} />
         <Route path="/criar-desafio" element={<CriarDesafio />} />
+        <Route path="/meus-eventos" element={<MeusEventos />} />
       </Routes>
     </>
   );
