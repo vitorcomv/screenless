@@ -130,6 +130,32 @@ export default function MeusEventos() {
     }
   };
 
+  const excluirEvento = async (eventoId) => {
+    const confirmar = window.confirm("Tem certeza que deseja excluir este evento?");
+    if (!confirmar) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/excluir_evento/${eventoId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Evento excluído com sucesso.");
+        setEventosCriados(eventosCriados.filter(e => e.ID_EVENTO !== eventoId));
+      } else {
+        alert(data.erro || "Erro ao excluir evento.");
+      }
+    } catch (err) {
+      console.error("Erro ao excluir evento:", err);
+      alert("Erro na requisição.");
+    }
+  };
+
   const renderCard = (evento, isCriado = false) => (
     <div className="meus-evento-card" key={evento.ID_EVENTO}>
       {evento.foto && (
@@ -151,9 +177,14 @@ export default function MeusEventos() {
         <p>{evento.data_hora}</p>
         {evento.descricao && <p className="descricao">{evento.descricao}</p>}
         {isCriado ? (
-          <button className="evento-btn editar" onClick={() => iniciarEdicao(evento)}>
-            Editar Evento
-          </button>
+          <>
+            <button className="evento-btn editar" onClick={() => iniciarEdicao(evento)}>
+              Editar Evento
+            </button>
+            <button className="evento-btn excluir" onClick={() => excluirEvento(evento.ID_EVENTO)}>
+              Excluir Evento
+            </button>
+          </>
         ) : (
           <button className="evento-btn cancelar" onClick={() => cancelarInscricao(evento.ID_EVENTO)}>
             Cancelar Inscrição

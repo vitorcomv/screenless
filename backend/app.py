@@ -499,6 +499,46 @@ def editar_evento(evento_id):
         if conn and conn.is_connected():
             conn.close()
 
+@app.route('/api/excluir_evento/<int:evento_id>', methods=['DELETE'])
+@token_obrigatorio
+def excluir_evento(evento_id):
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        user_id = request.usuario_id
+
+        # Primeiro, exclui registros relacionados ao evento na tabela HISTORICO_EVENTO
+        cursor.execute("""
+            DELETE FROM HISTORICO_EVENTO
+            WHERE ID_EVENTO = %s
+        """, (evento_id,))
+
+        # Depois, exclui o evento apenas se o usuário for o criador
+        cursor.execute("""
+            DELETE FROM EVENTO
+            WHERE ID_EVENTO = %s AND ID_USUARIO_CRIADOR = %s
+        """, (evento_id, user_id))
+
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"erro": "Evento não encontrado ou sem permissão"}), 404
+
+        return jsonify({"mensagem": "Evento excluído com sucesso"}), 200
+
+    except Exception as e:
+        print("Erro ao excluir evento:", e)
+        return jsonify({"erro": "Erro interno"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
 # Rota para criar um relato (modificado)
 @app.route("/api/criar_relato", methods=["POST"])
 def criar_relato():
