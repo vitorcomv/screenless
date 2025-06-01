@@ -115,3 +115,12 @@
 .evento-btn.cancelar:hover {
   background-color: #d32f2f;
 }
+
+.evento-btn.excluir {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.evento-btn.excluir:hover {
+  background-color: #d32f2f;
+}

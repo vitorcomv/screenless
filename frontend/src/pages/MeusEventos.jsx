@@ -20,7 +20,7 @@ export default function MeusEventos() {
   useEffect(() => {
     const fetchEventosCriados = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/eventos_criados", {
+        const res = await fetch("https://screenless-8k2p.onrender.com/api/eventos_criados", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -32,7 +32,7 @@ export default function MeusEventos() {
 
     const fetchEventosInscritos = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/eventos_inscritos", {
+        const res = await fetch("https://screenless-8k2p.onrender.com/api/eventos_inscritos", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -82,7 +82,7 @@ export default function MeusEventos() {
   if (formData.foto) form.append("foto", formData.foto); // só se nova foto for enviada
 
   try {
-    const res = await fetch(`http://localhost:5000/api/editar_evento/${eventoEditando}`, {
+    const res = await fetch(`https://screenless-8k2p.onrender.com/api/editar_evento/${eventoEditando}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`
@@ -111,7 +111,7 @@ export default function MeusEventos() {
 
   const cancelarInscricao = async (eventoId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/cancelar_inscricao?evento_id=${eventoId}`, {
+      const res = await fetch(`https://screenless-8k2p.onrender.com/api/cancelar_inscricao?evento_id=${eventoId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -130,12 +130,38 @@ export default function MeusEventos() {
     }
   };
 
+  const excluirEvento = async (eventoId) => {
+    const confirmar = window.confirm("Tem certeza que deseja excluir este evento?");
+    if (!confirmar) return;
+
+    try {
+      const res = await fetch(`https://screenless-8k2p.onrender.com/api/excluir_evento/${eventoId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Evento excluído com sucesso.");
+        setEventosCriados(eventosCriados.filter(e => e.ID_EVENTO !== eventoId));
+      } else {
+        alert(data.erro || "Erro ao excluir evento.");
+      }
+    } catch (err) {
+      console.error("Erro ao excluir evento:", err);
+      alert("Erro na requisição.");
+    }
+  };
+
   const renderCard = (evento, isCriado = false) => (
     <div className="meus-evento-card" key={evento.ID_EVENTO}>
       {evento.foto && (
         <img
           className="meus-evento-imagem"
-          src={`http://localhost:5000/uploads/${evento.foto}?v=${Date.now()}`}
+          src={`https://screenless-8k2p.onrender.com/uploads/${evento.foto}?v=${Date.now()}`}
           alt={evento.titulo}
           onError={(e) => {
             e.target.onerror = null;
