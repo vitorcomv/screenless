@@ -177,9 +177,14 @@ export default function MeusEventos() {
         <p>{evento.data_hora}</p>
         {evento.descricao && <p className="descricao">{evento.descricao}</p>}
         {isCriado ? (
-          <button className="evento-btn editar" onClick={() => iniciarEdicao(evento)}>
-            Editar Evento
-          </button>
+           <>
+            <button className="evento-btn editar" onClick={() => iniciarEdicao(evento)}>
+              Editar Evento
+            </button>
+            <button className="evento-btn excluir" onClick={() => excluirEvento(evento.ID_EVENTO)}>
+              Excluir Evento
+            </button>
+          </>
         ) : (
           <button className="evento-btn cancelar" onClick={() => cancelarInscricao(evento.ID_EVENTO)}>
             Cancelar Inscrição
