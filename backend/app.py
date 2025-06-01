@@ -25,7 +25,7 @@ def token_obrigatorio(f):
             request.usuario_nome = dados['usuario']
             request.nome = dados['nome']
             request.sobrenome = dados['sobrenome']
-            request.foto_url = dados.get('foto_url')
+            request.foto_url = dados.get('foto_url', None)
         except jwt.ExpiredSignatureError:
             return jsonify({'erro': 'Token expirado'}), 401
         except jwt.InvalidTokenError:
@@ -122,20 +122,26 @@ def login_usuario():
         user = cursor.fetchone()
 
         if user and check_password_hash(user["senha"], data["senha"]):
+            # Construir URL completa da foto se existir
+            foto_url = None
+            if user.get("foto_perfil"):
+                foto_url = f"http://localhost:5000/uploads/{user['foto_perfil']}"
+            
             token = jwt.encode({
-                'id': user["id"],  # certifique-se de que esse é o campo certo
+                'id': user["id"],
                 'usuario': user["usuario"],
                 'nome': user["nome"],
                 'sobrenome': user["sobrenome"],
-                'foto_perfil': user.get("foto_perfil"),
+                'foto_url': foto_url,  # Mudança aqui: usar foto_url em vez de foto_perfil
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
             }, SECRET_KEY, algorithm="HS256")
+            
             return jsonify({
                 "mensagem": "Login bem-sucedido",
                 "usuario": user["usuario"],
                 "nome": user["nome"],
                 "token": token,
-                "foto_perfil": user.get("foto_perfil", None)
+                "foto_url": foto_url  # Mudança aqui: usar foto_url
             }), 200
         else:
             return jsonify({"erro": "Usuário ou senha inválidos"}), 401
@@ -873,6 +879,12 @@ def obter_perfil():
         cpf = usuario["CPF"]
         cpf_mascarado = f"{'*'*3}.{ '*'*3 }.{cpf[6]}{cpf[7]}-{cpf[9:11]}"
         usuario["CPF"] = cpf_mascarado
+        
+        # Adicionar URL completa da foto
+        if usuario["foto_perfil"]:
+            usuario["foto_url"] = f"http://localhost:5000/uploads/{usuario['foto_perfil']}"
+        else:
+            usuario["foto_url"] = None
 
         return jsonify(usuario), 200
 
@@ -929,7 +941,7 @@ def atualizar_perfil():
 
         resposta = {"mensagem": "Perfil atualizado com sucesso"}
         if nome_foto:
-            resposta["foto_url"] = f"/uploads/{nome_foto}"  # caminho relativo para o frontend
+            resposta["foto_url"] = f"http://localhost:5000/uploads/{nome_foto}"  # URL completa
 
         return jsonify(resposta), 200
 

@@ -4,9 +4,9 @@ import React, { createContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
-  const [fotoUsuario, setFotoUsuario] = useState(null);
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [usuarioLogado, setUsuarioLogado] = useState(localStorage.getItem("usuario"));
+  const [fotoUsuario, setFotoUsuario] = useState(localStorage.getItem("fotoUsuario"));
 
   useEffect(() => {
     const tokenSalvo = localStorage.getItem("token");
@@ -52,10 +52,11 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const atualizarUsuario = (novoNomeUsuario, novaFotoUrl) => {
-    setUsuarioLogado(novoNomeUsuario);
+  const atualizarUsuario = (novoUsuario, novaFotoUrl) => {
+    setUsuarioLogado(novoUsuario);
     setFotoUsuario(novaFotoUrl);
-    localStorage.setItem("usuario", JSON.stringify({ usuario: novoNomeUsuario, foto_url: novaFotoUrl }));
+    localStorage.setItem("usuario", novoUsuario);
+    localStorage.setItem("fotoUsuario", novaFotoUrl);
   };
 
   return (

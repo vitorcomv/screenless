@@ -3,7 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import './MeuPerfil.css';
 
 const MeuPerfil = () => {
-  const { token, atualizarFoto, atualizarUsuario } = useContext(AuthContext);
+  const { token, atualizarUsuario } = useContext(AuthContext);
   const [dados, setDados] = useState({
     nome: '',
     sobrenome: '',
@@ -18,7 +18,9 @@ const MeuPerfil = () => {
   const [fotoFile, setFotoFile] = useState(null);
 
   useEffect(() => {
-    fetch('/api/perfil', {
+    if (!token) return;
+
+    fetch('http://localhost:5000/api/perfil', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -26,21 +28,22 @@ const MeuPerfil = () => {
       .then(res => res.json())
       .then(data => {
         if (data.erro) {
-            setMensagem(data.erro);
+          setMensagem(data.erro);
         } else {
-            setDados({
+          setDados({
             nome: data.nome || '',
             sobrenome: data.sobrenome || '',
             email: data.email || '',
             telefone: data.telefone || '',
             usuario: data.usuario || '',
-            cpf: data.CPF || '',  // Note que a chave vem como CPF (maiúsculo) do backend
+            cpf: data.CPF || '',
             foto_perfil: data.foto_perfil || null
-            });
-        setFotoPreview(data.foto_perfil ? `/uploads/${data.foto_perfil}` : '/placeholder.png');
+          });
+          // Usar foto_url se disponível, senão usar foto_perfil com URL construída
+          setFotoPreview(data.foto_url || (data.foto_perfil ? `http://localhost:5000/uploads/${data.foto_perfil}` : null));
         }
       });
-  }, []);
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,7 +85,12 @@ const MeuPerfil = () => {
 
       if (res.ok) {
         setMensagem("Perfil atualizado com sucesso!");
-        atualizarUsuario(dados.usuario, data.foto_url || dados.foto_perfil);
+        // Atualizar o contexto com a nova foto URL
+        atualizarUsuario(dados.usuario, data.foto_url);
+        // Atualizar o preview também
+        if (data.foto_url) {
+          setFotoPreview(data.foto_url);
+        }
       } else {
         setMensagem(data.erro || "Erro ao atualizar perfil.");
       }

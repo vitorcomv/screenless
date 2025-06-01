@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import logo2 from "../assets/logo2.png";
-import "./Login.css"; // Importe o arquivo CSS específico para Login
+import "./Login.css";
 
 export default function Login() {
   const [form, setForm] = useState({
@@ -13,7 +13,6 @@ export default function Login() {
   const [erroLogin, setErroLogin] = useState("");
 
   const navigate = useNavigate();
-
   const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
@@ -22,7 +21,7 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setErroLogin(""); // limpa erro anterior
+    setErroLogin("");
   
     const response = await fetch("http://localhost:5000/api/login", {
       method: "POST",
@@ -32,13 +31,13 @@ export default function Login() {
   
     const data = await response.json();
     if (response.ok) {
+      // Mudança aqui: usar foto_url em vez de foto_perfil
       login(data.token, data.usuario, data.foto_url);
-      navigate("/"); // Redireciona ao fazer login
+      navigate("/");
     } else {
-      setErroLogin(data.erro); // Mostra erro na tela
+      setErroLogin(data.erro);
     }
   };
-  
 
   return (
     <div className="login-container">
@@ -82,4 +81,4 @@ export default function Login() {
       </form>
     </div>
   );
-}  
+}
