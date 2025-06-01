@@ -32,7 +32,7 @@ export default function Login() {
   
     const data = await response.json();
     if (response.ok) {
-      login(data.token, data.usuario);
+      login(data.token, data.usuario, data.foto_url);
       navigate("/"); // Redireciona ao fazer login
     } else {
       setErroLogin(data.erro); // Mostra erro na tela

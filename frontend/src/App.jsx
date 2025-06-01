@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -8,6 +9,9 @@ import CriarEventos from './pages/CriarEventos';
 import Desafios from './pages/Desafios';
 import CriarDesafio from './pages/CriarDesafio';
 import MeusEventos from "./pages/MeusEventos";
+import MeusDesafios from "./pages/MeusDesafios";
+import MeuPerfil from './pages/MeuPerfil';
+
 
 function AppWrapper() {
   const location = useLocation();
@@ -25,6 +29,8 @@ function AppWrapper() {
         <Route path="/desafios" element={<Desafios />} />
         <Route path="/criar-desafio" element={<CriarDesafio />} />
         <Route path="/meus-eventos" element={<MeusEventos />} />
+        <Route path="/meus-desafios" element={<MeusDesafios />} />
+        <Route path="/meu-perfil" element={<MeuPerfil />} />
       </Routes>
     </>
   );
@@ -33,7 +39,9 @@ function AppWrapper() {
 export default function App() {
   return (
     <Router>
-      <AppWrapper />
+      <AuthProvider>
+        <AppWrapper />
+      </AuthProvider>
     </Router>
   );
 }

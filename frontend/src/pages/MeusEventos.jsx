@@ -47,15 +47,19 @@ export default function MeusEventos() {
   }, [token]);
 
   const iniciarEdicao = (evento) => {
-    setEventoEditando(evento.ID_EVENTO);
-    setFormData({
-      titulo: evento.titulo,
-      descricao: evento.descricao,
-      endereco: evento.endereco,
-      data_hora: evento.data_hora,
-      foto: null
-    });
-  };
+  const dataFormatada = new Date(evento.data_hora)
+    .toISOString()
+    .slice(0, 16); // yyyy-MM-ddTHH:mm
+
+  setEventoEditando(evento.ID_EVENTO);
+  setFormData({
+    titulo: evento.titulo,
+    descricao: evento.descricao,
+    endereco: evento.endereco,
+    data_hora: dataFormatada,
+    foto: null
+  });
+};
 
   const cancelarEdicao = () => {
     setEventoEditando(null);
@@ -161,7 +165,7 @@ export default function MeusEventos() {
       {evento.foto && (
         <img
           className="meus-evento-imagem"
-          src={`http://localhost:5000/uploads/${evento.foto}?v=${Date.now()}`}
+          src={`http://localhost:5000/uploads/${evento.foto}`}
           alt={evento.titulo}
           onError={(e) => {
             e.target.onerror = null;

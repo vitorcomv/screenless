@@ -25,6 +25,7 @@ def token_obrigatorio(f):
             request.usuario_nome = dados['usuario']
             request.nome = dados['nome']
             request.sobrenome = dados['sobrenome']
+            request.foto_url = dados.get('foto_url')
         except jwt.ExpiredSignatureError:
             return jsonify({'erro': 'Token expirado'}), 401
         except jwt.InvalidTokenError:
@@ -34,6 +35,8 @@ def token_obrigatorio(f):
 
 app = Flask(__name__)
 CORS(app)
+
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
 
 db_config = {
     'host': 'localhost',
@@ -106,7 +109,6 @@ def registrar_usuario():
         if conn:
             conn.close()
 
-
 # Rota de login
 @app.route("/api/login", methods=["POST"])
 def login_usuario():
@@ -115,7 +117,7 @@ def login_usuario():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        sql = "SELECT Id_USUARIO AS id, nome, sobrenome, usuario, senha FROM USUARIO WHERE usuario = %s"
+        sql = "SELECT Id_USUARIO AS id, nome, sobrenome, usuario, senha, foto_perfil FROM USUARIO WHERE usuario = %s"
         cursor.execute(sql, (data['usuario'],))
         user = cursor.fetchone()
 
@@ -125,13 +127,15 @@ def login_usuario():
                 'usuario': user["usuario"],
                 'nome': user["nome"],
                 'sobrenome': user["sobrenome"],
+                'foto_perfil': user.get("foto_perfil"),
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
             }, SECRET_KEY, algorithm="HS256")
             return jsonify({
                 "mensagem": "Login bem-sucedido",
                 "usuario": user["usuario"],
                 "nome": user["nome"],
-                "token": token
+                "token": token,
+                "foto_perfil": user.get("foto_perfil", None)
             }), 200
         else:
             return jsonify({"erro": "Usuário ou senha inválidos"}), 401
@@ -539,6 +543,247 @@ def excluir_evento(evento_id):
         if conn and conn.is_connected():
             conn.close()
 
+# Rota para inscrever o usuário em um desafio
+@app.route("/api/inscrever_desafio", methods=["POST"])
+@token_obrigatorio
+def inscrever_desafio():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        id_usuario = request.usuario_id 
+        desafio_id = request.form.get('desafio_id')
+
+        if not desafio_id:
+            return jsonify({"erro": "ID do desafio é obrigatório"}), 400
+
+        sql = """
+        INSERT INTO HISTORICO_DESAFIO (ID_USUARIO, ID_DESAFIO)
+        VALUES (%s, %s)
+        """
+        cursor.execute(sql, (id_usuario, desafio_id))
+        conn.commit()
+
+        return jsonify({"mensagem": "Inscrição no desafio realizada com sucesso!"}), 201
+
+    except mysql.connector.IntegrityError as e:
+        if e.errno == 1062:
+            return jsonify({"erro": "Você já está inscrito neste desafio."}), 409
+        return jsonify({"erro": "Erro de integridade ao tentar se inscrever no desafio.", "detalhes": str(e)}), 400
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+
+@app.route("/api/desafios_criados", methods=["GET"])
+@token_obrigatorio
+def desafios_criados():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True) # Retorna dicionários para fácil acesso aos nomes das colunas
+
+        id_usuario = request.usuario_id
+
+        # Adapte a query para a sua estrutura de tabela de desafios
+        # Certifique-se de selecionar as colunas Titulo, Descricao, XP, foto, ID_DESAFIO
+        sql = """
+        SELECT d.ID_DESAFIO, d.Titulo, d.Descricao, d.XP, d.foto,
+       (SELECT Nome FROM USUARIO WHERE ID_USUARIO = d.ID_USUARIO) AS nome_usuario -- MUDANÇA AQUI: d.ID_USUARIO
+        FROM DESAFIOS d
+        WHERE d.ID_USUARIO = %s -- MUDANÇA AQUI: d.ID_USUARIO
+        ORDER BY d.ID_DESAFIO DESC;
+        """
+        cursor.execute(sql, (id_usuario,))
+        desafios = cursor.fetchall()
+
+        return jsonify(desafios), 200
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
+# Rota para buscar desafios em que o usuário está inscrito
+@app.route("/api/desafios_inscritos", methods=["GET"])
+@token_obrigatorio
+def desafios_inscritos():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True) # Retorna dicionários
+
+        id_usuario = request.usuario_id
+
+        sql = """
+        SELECT d.ID_DESAFIO, d.Titulo, d.Descricao, d.XP, d.foto,
+       (SELECT Nome FROM USUARIO WHERE ID_USUARIO = d.ID_USUARIO) AS nome_usuario -- MUDANÇA AQUI: d.ID_USUARIO
+        FROM DESAFIOS d
+        JOIN HISTORICO_DESAFIO hd ON d.ID_DESAFIO = hd.ID_DESAFIO
+        WHERE hd.ID_USUARIO = %s
+        ORDER BY d.ID_DESAFIO DESC;
+        """
+        cursor.execute(sql, (id_usuario,))
+        desafios = cursor.fetchall()
+
+        return jsonify(desafios), 200
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
+# Rota para cancelar inscrição em desafio
+@app.route("/api/cancelar_inscricao_desafio", methods=["DELETE"])
+@token_obrigatorio
+def cancelar_inscricao_desafio():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        id_usuario = request.usuario_id
+        desafio_id = request.args.get('desafio_id') # Recebe via query parameter
+
+        if not desafio_id:
+            return jsonify({"erro": "ID do desafio é obrigatório"}), 400
+
+        sql = """
+        DELETE FROM HISTORICO_DESAFIO
+        WHERE ID_USUARIO = %s AND ID_DESAFIO = %s
+        """
+        cursor.execute(sql, (id_usuario, desafio_id))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"erro": "Inscrição não encontrada ou já cancelada."}), 404
+
+        return jsonify({"mensagem": "Inscrição cancelada com sucesso!"}), 200
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
+# Rota para editar um desafio (PUT)
+@app.route("/api/editar_desafio/<int:desafio_id>", methods=["PUT"])
+@token_obrigatorio
+def editar_desafio(desafio_id):
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        id_usuario = request.usuario_id
+
+        # Verifica se o usuário logado é o criador do desafio
+        cursor.execute("SELECT ID_USUARIO FROM DESAFIOS WHERE ID_DESAFIO = %s", (desafio_id,))
+        criador = cursor.fetchone()
+        if not criador or criador[0] != id_usuario:
+            return jsonify({"erro": "Você não tem permissão para editar este desafio."}), 403
+
+        titulo = request.form.get("titulo")
+        descricao = request.form.get("descricao")
+        xp = request.form.get("xp")
+        foto_file = request.files.get("foto") # Se for enviado um novo arquivo de foto
+
+        updates = []
+        params = []
+
+        if titulo:
+            updates.append("Titulo = %s")
+            params.append(titulo)
+        if descricao:
+            updates.append("Descricao = %s")
+            params.append(descricao)
+        if xp is not None: # xp pode ser 0, então verifique por None
+            updates.append("XP = %s")
+            params.append(xp)
+
+        if foto_file:
+            # Lógica para salvar a nova foto no servidor e obter o nome do arquivo
+            # Certifique-se de ter uma pasta 'uploads' e a lógica para salvar arquivos
+            filename = secure_filename(foto_file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            foto_file.save(filepath)
+            updates.append("foto = %s")
+            params.append(filename)
+
+        if not updates:
+            return jsonify({"erro": "Nenhum dado para atualizar."}), 400
+
+        sql = f"UPDATE DESAFIOS SET {', '.join(updates)} WHERE ID_DESAFIO = %s"
+        params.append(desafio_id)
+
+        cursor.execute(sql, tuple(params))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"erro": "Desafio não encontrado ou nenhum dado alterado."}), 404
+
+        return jsonify({"mensagem": "Desafio atualizado com sucesso!"}), 200
+
+    except Exception as e:
+        print(f"Erro ao editar desafio: {e}") # Adicione um log mais detalhado para depuração
+        return jsonify({"erro": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
+
+# Rota para excluir um desafio (DELETE)
+@app.route("/api/excluir_desafio/<int:desafio_id>", methods=["DELETE"])
+@token_obrigatorio
+def excluir_desafio(desafio_id):
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        id_usuario = request.usuario_id
+
+        # Primeiro, verifica se o usuário logado é o criador do desafio
+        cursor.execute("SELECT ID_USUARIO FROM DESAFIOS WHERE ID_DESAFIO = %s", (desafio_id,))
+        criador = cursor.fetchone()
+        if not criador or criador[0] != id_usuario:
+            return jsonify({"erro": "Você não tem permissão para excluir este desafio."}), 403
+
+        # Excluir entradas relacionadas em HISTORICO_DESAFIO primeiro (devido à chave estrangeira)
+        cursor.execute("DELETE FROM HISTORICO_DESAFIO WHERE ID_DESAFIO = %s", (desafio_id,))
+        conn.commit() # Commit das exclusões do histórico
+
+        # Em seguida, exclui o desafio principal
+        cursor.execute("DELETE FROM DESAFIOS WHERE ID_DESAFIO = %s", (desafio_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"erro": "Desafio não encontrado ou já excluído."}), 404
+
+        return jsonify({"mensagem": "Desafio excluído com sucesso!"}), 200
+
+    except Exception as e:
+        print(f"Erro ao excluir desafio: {e}") # Adicione um log para depuração
+        return jsonify({"erro": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
 # Rota para criar um relato (modificado)
 @app.route("/api/criar_relato", methods=["POST"])
 def criar_relato():
@@ -600,6 +845,109 @@ def obter_relatos():
 
     except Exception as e:
         return jsonify({"erro": "Erro ao obter relatos: " + str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+# Rota para Meu Perfil
+@app.route('/api/perfil', methods=['GET'])
+@token_obrigatorio
+def obter_perfil():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        usuario_id = request.usuario_id
+
+        cursor.execute("SELECT nome, sobrenome, email, telefone, usuario, CPF, foto_perfil FROM USUARIO WHERE Id_USUARIO = %s", (usuario_id,))
+        usuario = cursor.fetchone()
+
+        if not usuario:
+            return jsonify({"erro": "Usuário não encontrado"}), 404
+
+        cpf = usuario["CPF"]
+        cpf_mascarado = f"{'*'*3}.{ '*'*3 }.{cpf[6]}{cpf[7]}-{cpf[9:11]}"
+        usuario["CPF"] = cpf_mascarado
+
+        return jsonify(usuario), 200
+
+    except Exception as e:
+        print("Erro ao buscar perfil:", e)
+        return jsonify({"erro": "Erro interno"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+@app.route('/api/perfil', methods=['PUT'])
+@token_obrigatorio
+def atualizar_perfil():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        usuario_id = request.usuario_id
+
+        nome = request.form.get("nome")
+        sobrenome = request.form.get("sobrenome")
+        email = request.form.get("email")
+        telefone = request.form.get("telefone")
+        usuario_nome = request.form.get("usuario")
+        foto = request.files.get("foto_perfil")
+        nome_foto = None
+
+        if foto and allowed_file(foto.filename):
+            nome_seguro = secure_filename(foto.filename)
+            nome_foto = os.path.join(app.config['UPLOAD_FOLDER'], nome_seguro)
+            foto.save(nome_foto)
+            nome_foto = nome_seguro
+
+        if nome_foto:
+            sql = """
+                UPDATE USUARIO SET nome=%s, sobrenome=%s, email=%s, telefone=%s, usuario=%s, foto_perfil=%s
+                WHERE Id_USUARIO=%s
+            """
+            values = (nome, sobrenome, email, telefone, usuario_nome, nome_foto, usuario_id)
+        else:
+            sql = """
+                UPDATE USUARIO SET nome=%s, sobrenome=%s, email=%s, telefone=%s, usuario=%s
+                WHERE Id_USUARIO=%s
+            """
+            values = (nome, sobrenome, email, telefone, usuario_nome, usuario_id)
+
+        cursor.execute(sql, values)
+        conn.commit()
+
+        resposta = {"mensagem": "Perfil atualizado com sucesso"}
+        if nome_foto:
+            resposta["foto_url"] = f"/uploads/{nome_foto}"  # caminho relativo para o frontend
+
+        return jsonify(resposta), 200
+
+    except mysql.connector.IntegrityError as e:
+        error_message = str(e).lower()
+
+        if "for key 'usuario.email'" in error_message:
+            return jsonify({"erro": "Email já cadastrado"}), 400
+        elif "for key 'usuario.usuario'" in error_message:
+            return jsonify({"erro": "Nome de usuário já está em uso"}), 400
+        elif "for key 'usuario.telefone'" in error_message:
+            return jsonify({"erro": "Telefone já cadastrado"}), 400
+        else:
+            return jsonify({"erro": "Erro ao atualizar perfil: " + str(e)}), 400
+
+    except Exception as e:
+        print("Erro ao atualizar perfil:", e)
+        return jsonify({"erro": "Erro interno"}), 500
 
     finally:
         if cursor:

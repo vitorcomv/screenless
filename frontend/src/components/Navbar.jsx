@@ -6,7 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
-  const { usuarioLogado, logout } = useContext(AuthContext);
+  const { usuarioLogado, fotoUsuario, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [menuAberto, setMenuAberto] = useState(false);
   const menuRef = useRef(null);
@@ -80,11 +80,18 @@ export default function Navbar() {
         {usuarioLogado ? (
           <div className="user-menu" ref={menuRef}>
             <button onClick={toggleMenu} className="user-button">
-              {usuarioLogado} ▼
+              {fotoUsuario ? (
+                <img src={fotoUsuario} alt="avatar" className="avatar" />
+              ) : (
+                <span className="avatar-placeholder">{usuarioLogado?.charAt(0)}</span>
+              )}
+              <span className="user-nome">{usuarioLogado}</span> ▼
             </button>
             {menuAberto && (
               <div className="dropdown-menu">
+                <Link to="/meu-perfil" onClick={() => setMenuAberto(false)}>Meu Perfil</Link>
                 <Link to="/meus-eventos" onClick={() => setMenuAberto(false)}>Meus Eventos</Link>
+                <Link to="/meus-desafios" onClick={() => setMenuAberto(false)}>Meus Desafios</Link>
                 <button onClick={handleLogout}>Sair</button>
               </div>
             )}
