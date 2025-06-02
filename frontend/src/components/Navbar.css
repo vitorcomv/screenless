@@ -192,3 +192,23 @@
 .user-nome {
   vertical-align: middle;
 }
+
+.user-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Espaço entre nível e avatar */
+}
+
+.nivel-info {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.nivel-icon {
+  width: 48px; /* Aumentado */
+  height: 48px;
+  object-fit: contain;
+}

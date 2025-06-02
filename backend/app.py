@@ -155,6 +155,34 @@ def login_usuario():
         if conn:
             conn.close()
 
+#Rota que retorna o XP do usuário logado
+@app.route('/api/usuario_xp', methods=['GET'])
+@token_obrigatorio
+def get_usuario_xp():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        usuario_id = request.usuario_id
+
+        cursor.execute("SELECT xp_usuario FROM USUARIO WHERE id_usuario = %s", (usuario_id,))
+        xp = cursor.fetchone()
+
+        if xp:
+            return jsonify({'xp': xp[0] or 0}), 200
+        return jsonify({'erro': 'Usuário não encontrado'}), 404
+
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
 # Rota para criar evento
 @app.route("/api/criar_evento", methods=["POST"])
 @token_obrigatorio
