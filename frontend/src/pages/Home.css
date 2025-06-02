@@ -278,489 +278,598 @@ body {
 
 /* --- Seção Comunidade (NOVO LAYOUT DE RELATOS) --- */
 .community-section {
-  background-color: var(--background-dark);
-  padding: 80px 0;
-  color: var(--white-text);
+    background-color: var(--background-dark);
+    padding: 80px 0;
+    color: var(--white-text);
 }
 
 .community-section .section-title {
-  color: var(--white-text);
+    color: var(--white-text);
 }
 
 .community-section .section-subtitle {
-  color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* NOVO: Container principal para o novo card de relatos */
 .new-relato-card-container {
-  width: clamp(300px, 90%, 600px); /* Ajustado para ser mais responsivo */
-  height: fit-content;
-  background-color: var(--white-text);
-  box-shadow: 0px 187px 75px rgba(0, 0, 0, 0.01), 0px 105px 63px rgba(0, 0, 0, 0.05), 0px 47px 47px rgba(0, 0, 0, 0.09), 0px 12px 26px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
-  border-radius: 17px 17px 27px 27px;
-  margin: 0 auto 60px auto; /* Centraliza e adiciona margem inferior */
+    width: clamp(300px, 95%, 800px);
+    height: fit-content;
+    background-color: var(--white-text);
+    box-shadow: 0px 187px 75px rgba(0, 0, 0, 0.01), 0px 105px 63px rgba(0, 0, 0, 0.05), 0px 47px 47px rgba(0, 0, 0, 0.09), 0px 12px 26px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
+    border-radius: 17px 17px 27px 27px;
+    margin: 0 auto 60px auto;
 }
 
 /* NOVO: Título "Relatos" dentro do novo card */
 .comments-title {
-  width: 100%;
-  height: 50px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding-left: 20px;
-  border-bottom: 1px solid var(--comment-bg-light);
-  font-weight: 700;
-  font-size: 1.1rem; /* Ajuste o tamanho da fonte */
-  color: var(--comment-text-dark);
+    width: 100%;
+    height: 50px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    border-bottom: 1px solid var(--comment-bg-light);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--comment-text-dark);
 }
 
 .comments-title::after {
-  content: '';
-  width: 8ch;
-  height: 1px;
-  position: absolute;
-  bottom: -1px;
-  background-color: var(--comment-text-dark);
+    content: '';
+    width: 8ch;
+    height: 1px;
+    position: absolute;
+    bottom: -1px;
+    background-color: var(--comment-text-dark);
 }
 
 /* NOVO: Grid para os itens de comentário/relato */
 .new-comments-section {
     display: flex;
-    flex-direction: column; /* Para empilhar os relatos verticalmente */
-    gap: 20px; /* Espaçamento entre os relatos */
+    flex-direction: column;
+    gap: 20px;
     padding: 20px;
-    max-height: 400px; /* Altura máxima para a área de relatos */
-    overflow-y: auto; /* Adiciona scroll se houver muitos relatos */
-    /* Estilização da barra de rolagem (opcional) */
-    scrollbar-width: thin; /* Para Firefox */
-    scrollbar-color: var(--primary-color) var(--comment-bg-light); /* Para Firefox */
+    /* Removerei scroll aqui, mas a seção ainda pode ter se os cards forem muitos */
+    max-height: 500px; /* Mantém a altura máxima para o container GERAL dos relatos */
+    overflow-y: auto; /* Mantém a barra de rolagem vertical para o container GERAL */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-dark) var(--comment-bg-light);
 }
 
+/* Estilização da barra de rolagem para navegadores baseados em Webkit (Chrome, Safari, Edge) */
 .new-comments-section::-webkit-scrollbar {
     width: 8px;
 }
+
 .new-comments-section::-webkit-scrollbar-track {
     background: var(--comment-bg-light);
     border-radius: 10px;
 }
+
 .new-comments-section::-webkit-scrollbar-thumb {
     background-color: var(--primary-color);
     border-radius: 10px;
     border: 2px solid var(--comment-bg-light);
 }
 
+.new-comments-section::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-dark);
+}
 
-/* NOVO: Estilo para cada item de relato (equivalente ao .comments do original) */
+
+/* NOVO: Estilo para cada item de relato (o card individual) */
 .comment-item {
-  display: grid;
-  grid-template-columns: 35px 1fr; /* Coluna para o like e coluna para o conteúdo do relato */
-  gap: 20px;
-  background-color: var(--white-text); /* Fundo branco para cada relato */
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--comment-border);
+    display: grid;
+    grid-template-columns: 35px 1fr;
+    gap: 20px;
+    background-color: var(--white-text);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--comment-border);
+    width: 100%;
+    /* Adicionado para permitir transição de altura */
+    transition: all 0.3s ease-in-out; 
+}
+
+/* Estilo para o texto do relato - INICIALMENTE CORTADO */
+.relato-text-scroll {
+    color: #47484b;
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 5; /* NÚMERO DE LINHAS VISÍVEIS INICIALMENTE (AUMENTADO) */
+    -webkit-box-orient: vertical;
+    transition: all 0.3s ease-in-out; /* Transição para a expansão suave */
+    line-height: 1.6; /* Garante que as linhas tenham espaço */
+}
+
+/* EXPANSÃO DO TEXTO AO PASSAR O MOUSE SOBRE O CARD INTEIRO */
+.comment-item:hover .relato-text-scroll {
+    -webkit-line-clamp: unset; /* Remove o limite de linhas */
+    overflow: visible; /* Permite que o texto se expanda */
+    text-overflow: unset; /* Remove as reticências */
+    height: auto; /* Ajusta a altura automaticamente */
 }
 
 
 /* NOVO: Seção de reação (like) */
 .comment-react {
-  width: 35px;
-  height: fit-content;
-  display: grid;
-  grid-template-columns: auto;
-  margin: 0;
-  background-color: var(--comment-bg-light);
-  border-radius: 5px;
-  align-self: flex-start; /* Alinha no topo do grid item */
+    width: 35px;
+    height: fit-content;
+    display: grid;
+    grid-template-columns: auto;
+    margin: 0;
+    background-color: var(--comment-bg-light);
+    border-radius: 5px;
+    align-self: flex-start;
 }
 
 .comment-react button {
-  width: 35px;
-  height: 35px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  border: 0;
-  outline: none;
-  cursor: pointer;
+    width: 35px;
+    height: 35px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 0;
+    outline: none;
+    cursor: pointer;
 }
 
 .comment-react button:after {
-  content: '';
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  left: -2.5px;
-  top: -2.5px;
-  background-color: var(--heart-color);
-  border-radius: 50%;
-  z-index: 0;
-  transform: scale(0);
+    content: '';
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    left: -2.5px;
+    top: -2.5px;
+    background-color: var(--heart-color);
+    border-radius: 50%;
+    z-index: 0;
+    transform: scale(0);
 }
 
 .comment-react button svg {
-  position: relative;
-  z-index: 9;
+    position: relative;
+    z-index: 9;
 }
 
 .comment-react button:hover:after {
-  animation: ripple 0.6s ease-in-out forwards;
+    animation: ripple 0.6s ease-in-out forwards;
 }
 
 .comment-react button:hover svg {
-  fill: var(--heart-color);
+    fill: var(--heart-color);
 }
 
 .comment-react button:hover svg path {
-  stroke: var(--heart-color);
-  fill: var(--heart-color);
+    stroke: var(--heart-color);
+    fill: var(--heart-color);
 }
 
 .comment-react hr {
-  width: 80%;
-  height: 1px;
-  background-color: var(--comment-border);
-  margin: auto;
-  border: 0;
+    width: 80%;
+    height: 1px;
+    background-color: var(--comment-border);
+    margin: auto;
+    border: 0;
 }
 
 .comment-react span {
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: auto;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--comment-text-medium);
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--comment-text-medium);
 }
 
 /* NOVO: Container do conteúdo do comentário/relato */
 .comment-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* Espaçamento entre user-info e content */
-  padding: 0;
-  margin: 0;
+    display: flex;
+    flex-direction: column;
+    /* Ajustado para controlar melhor o espaçamento geral */
+    gap: 2px; /* Reduzindo o espaçamento geral para aproximar os elementos */
+    padding: 0;
+    margin: 0;
 }
 
 /* NOVO: Informações do usuário */
 .comment-container .user {
-  display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: 10px;
-  align-items: center;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 5px; /* Adicionado um pequeno espaçamento inferior para o bloco de usuário */
 }
 
 .comment-container .user .user-pic {
-  width: 40px;
-  height: 40px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--comment-bg-light);
-  border-radius: 50%;
-  overflow: hidden; /* Garante que a imagem se ajuste */
+    width: 40px;
+    height: 40px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--comment-bg-light);
+    border-radius: 50%;
+    overflow: hidden;
 }
 
 .comment-container .user .user-pic img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .comment-container .user .user-pic svg {
-  width: 25px; /* Ajuste o tamanho do SVG do avatar */
-  height: 25px;
+    width: 25px;
+    height: 25px;
 }
 
 .comment-container .user .user-pic:after {
-  content: '';
-  width: 9px;
-  height: 9px;
-  position: absolute;
-  right: 0px;
-  bottom: 0px;
-  border-radius: 50%;
-  background-color: var(--online-indicator);
-  border: 2px solid var(--white-text);
+    content: '';
+    width: 9px;
+    height: 9px;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    border-radius: 50%;
+    background-color: var(--online-indicator);
+    border: 2px solid var(--white-text);
 }
 
 .comment-container .user .user-info {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 3px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3px;
 }
 
 .comment-container .user .user-info .user-name {
-  font-weight: 700;
-  font-size: 1rem; /* Ajuste o tamanho da fonte */
-  color: var(--primary-dark); /* Usando a cor do tema para o nome do usuário */
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--primary-dark);
 }
 
-.comment-container .user .user-info .relato-date { /* Renomeado de 'p' para a classe existente */
-  font-weight: 600;
-  font-size: 0.85rem; /* Ajuste o tamanho da fonte */
-  color: var(--comment-text-light);
+.comment-container .user .user-info .relato-date {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--comment-text-light);
 }
 
 /* NOVO: Conteúdo do relato */
 .comment-container .comment-content {
-  font-size: 1rem; /* Ajuste o tamanho da fonte */
-  line-height: 1.6;
-  font-weight: 600;
-  color: #5f6064; /* Mantido do original para contraste */
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 600;
+    color: #5f6064;
+    /* Ajustado para não ter gap explícito aqui,
+       o gap do .comment-container pai já controla o espaçamento */
 }
 
 .comment-container .comment-content .relato-title {
-  font-size: 1.3rem; /* Título do relato dentro do conteúdo */
-  font-weight: 700;
-  color: var(--dark-text);
-  margin-bottom: 8px;
-  line-height: 1.2;
+    font-size: 1.3rem; /* Tamanho do título */
+    font-weight: 700;
+    color: var(--dark-text);
+    margin-top: -5px; /* Puxa o título mais para cima, em direção ao nome de usuário */
+    margin-bottom: 5px; /* Pequeno espaçamento entre o título e o texto do relato */
+    line-height: 1.2;
 }
+
 
 /* Oculta as classes antigas de relato que não são mais usadas */
 .relatos-grid, .relato-card {
-  display: none;
+    display: none;
 }
 
 .no-relatos-message {
-  grid-column: 1 / -1;
-  text-align: center;
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.7);
-  padding: 40px;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #1f2937;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
 /* NOVO: Formulário de texto */
 .text-box {
-  width: 100%;
-  height: fit-content;
-  background-color: var(--comment-bg-light);
-  padding: 8px;
-  border-radius: 0 0 27px 27px; /* Apenas as bordas inferiores arredondadas */
+    width: 100%;
+    height: fit-content;
+    background-color: var(--comment-bg-light);
+    padding: 8px;
+    border-radius: 0 0 27px 27px;
 }
 
 .text-box .box-container {
-  background-color: var(--white-text);
-  border-radius: 8px 8px 21px 21px;
-  padding: 8px;
+    background-color: var(--white-text);
+    border-radius: 8px 8px 21px 21px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Novo input para o título do relato */
+.relato-input-title {
+    width: 100%;
+    height: 40px;
+    border: 1px solid var(--comment-border);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 1rem;
+    outline: none;
+    caret-color: var(--send-btn-color);
+    box-sizing: border-box;
 }
 
 .text-box textarea {
-  width: 100%;
-  height: 40px;
-  resize: none;
-  border: 0;
-  border-radius: 6px;
-  padding: 12px 12px 10px 12px;
-  font-size: 1rem; /* Ajuste o tamanho da fonte */
-  outline: none;
-  caret-color: var(--send-btn-color);
+    width: 100%;
+    height: 80px;
+    resize: vertical;
+    border: 1px solid var(--comment-border);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 1rem;
+    outline: none;
+    caret-color: var(--send-btn-color);
+    box-sizing: border-box;
 }
 
-.text-box .formatting {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(30px, 1fr)) auto; /* Ajusta os botões de formatação e o botão de enviar */
-  gap: 5px; /* Espaçamento entre os botões */
-  align-items: center;
+/* Botão enviar relato */
+.pushable {
+    position: relative;
+    background: transparent;
+    padding: 0px;
+    border: none;
+    cursor: pointer;
+    outline-offset: 4px;
+    outline-color: deeppink;
+    transition: filter 250ms;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    margin-top: 10px;
+    width: fit-content;
 }
 
-.text-box .formatting button {
-  width: 30px;
-  height: 30px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  border-radius: 50%;
-  border: 0;
-  outline: none;
-  cursor: pointer;
+.shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: hsl(226, 25%, 69%);
+    border-radius: 8px;
+    filter: blur(2px);
+    will-change: transform;
+    transform: translateY(2px);
+    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
 }
 
-.text-box .formatting button:hover {
-  background-color: var(--comment-bg-light);
+.edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    background: linear-gradient(
+        to right,
+        #707277 0%,
+        #707277 8%,
+        #707277 92%,
+        #707277 100%
+    );
 }
 
-.text-box .formatting .send {
-  width: 30px;
-  height: 30px;
-  background-color: var(--send-btn-color);
-  margin: 0 0 0 auto;
+.front {
+    display: block;
+    position: relative;
+    border-radius: 8px;
+    background: #0a84ff;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    transform: translateY(-4px);
+    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+    white-space: nowrap;
+    width: fit-content;
 }
 
-.text-box .formatting .send:hover {
-  background-color: var(--send-btn-hover-color);
+.pushable:hover {
+    filter: brightness(110%);
 }
+
+.pushable:hover .front {
+    transform: translateY(-6px);
+    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+}
+
+.pushable:active .front {
+    transform: translateY(-2px);
+    transition: transform 34ms;
+}
+
+.pushable:hover .shadow {
+    transform: translateY(4px);
+    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+}
+
+.pushable:active .shadow {
+    transform: translateY(1px);
+    transition: transform 34ms;
+}
+
+.pushable:focus:not(:focus-visible) {
+    outline: none;
+}
+
 
 
 /* Animações Keyframes */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes popIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @keyframes bounceIn {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 1;
-  }
-  70% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 @keyframes float {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(20px, 10px) rotate(5deg); }
-  50% { transform: translate(0, 20px) rotate(0deg); }
-  75% { transform: translate(-20px, 10px) rotate(-5deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(20px, 10px) rotate(5deg); }
+    50% { transform: translate(0, 20px) rotate(0deg); }
+    75% { transform: translate(-20px, 10px) rotate(-5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 /* Animações da Seta */
 @keyframes bounceArrow {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
 }
 
 @keyframes scrollArrow {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(10px) rotate(45deg);
-  }
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(10px) rotate(45deg);
+    }
 }
 
 @keyframes ripple {
-  0% {
-    transform: scale(0);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
+    0% {
+        transform: scale(0);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
 }
 
 /* Media Queries para Responsividade */
 @media (min-width: 768px) {
-  .hero-title {
-    font-size: 6.5rem;
-  }
+    .hero-title {
+        font-size: 6.5rem;
+    }
 
-  .hero-subtitle {
-    font-size: 2.2rem;
-  }
+    .hero-subtitle {
+        font-size: 2.2rem;
+    }
 
-  .how-content {
-    flex-direction: row;
-    text-align: left;
-  }
+    .how-content {
+        flex-direction: row;
+        text-align: left;
+    }
 
-  .how-text {
-    text-align: left;
-  }
+    .how-text {
+        text-align: left;
+    }
 
-  .section-title {
-    text-align: left;
-    font-size: 4rem;
-  }
+    .section-title {
+        text-align: left;
+        font-size: 4rem;
+    }
 
-  .section-subtitle {
-    text-align: left;
-    margin-left: 0;
-    margin-right: 0;
-  }
+    .section-subtitle {
+        text-align: left;
+        margin-left: 0;
+        margin-right: 0;
+    }
 
-  /* Ajustes para o novo card de relato em telas maiores */
-  .new-relato-card-container {
-    max-width: 800px; /* Aumenta a largura em telas maiores */
-  }
+    /* Ajustes para o novo card de relato em telas maiores */
+    .new-relato-card-container {
+        max-width: 900px;
+    }
+
+    /* Altera a altura da textarea em telas maiores para melhor experiência */
+    .text-box textarea {
+        height: 60px;
+    }
 }
 
 @media (min-width: 1024px) {
-  .hero-section {
-    height: 80vh;
-  }
-  .hero-title {
-    font-size: 7.5rem;
-  }
-  .hero-subtitle {
-    font-size: 2.5rem;
-  }
-  .section-container {
-    padding: 60px 20px;
-  }
+    .hero-section {
+        height: 80vh;
+    }
+    .hero-title {
+        font-size: 7.5rem;
+    }
+    .hero-subtitle {
+        font-size: 2.5rem;
+    }
+    .section-container {
+        padding: 60px 20px;
+    }
 }
-
-/* Removido: as classes relato-card antigas e seus estilos */
-/* .relato-card {
-  height: 250px;
-  overflow-y: auto;
-} */
