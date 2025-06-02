@@ -372,6 +372,36 @@ def meus_eventos():
         if conn and conn.is_connected():
             conn.close()
 
+#Rota que retorna os nomes e sobrenomes dos participantes de um evento específico(talvez usaremos em um futuro)
+@app.route("/api/inscritos_evento/<int:evento_id>", methods=["GET"])
+@token_obrigatorio
+def inscritos_evento(evento_id):
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+        SELECT U.NOME, U.SOBRENOME
+        FROM HISTORICO_EVENTO H
+        JOIN USUARIO U ON H.ID_USUARIO = U.ID_USUARIO
+        WHERE H.ID_EVENTO = %s
+        """
+        cursor.execute(query, (evento_id,))
+        inscritos = cursor.fetchall()
+
+        return jsonify(inscritos), 200
+
+    except Exception as e:
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
 #Rotas para Meus Eventos
 @app.route("/api/eventos_criados", methods=["GET"])
 @token_obrigatorio
@@ -789,6 +819,56 @@ def excluir_desafio(desafio_id):
     finally:
         if cursor: cursor.close()
         if conn and conn.is_connected(): conn.close()
+
+#Rota para finalizar desafio e distribuir XP
+@app.route("/api/finalizar_desafio/<int:desafio_id>", methods=["POST"])
+@token_obrigatorio
+def finalizar_desafio(desafio_id):
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        id_usuario = request.usuario_id
+
+        # Verifica se o usuário é o criador do desafio
+        cursor.execute("SELECT ID_USUARIO, XP, Status FROM DESAFIOS WHERE ID_DESAFIO = %s", (desafio_id,))
+        desafio = cursor.fetchone()
+        if not desafio:
+            return jsonify({"erro": "Desafio não encontrado."}), 404
+
+        criador_id, xp_desafio, status = desafio
+        if criador_id != id_usuario:
+            return jsonify({"erro": "Você não é o criador deste desafio."}), 403
+
+        if status == "finalizado":
+            return jsonify({"erro": "Desafio já está finalizado."}), 400
+
+        # Atualiza status para finalizado
+        cursor.execute("UPDATE DESAFIOS SET Status = 'finalizado' WHERE ID_DESAFIO = %s", (desafio_id,))
+
+        # Busca todos os usuários inscritos
+        cursor.execute("SELECT ID_USUARIO FROM HISTORICO_DESAFIO WHERE ID_DESAFIO = %s", (desafio_id,))
+        inscritos = cursor.fetchall()
+
+        # Para cada inscrito, soma o XP do desafio
+        for (id_usuario_inscrito,) in inscritos:
+            cursor.execute("UPDATE USUARIO SET xp_usuario = IFNULL(xp_usuario, 0) + %s WHERE ID_USUARIO = %s", (xp_desafio, id_usuario_inscrito))
+
+        conn.commit()
+        return jsonify({"mensagem": f"Desafio finalizado e XP distribuído para {len(inscritos)} usuários."}), 200
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
 
 # Rota para criar um relato (modificado)
 @app.route("/api/criar_relato", methods=["POST"])

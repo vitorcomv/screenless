@@ -202,6 +202,43 @@ export default function MeusDesafios() {
             <button className="desafio-btn excluir" onClick={() => excluirDesafio(desafio.ID_DESAFIO)}>
               Excluir Desafio
             </button>
+
+            {desafio.Status !== "finalizado" ? (
+              <button
+                className="desafio-btn finalizar"
+                onClick={() => {
+                  const confirmar = window.confirm("Deseja realmente finalizar este desafio? O XP será distribuído para os inscritos.");
+                  if (!confirmar) return;
+
+                  fetch(`http://localhost:5000/api/finalizar_desafio/${desafio.ID_DESAFIO}`, {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                  })
+                    .then(async (res) => {
+                      const data = await res.json();
+                      if (res.ok) {
+                        alert(data.mensagem);
+                        // Atualiza a lista de desafios após finalizar
+                        setDesafiosCriados((prev) =>
+                          prev.map((d) =>
+                            d.ID_DESAFIO === desafio.ID_DESAFIO ? { ...d, Status: "finalizado" } : d
+                          )
+                        );
+                      } else {
+                        alert(data.erro || "Erro ao finalizar desafio.");
+                      }
+                    })
+                    .catch((err) => {
+                      console.error("Erro ao finalizar desafio:", err);
+                      alert("Erro na requisição.");
+                    });
+                }}
+              >
+                Finalizar Desafio
+              </button>
+            ) : (
+              <p className="status-finalizado">Desafio finalizado</p>
+            )}
           </>
         ) : (
           <button className="desafio-btn cancelar" onClick={() => cancelarInscricaoDesafio(desafio.ID_DESAFIO)}>
