@@ -967,6 +967,38 @@ def atualizar_perfil():
         if conn and conn.is_connected():
             conn.close()
 
+# Rota para obter APENAS os IDs dos desafios em que o usuário está inscrito
+@app.route("/api/meus_desafios_ids", methods=["GET"]) # Certifique-se que esta rota existe e está correta
+@token_obrigatorio
+def meus_desafios_ids():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True) # Retorna dicionários
+
+        id_usuario = request.usuario_id
+
+        sql = """
+        SELECT ID_DESAFIO
+        FROM HISTORICO_DESAFIO
+        WHERE ID_USUARIO = %s
+        """
+        cursor.execute(sql, (id_usuario,))
+        inscricoes = cursor.fetchall()
+
+        # Extrai apenas os IDs dos dicionários
+        desafios_inscritos_ids = [item['ID_DESAFIO'] for item in inscricoes]
+
+        return jsonify(desafios_inscritos_ids), 200
+
+    except Exception as e:
+        print(f"Erro ao buscar IDs de desafios inscritos: {e}")
+        return jsonify({"erro": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
 # CORREÇÃO PARA ELASTIC BEANSTALK
 application = app
 
