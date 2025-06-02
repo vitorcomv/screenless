@@ -1,130 +1,233 @@
 .lista-eventos-container {
-    background-color: #f0f8f7;
-    padding: 40px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-  }
-  
-  .lista-eventos-container h2 {
-    color: #26a69a;
-    margin-bottom: 30px;
-    font-size: 28px;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .eventos-grid {
-    display: flex; /* Alterar para flexbox */
-    gap: 20px;
-    width: 90%;
-    margin-bottom: 20px; /* Reduzir a margem inferior para a imagem ficar mais perto */
-    justify-content: center; /* Centralizar os cards horizontalmente */
-  }
-  
-  .evento-card {
-    background-color: #00796b;
-    border-radius: 15px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    width: 300px;
-    flex-shrink: 0;
-  }
-  
-  .evento-card img {
-    width: 100%;
-    height: auto;
-    max-height: 300px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .evento-info {
-    padding: 0;
-    flex-grow: 1;
-    text-align: left;
-  }
-  
-  .evento-info h3 {
-    color: #ffff;
-    margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 18px;
-    font-weight: bold;
-    text-align: left;
-  }
-  
-  .evento-info p {
-    margin-bottom: 5px;
-    font-size: 12px;
-    color: #ffff;
-  }
-  
-  .evento-info .organizador {
-    font-style: italic;
-  }
-  
-  .evento-info .descricao {
-    margin-top: 5px;
-    font-size: 12px;
-  }
-  
-  .proxima-imagem {
-    width: 100%;
+  background-color: #f0f8f7;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
-  }
-  
-.imagem-fundo{
-    height: 100%;
-    max-height: 800px;
+  min-height: 100vh;
+} 
+
+.lista-eventos-container h2 {
+  color: #26a69a;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
 }
 
-.xp{
-    color: white;
-    padding: 5px;
-    font-weight: bold;
-    margin-top: 10px;
-    text-align: end;
+.eventos-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 40px;
 }
 
-  .criar-seu-evento-button {
-    background-color: #00796b;
-    color: white;
-    width: 400px;
-    padding: 14px 30px;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: absolute;
+.evento-card {
+  background-color: #00796b;
+  border-radius: 15px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  width: 300px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.evento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.evento-card img {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.evento-info {
+  padding: 0;
+  flex-grow: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.evento-info h3 {
+  color: #ffffff;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.evento-info p {
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.evento-info .organizador {
+  font-style: italic;
+  font-weight: 500;
+}
+
+.evento-info .endereco {
+  color: #e0f2f1;
+  font-size: 11px;
+}
+
+.evento-info .data-hora {
+  color: #b2dfdb;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.evento-info .descricao {
+  margin-top: 8px;
+  font-size: 11px;
+  max-height: 50px;
+  overflow-y: auto;
+  word-break: break-word;
+  color: #e8f5e8;
+}
+
+.xp {
+  color: #ffffff;
+  padding: 5px 8px;
+  font-weight: bold;
+  margin-top: auto;
+  text-align: right;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.inscrever-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  margin-top: 15px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.inscrever-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.inscrever-button:disabled {
+  background-color: #81c784;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.evento-status-finalizado {
+  font-weight: bold;
+  color: #e91e63;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.proxima-imagem {
+  width: 100%;
+  position: relative;
+  margin-top: 20px;
+}
+
+.imagem-fundo {
+  width: 100%;
+  height: auto;
+  max-height: 800px;
+  object-fit: cover;
+  display: block;
+}
+
+.criar-seu-evento-button {
+  background-color: #00796b;
+  color: white;
+  width: 400px;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
-  }
-  
-  .criar-seu-evento-button:hover {
-    background-color: #00796b;
-  }
-
-  .inscrever-button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  margin-top: 10px;
-  cursor: pointer;
-  border-radius: 4px;
+  text-decoration: none;
 }
 
-.inscrever-button:hover {
-  background-color: #45a049;
+.criar-seu-evento-button:hover {
+  background-color: #00695c;
+  transform: translate(-50%, -50%) translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .lista-eventos-container {
+    padding: 20px 10px;
+  }
+  
+  .eventos-grid {
+    gap: 15px;
+  }
+  
+  .evento-card {
+    width: 90%;
+    max-width: 350px;
+  }
+  
+  .criar-seu-evento-button {
+    width: 80%;
+    max-width: 300px;
+    font-size: 16px;
+    padding: 14px 24px;
+  }
+  
+  .lista-eventos-container h2 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .evento-card {
+    width: 95%;
+    padding: 12px;
+  }
+  
+  .evento-info h3 {
+    font-size: 16px;
+  }
+  
+  .criar-seu-evento-button {
+    width: 90%;
+    font-size: 14px;
+    padding: 12px 20px;
+  }
 }

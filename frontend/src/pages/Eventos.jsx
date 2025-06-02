@@ -86,6 +86,7 @@ export default function ListaEventos() {
         <div className="eventos-grid">
           {eventos.map((evento) => {
             const jaInscrito = inscritos.includes(evento.ID_EVENTO);
+            const eventoFinalizado = evento.Status === "finalizado";
 
             return (
               <div className="evento-card" key={evento.ID_EVENTO}>
@@ -105,13 +106,17 @@ export default function ListaEventos() {
                   <p className="endereco">{evento.endereco}</p>
                   <p className="data-hora">{evento.data_hora}</p>
 
-                  <button
-                    className="inscrever-button"
-                    onClick={() => inscreverEmEvento(evento.ID_EVENTO)}
-                    disabled={jaInscrito}
-                  >
-                    {jaInscrito ? "Inscrito" : "Inscrever-se"}
-                  </button>
+                  {eventoFinalizado ? (
+                    <p className="evento-status-finalizado">Evento Finalizado!</p>
+                  ) : (
+                    <button
+                      className="inscrever-button"
+                      onClick={() => inscreverEmEvento(evento.ID_EVENTO)}
+                      disabled={jaInscrito}
+                    >
+                      {jaInscrito ? "Inscrito" : "Inscrever-se"}
+                    </button>
+                  )}
                 </div>
               </div>
             );

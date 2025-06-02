@@ -1,5 +1,4 @@
 import jwt
-import datetime
 import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -8,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask import Flask, request, jsonify, send_from_directory
 from functools import wraps
+import datetime
 
 SECRET_KEY = 'screenlesskey'
 
@@ -253,6 +253,72 @@ def obter_eventos():
         if conn and conn.is_connected():
             conn.close()
 
+#Rota para finalizar evento e distribuir XP
+@app.route("/api/finalizar_evento/<int:evento_id>", methods=["POST"])
+@token_obrigatorio
+def finalizar_evento(evento_id):
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        id_usuario = request.usuario_id
+
+        # Busca dados do evento
+        cursor.execute("SELECT ID_USUARIO_CRIADOR, Status, data_hora FROM EVENTO WHERE ID_EVENTO = %s", (evento_id,))
+        evento = cursor.fetchone()
+
+        if not evento:
+            return jsonify({"erro": "Evento não encontrado."}), 404
+
+        criador_id, status, data_hora_evento = evento
+
+        # Verifica se é o criador
+        if criador_id != id_usuario:
+            return jsonify({"erro": "Você não é o criador deste evento."}), 403
+
+        # Verifica se já foi finalizado
+        if status == "finalizado":
+            return jsonify({"erro": "Evento já foi finalizado."}), 400
+
+        # Verifica se a data atual é igual à data agendada do evento (apenas a parte da data)
+        data_evento = data_hora_evento.date()
+        data_hoje = datetime.datetime.utcnow().date()
+
+        if data_hoje < data_evento:
+            return jsonify({"erro": "O evento só pode ser finalizado na data agendada."}), 400
+
+        # Atualiza status para finalizado
+        cursor.execute("UPDATE EVENTO SET Status = 'finalizado' WHERE ID_EVENTO = %s", (evento_id,))
+
+        # Busca inscritos
+        cursor.execute("SELECT ID_USUARIO FROM HISTORICO_EVENTO WHERE ID_EVENTO = %s", (evento_id,))
+        inscritos = cursor.fetchall()
+
+        xp_evento = 100  # XP fixo
+
+        for (id_inscrito,) in inscritos:
+            cursor.execute("""
+                UPDATE USUARIO 
+                SET xp_usuario = IFNULL(xp_usuario, 0) + %s 
+                WHERE ID_USUARIO = %s
+            """, (xp_evento, id_inscrito))
+
+        conn.commit()
+        return jsonify({"mensagem": f"Evento finalizado e XP distribuído para {len(inscritos)} usuários."}), 200
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return jsonify({"erro": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
 # Rota para criar desafio
 @app.route("/api/criar_desafio", methods=["POST"])
 @token_obrigatorio
@@ -461,15 +527,19 @@ def eventos_inscritos():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
+        user_id = request.usuario_id
+
         sql = """
-        SELECT E.*
+        SELECT E.*, E.ID_USUARIO_CRIADOR = %s AS eCriador
         FROM EVENTO E
         JOIN HISTORICO_EVENTO H ON E.ID_EVENTO = H.ID_EVENTO
         WHERE H.ID_USUARIO = %s
         """
-        cursor.execute(sql, (request.usuario_id,))
+        cursor.execute(sql, (user_id, user_id))
         eventos = cursor.fetchall()
-        return jsonify(eventos)
+
+        return jsonify(eventos), 200
+
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
     finally:
