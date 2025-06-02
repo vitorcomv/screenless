@@ -1,371 +1,766 @@
-/* Reset básico */
+/* Importação de fonte jovial para crianças e adolescentes */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Chewy&display=swap');
+
+/* Variáveis CSS para fácil modificação de cores */
+:root {
+  --primary-color: #22c55e; /* Verde principal */
+  --primary-dark: #16a34a; /* Verde mais escuro para hover */
+  --secondary-color: #f97316; /* Laranja secundário (para botões/destaques) */
+  --light-gray: #e5e7eb; /* Cinza claro */
+  --dark-text: #1f2937; /* Texto escuro */
+  --white-text: #ffffff; /* Texto branco */
+  --background-light: #f0fdf4; /* Fundo mais claro para seções */
+  --background-dark: #15803d; /* Fundo mais escuro para seções */
+
+  /* Cores adicionais do novo layout de comentário */
+  --comment-bg-light: #f1f1f1;
+  --comment-text-dark: #47484b;
+  --comment-text-medium: #707277;
+  --comment-text-light: #acaeb4;
+  --comment-border: #dfe1e6;
+  --heart-color: #f5356e;
+  --send-btn-color: #0a84ff;
+  --send-btn-hover-color: #026eda;
+  --online-indicator: #0fc45a;
+}
+
+/* Reset básico e tipografia */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Arial', sans-serif;
 }
 
-/* Estilos gerais */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--dark-text);
+  background-color: var(--background-light);
+}
+
 .home-container {
   width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .section-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 40px 20px;
 }
 
+/* Títulos de Seção */
 .section-title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: white;
+  font-family: 'Chewy', cursive;
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: var(--dark-text);
+  text-align: center;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+  animation: fadeInDown 1s ease-out; /* Animação ao aparecer */
 }
 
 .section-subtitle {
-  font-size: 1.1rem;
-  margin-bottom: 30px;
-  color: white;
+  font-size: 1.3rem;
+  margin-bottom: 40px;
+  color: #4b5563;
+  text-align: center;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeInUp 1s ease-out 0.2s;
 }
 
 .section-text {
-  color: white;
-  line-height: 1.6;
-  margin-top: 5px;
-  margin-bottom: 5px; 
+  font-size: 1.1rem;
+  color: #374151;
+  margin-top: 10px;
+  margin-bottom: 25px;
 }
 
-/* Botões */
+/* Botões Globais */
 .btn {
   display: inline-block;
-  padding: 12px 24px;
-  border-radius: 6px;
+  padding: 14px 28px;
   font-weight: 600;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: all 0.3s ease;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
-  background-color: #22c55e; /* cor verde */
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--white-text);
   border: none;
-  margin-top: 170px;
+  animation: bounceIn 1s ease-out;
 }
 
 .btn-primary:hover {
-  background-color: #16a34a;
+  background-color: var(--primary-dark);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.btn-outline {
-  background-color: transparent;
-  color: white;
-  border: 2px solid white;
-}
-
-.btn-outline:hover {
-  background-color: white;
-  color: #f97316; /* cor laranja */
-}
-
-/* Seção Hero */
+/* --- Seção Hero (Banner Principal) --- */
 .hero-section {
-  height: 100vh;
+  height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  /* Remova o filter daqui */
+  overflow: hidden;
+  z-index: 1;
+  background-color: #000;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.hero-section::before {
-  content: '';
+.hero-video-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -1;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  filter: blur(2px);
+  outline: none;
+  border: none;
+}
+
+.hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: center;
-  filter: blur(5px); /* Desfoque aplicado ao pseudo-elemento */
-  z-index: 0; /* Garante que o pseudo-elemento fique atrás do conteúdo */
-  /* Aqui vamos usar o backgroundImage do hero-section */
-}
-
-.carousel-container {
-  overflow: hidden;
-  height: 100vh; /* Garante que a altura do container seja a da viewport */
-  position: relative; /* Necessário para posicionar os controles/indicadores, se houver */
-  z-index: 1; /* Garante que o carrossel fique acima do pseudo-elemento */
-}
-
-.carousel-slide {
-  position: absolute; /* Sobrepõe os slides */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover; /* Para cobrir todo o fundo com a imagem */
-  background-position: center;
-  opacity: 0; /* Inicialmente todos os slides estão invisíveis */
-  transition: opacity 0.8s ease-in-out; /* Transição suave de fade */
-  z-index: 1; /* Garante que os slides fiquem acima do pseudo-elemento */
-}
-
-.carousel-slide.active {
-  opacity: 1; /* Torna o slide ativo visível */
-  z-index: 2; /* Garante que o slide ativo fique acima dos outros */
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 0;
+  background-image: radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.8) 100%);
 }
 
 .hero-content {
   text-align: center;
-  color: white;
+  color: var(--white-text);
   padding: 20px;
   z-index: 10;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%; /* Ajuste a largura conforme necessário */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-title {
-  font-size: 3.5rem;
-  font-weight: bold;
-  margin-bottom: 16px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-family: 'Chewy', cursive;
+  font-size: 5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  line-height: 1;
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5), 6px 6px 0 rgba(0, 0, 0, 0.3);
+  animation: popIn 1s ease-out;
+}
+
+.hero-title .highlight {
+  padding: 0;
+  border-radius: 0;
+  display: inline-block;
+  margin: 5px 0;
+  box-shadow: none;
+  transform: none;
 }
 
 .hero-subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 32px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  font-size: 1.8rem;
+  margin-bottom: 60px;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  animation: fadeIn 1.5s ease-out 0.5s forwards;
+  opacity: 0;
 }
 
-/* Seção de Comunidade */
-.events-section {
-  background-color: #2dd4bf; /* cor teal */
-  padding: 64px 0;
+/* Estilos da Seta para baixo */
+.scroll-down-arrow {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  animation: bounceArrow 2s infinite;
+  z-index: 10;
 }
-  
-  .events-card {
-    background-color: #e5e7eb; /* cor cinza claro */
-    border-radius: 8px;
-    padding: 24px;
-    margin-bottom: 32px;
-  }
-  
-  /* Estilo para cards expansíveis */
-  .event-item {
-    background-color: white;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 16px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    overflow: hidden;
-  }
-  
-  .event-item.expandable {
-    max-height: 80px; /* Altura inicial do card (apenas header visível) */
-    transition: max-height 0.4s ease-out;
-  }
-  
-  .event-item.expandable:hover {
-    max-height: 300px; /* Altura expandida para mostrar o conteúdo */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .event-header {
+
+.scroll-down-arrow span {
+  display: block;
+  width: 25px;
+  height: 25px;
+  border-bottom: 5px solid var(--white-text);
+  border-right: 5px solid var(--white-text);
+  transform: rotate(45deg);
+  margin: -10px;
+  animation: scrollArrow 2s infinite;
+}
+
+.scroll-down-arrow span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.scroll-down-arrow span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* --- Seção Como Funciona --- */
+.how-section {
+  background-color: var(--background-light);
+  padding: 80px 0;
+}
+
+.how-content {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  align-items: center;
+}
+
+.how-text {
+  flex: 1;
+  text-align: center;
+}
+
+.how-text .section-title {
+  color: var(--primary-color);
+}
+
+.how-text .section-text {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.how-btn {
+  margin-top: 30px;
+}
+
+.how-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--white-text);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  transform: rotateZ(-5deg);
+  transition: transform 0.3s ease-in-out;
+}
+
+.how-image:hover {
+  transform: rotateZ(0deg) scale(1.02);
+}
+
+.how-image-img {
+  max-width: 90%;
+  height: auto;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Seção Comunidade (NOVO LAYOUT DE RELATOS) --- */
+.community-section {
+  background-color: var(--background-dark);
+  padding: 80px 0;
+  color: var(--white-text);
+}
+
+.community-section .section-title {
+  color: var(--white-text);
+}
+
+.community-section .section-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* NOVO: Container principal para o novo card de relatos */
+.new-relato-card-container {
+  width: clamp(300px, 90%, 600px); /* Ajustado para ser mais responsivo */
+  height: fit-content;
+  background-color: var(--white-text);
+  box-shadow: 0px 187px 75px rgba(0, 0, 0, 0.01), 0px 105px 63px rgba(0, 0, 0, 0.05), 0px 47px 47px rgba(0, 0, 0, 0.09), 0px 12px 26px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
+  border-radius: 17px 17px 27px 27px;
+  margin: 0 auto 60px auto; /* Centraliza e adiciona margem inferior */
+}
+
+/* NOVO: Título "Relatos" dentro do novo card */
+.comments-title {
+  width: 100%;
+  height: 50px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  border-bottom: 1px solid var(--comment-bg-light);
+  font-weight: 700;
+  font-size: 1.1rem; /* Ajuste o tamanho da fonte */
+  color: var(--comment-text-dark);
+}
+
+.comments-title::after {
+  content: '';
+  width: 8ch;
+  height: 1px;
+  position: absolute;
+  bottom: -1px;
+  background-color: var(--comment-text-dark);
+}
+
+/* NOVO: Grid para os itens de comentário/relato */
+.new-comments-section {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  
-  .event-user {
-    display: flex;
-    align-items: center;
-  }
-  
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: black;
-    margin-right: 16px;
-  }
-  
-  .user-name {
-    font-weight: 600;
-  }
-  
-  .event-date {
-    color: #4b5563;
-  }
-  
-  /* Estilo para os detalhes do evento (inicialmente ocultos) */
-  .event-details {
+    flex-direction: column; /* Para empilhar os relatos verticalmente */
+    gap: 20px; /* Espaçamento entre os relatos */
+    padding: 20px;
+    max-height: 400px; /* Altura máxima para a área de relatos */
+    overflow-y: auto; /* Adiciona scroll se houver muitos relatos */
+    /* Estilização da barra de rolagem (opcional) */
+    scrollbar-width: thin; /* Para Firefox */
+    scrollbar-color: var(--primary-color) var(--comment-bg-light); /* Para Firefox */
+}
+
+.new-comments-section::-webkit-scrollbar {
+    width: 8px;
+}
+.new-comments-section::-webkit-scrollbar-track {
+    background: var(--comment-bg-light);
+    border-radius: 10px;
+}
+.new-comments-section::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    border: 2px solid var(--comment-bg-light);
+}
+
+
+/* NOVO: Estilo para cada item de relato (equivalente ao .comments do original) */
+.comment-item {
+  display: grid;
+  grid-template-columns: 35px 1fr; /* Coluna para o like e coluna para o conteúdo do relato */
+  gap: 20px;
+  background-color: var(--white-text); /* Fundo branco para cada relato */
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--comment-border);
+}
+
+
+/* NOVO: Seção de reação (like) */
+.comment-react {
+  width: 35px;
+  height: fit-content;
+  display: grid;
+  grid-template-columns: auto;
+  margin: 0;
+  background-color: var(--comment-bg-light);
+  border-radius: 5px;
+  align-self: flex-start; /* Alinha no topo do grid item */
+}
+
+.comment-react button {
+  width: 35px;
+  height: 35px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+.comment-react button:after {
+  content: '';
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  left: -2.5px;
+  top: -2.5px;
+  background-color: var(--heart-color);
+  border-radius: 50%;
+  z-index: 0;
+  transform: scale(0);
+}
+
+.comment-react button svg {
+  position: relative;
+  z-index: 9;
+}
+
+.comment-react button:hover:after {
+  animation: ripple 0.6s ease-in-out forwards;
+}
+
+.comment-react button:hover svg {
+  fill: var(--heart-color);
+}
+
+.comment-react button:hover svg path {
+  stroke: var(--heart-color);
+  fill: var(--heart-color);
+}
+
+.comment-react hr {
+  width: 80%;
+  height: 1px;
+  background-color: var(--comment-border);
+  margin: auto;
+  border: 0;
+}
+
+.comment-react span {
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--comment-text-medium);
+}
+
+/* NOVO: Container do conteúdo do comentário/relato */
+.comment-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Espaçamento entre user-info e content */
+  padding: 0;
+  margin: 0;
+}
+
+/* NOVO: Informações do usuário */
+.comment-container .user {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.comment-container .user .user-pic {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--comment-bg-light);
+  border-radius: 50%;
+  overflow: hidden; /* Garante que a imagem se ajuste */
+}
+
+.comment-container .user .user-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.comment-container .user .user-pic svg {
+  width: 25px; /* Ajuste o tamanho do SVG do avatar */
+  height: 25px;
+}
+
+.comment-container .user .user-pic:after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  border-radius: 50%;
+  background-color: var(--online-indicator);
+  border: 2px solid var(--white-text);
+}
+
+.comment-container .user .user-info {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+}
+
+.comment-container .user .user-info .user-name {
+  font-weight: 700;
+  font-size: 1rem; /* Ajuste o tamanho da fonte */
+  color: var(--primary-dark); /* Usando a cor do tema para o nome do usuário */
+}
+
+.comment-container .user .user-info .relato-date { /* Renomeado de 'p' para a classe existente */
+  font-weight: 600;
+  font-size: 0.85rem; /* Ajuste o tamanho da fonte */
+  color: var(--comment-text-light);
+}
+
+/* NOVO: Conteúdo do relato */
+.comment-container .comment-content {
+  font-size: 1rem; /* Ajuste o tamanho da fonte */
+  line-height: 1.6;
+  font-weight: 600;
+  color: #5f6064; /* Mantido do original para contraste */
+}
+
+.comment-container .comment-content .relato-title {
+  font-size: 1.3rem; /* Título do relato dentro do conteúdo */
+  font-weight: 700;
+  color: var(--dark-text);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+/* Oculta as classes antigas de relato que não são mais usadas */
+.relatos-grid, .relato-card {
+  display: none;
+}
+
+.no-relatos-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 40px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+/* NOVO: Formulário de texto */
+.text-box {
+  width: 100%;
+  height: fit-content;
+  background-color: var(--comment-bg-light);
+  padding: 8px;
+  border-radius: 0 0 27px 27px; /* Apenas as bordas inferiores arredondadas */
+}
+
+.text-box .box-container {
+  background-color: var(--white-text);
+  border-radius: 8px 8px 21px 21px;
+  padding: 8px;
+}
+
+.text-box textarea {
+  width: 100%;
+  height: 40px;
+  resize: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 12px 12px 10px 12px;
+  font-size: 1rem; /* Ajuste o tamanho da fonte */
+  outline: none;
+  caret-color: var(--send-btn-color);
+}
+
+.text-box .formatting {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30px, 1fr)) auto; /* Ajusta os botões de formatação e o botão de enviar */
+  gap: 5px; /* Espaçamento entre os botões */
+  align-items: center;
+}
+
+.text-box .formatting button {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border-radius: 50%;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+.text-box .formatting button:hover {
+  background-color: var(--comment-bg-light);
+}
+
+.text-box .formatting .send {
+  width: 30px;
+  height: 30px;
+  background-color: var(--send-btn-color);
+  margin: 0 0 0 auto;
+}
+
+.text-box .formatting .send:hover {
+  background-color: var(--send-btn-hover-color);
+}
+
+
+/* Animações Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+  from {
     opacity: 0;
-    transition: opacity 0.3s ease;
-    padding-top: 5px;
+    transform: translateY(-20px);
   }
-  
-  .event-item:hover .event-details {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
     opacity: 1;
   }
-  
-  .event-details h3 {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    color: #333;
+  70% {
+    transform: scale(0.9);
   }
-  
-  .event-details p {
-    font-size: 0.95rem;
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 12px;
+  100% {
+    transform: scale(1);
   }
-  
-  .user-title {
-    color: black;
-    margin-left: 50px;
-  }
-  
-  /* Mini Formulário */
-  .form-mini {
-    background-color: #e5e7eb;
-    border-radius: 1rem;
-    padding: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin: 1rem auto 2rem auto;
-    max-width: 720px;
-    width: 90%;
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: stretch;
-  }
-  
-  .heading-mini {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #0f172a;
-    text-align: center;
-    margin-bottom: 0.25rem;
-  }
-  
-  .input-mini {
-    padding: 0.5rem 0.75rem;
-    border: none;
-    border-radius: 0.5rem;
-    background-color: #ffffff;
-    font-size: 0.95rem;
-    color: #1e293b;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-  
-  .input-mini:focus {
-    outline: 2px solid #2dd4bf;
-    background-color: #f9fafb;
-  }
-  
-  .btn-mini {
-    background-color: #22c55e;
-    color: white;
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 0.6rem;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  .btn-mini:hover {
-    background-color: #16a34a;
-  }  
+}
 
-  .how-section {
-    background-color: #2dd4bf; /* cor teal */
-    padding: 32px 0 64px;
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(20px, 10px) rotate(5deg); }
+  50% { transform: translate(0, 20px) rotate(0deg); }
+  75% { transform: translate(-20px, 10px) rotate(-5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Animações da Seta */
+@keyframes bounceArrow {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
   }
-  
-  .how-content {
-    display: flex;
-    flex-direction: column; /* Garante que os itens fiquem em coluna em todas as telas */
-    gap: 32px;
+  40% {
+    transform: translateY(-10px);
   }
-  
-  .how-text {
-    display: flex;
-    flex-direction: column; /* Garante que o título, texto e botão dentro fiquem em coluna */
-    align-items: center; /* Centraliza os itens horizontalmente */
-    text-align: center; /* Centraliza o texto */
+  60% {
+    transform: translateY(-5px);
   }
-  
-  .how-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+}
+
+@keyframes scrollArrow {
+  0% {
+    opacity: 0;
   }
-  
-  .image-container {
-    background-color: white;
-    border-radius: 8px;
-    padding: 16px;
-    width: 100%;
-    height: 256px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  50% {
+    opacity: 1;
   }
-  
-  .image-container span {
-    color: #f97316;
+  100% {
+    opacity: 0;
+    transform: translateY(10px) rotate(45deg);
   }
-  
-/* Media queries para responsividade */
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Media Queries para Responsividade */
 @media (min-width: 768px) {
-  /* ... outros estilos ... */
+  .hero-title {
+    font-size: 6.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 2.2rem;
+  }
 
   .how-content {
     flex-direction: row;
-    align-items: center;
     text-align: left;
   }
 
   .how-text {
-    align-items: flex-start;
     text-align: left;
-    flex: 1;
   }
 
-  .how-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .section-title {
+    text-align: left;
+    font-size: 4rem;
   }
 
-  .image-container {
-    background-color: white;
-    border-radius: 8px;
-    padding: 16px;
-    width: auto; /* A largura se ajusta ao conteúdo */
-    height: 300px; /* Defina a altura desejada */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .section-subtitle {
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
   }
 
-  .image-container span {
-    color: #f97316;
+  /* Ajustes para o novo card de relato em telas maiores */
+  .new-relato-card-container {
+    max-width: 800px; /* Aumenta a largura em telas maiores */
   }
 }
+
+@media (min-width: 1024px) {
+  .hero-section {
+    height: 80vh;
+  }
+  .hero-title {
+    font-size: 7.5rem;
+  }
+  .hero-subtitle {
+    font-size: 2.5rem;
+  }
+  .section-container {
+    padding: 60px 20px;
+  }
+}
+
+/* Removido: as classes relato-card antigas e seus estilos */
+/* .relato-card {
+  height: 250px;
+  overflow-y: auto;
+} */
