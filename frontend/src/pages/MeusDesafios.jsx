@@ -1,316 +1,364 @@
-import React, { useEffect, useState } from "react";
-import "./MeusDesafios.css"; // Crie este arquivo CSS
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { Link } from "react-router-dom"; // Assumindo que você está usando Link para navegação
+
+import "./MeusDesafios.css";
 
 export default function MeusDesafios() {
   const [desafiosCriados, setDesafiosCriados] = useState([]);
+  const [loadingCriados, setLoadingCriados] = useState(true); // Renomeado para clareza
+  const [errorCriados, setErrorCriados] = useState(null); // Renomeado para clareza
+
+  // NOVOS ESTADOS PARA DESAFIOS INSCRITOS
   const [desafiosInscritos, setDesafiosInscritos] = useState([]);
-  const [desafioEditando, setDesafioEditando] = useState(null); // Desafio em edição
-  const [formData, setFormData] = useState({
-    titulo: "",
-    descricao: "",
-    xp: "", // Adicionado XP para desafios
-    foto: null,
-  });
+  const [loadingInscritos, setLoadingInscritos] = useState(true);
+  const [errorInscritos, setErrorInscritos] = useState(null);
 
   const token = localStorage.getItem("token");
-  const navigate = useNavigate();
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
-    // Função para buscar desafios criados pelo usuário logado
-    const fetchDesafiosCriados = async () => {
+    if (token) {
       try {
-        const res = await fetch("http://localhost:5000/api/desafios_criados", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        setDesafiosCriados(data);
-      } catch (err) {
-        console.error("Erro ao buscar desafios criados", err);
+        const decodedToken = jwtDecode(token);
+        setCurrentUserId(decodedToken.id);
+      } catch (e) {
+        console.error("Erro ao decodificar o token:", e);
+        setCurrentUserId(null);
       }
-    };
-
-    // Função para buscar desafios em que o usuário está inscrito
-    const fetchDesafiosInscritos = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/desafios_inscritos", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        setDesafiosInscritos(data);
-      } catch (err) {
-        console.error("Erro ao buscar desafios inscritos", err);
-      }
-    };
-
-    if (token) { // Só faz as chamadas se tiver token
-      fetchDesafiosCriados();
-      fetchDesafiosInscritos();
     } else {
-      // Opcional: redirecionar ou mostrar mensagem se não estiver logado
-      // navigate('/login');
-      console.log("Usuário não logado. Não é possível buscar desafios.");
+      setCurrentUserId(null);
     }
-  }, [token, navigate]);
 
-  const iniciarEdicao = (desafio) => {
-    setDesafioEditando(desafio.ID_DESAFIO);
-    setFormData({
-      titulo: desafio.Titulo, // Ajuste para 'Titulo' como no seu banco de dados
-      descricao: desafio.Descricao, // Ajuste para 'Descricao'
-      xp: desafio.XP, // Ajuste para 'XP'
-      foto: null, // Não pré-preenche a foto, pois é um arquivo. Define como null.
-    });
-  };
+    // Função para buscar Desafios CRIADOS
+    const fetchDesafiosCriados = async () => {
+      if (!token) {
+        setLoadingCriados(false);
+        setErrorCriados("Você precisa estar logado para ver seus desafios criados.");
+        return;
+      }
+      try {
+        const response = await fetch("http://localhost:5000/api/desafios_criados", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setDesafiosCriados(data);
+        setLoadingCriados(false);
+      } catch (e) {
+        setErrorCriados(e.message);
+        setLoadingCriados(false);
+      }
+    };
 
-  const cancelarEdicao = () => {
-    setDesafioEditando(null);
-    setFormData({
-      titulo: "",
-      descricao: "",
-      xp: "",
-      foto: null,
-    });
-  };
+    // NOVA FUNÇÃO para buscar Desafios INSCRITOS
+    const fetchDesafiosInscritos = async () => {
+      if (!token) {
+        setLoadingInscritos(false);
+        // Não é um erro grave, mas a seção estará vazia se não logado
+        return;
+      }
+      try {
+        const response = await fetch("http://localhost:5000/api/desafios_inscritos", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setDesafiosInscritos(data);
+        setLoadingInscritos(false);
+      } catch (e) {
+        console.error("Erro ao carregar desafios inscritos:", e);
+        setErrorInscritos(e.message);
+        setLoadingInscritos(false);
+      }
+    };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    fetchDesafiosCriados(); // Chama a busca por desafios criados
+    fetchDesafiosInscritos(); // Chama a busca por desafios inscritos
+  }, [token]);
 
-  const salvarEdicao = async () => {
-    const form = new FormData();
-    form.append("titulo", formData.titulo);
-    form.append("descricao", formData.descricao);
-    form.append("xp", formData.xp); // Adicionado XP
-    if (formData.foto) form.append("foto", formData.foto); // só se nova foto for enviada
+  // Função para finalizar desafio (mantida como você tem)
+  const finalizarDesafio = async (desafioId) => {
+    if (!token) {
+      alert("Você precisa estar logado para finalizar um desafio.");
+      return;
+    }
+
+    const confirmFinalizar = window.confirm(
+      "Tem certeza que deseja finalizar este desafio? Esta ação não pode ser desfeita."
+    );
+    if (!confirmFinalizar) {
+      return;
+    }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/editar_desafio/${desafioEditando}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // 'Content-Type' não é necessário para FormData, o navegador define automaticamente
-        },
-        body: form,
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/finalizar_desafio_post/${desafioId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (res.ok) {
-        alert("Desafio atualizado com sucesso.");
-        setDesafioEditando(null);
-        // Atualiza a lista de desafios criados para refletir a edição
-        setDesafiosCriados((prev) =>
-          prev.map((d) =>
-            d.ID_DESAFIO === desafioEditando ? { ...d, ...formData } : d
+      if (response.ok) {
+        alert(data.mensagem || "Desafio finalizado com sucesso!");
+        setDesafiosCriados((prevDesafios) =>
+          prevDesafios.map((d) =>
+            d.ID_DESAFIO === desafioId ? { ...d, finalizado: true } : d
           )
         );
       } else {
-        alert(data.erro || "Erro ao atualizar desafio.");
+        alert(data.erro || "Erro ao finalizar desafio.");
       }
-    } catch (err) {
-      console.error("Erro ao salvar edição:", err);
-      alert("Erro na requisição.");
+    } catch (error) {
+      console.error("Erro na requisição de finalizar desafio:", error);
+      alert("Erro na requisição de finalizar desafio. Verifique o console para mais detalhes.");
     }
   };
 
-  const cancelarInscricaoDesafio = async (desafioId) => {
-    const confirmar = window.confirm("Tem certeza que deseja cancelar sua inscrição neste desafio?");
-    if (!confirmar) return;
-
-    try {
-      const res = await fetch(`http://localhost:5000/api/cancelar_inscricao_desafio?desafio_id=${desafioId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (res.ok) {
-        alert("Inscrição cancelada com sucesso.");
-        // Remove o desafio da lista de inscritos
-        setDesafiosInscritos(desafiosInscritos.filter(d => d.ID_DESAFIO !== desafioId));
-      } else {
-        const data = await res.json();
-        alert(data.erro || "Erro ao cancelar inscrição.");
-      }
-    } catch (err) {
-      console.error("Erro ao cancelar inscrição:", err);
-      alert("Erro na requisição.");
-    }
+  // Funções de editar e excluir desafio
+  const editarDesafio = (desafioId) => {
+    alert(`Lógica para editar desafio ${desafioId} seria implementada aqui.`);
   };
 
   const excluirDesafio = async (desafioId) => {
-    const confirmar = window.confirm("Tem certeza que deseja excluir este desafio? Esta ação é irreversível.");
-    if (!confirmar) return;
+    if (!token) {
+      alert("Você precisa estar logado para excluir um desafio.");
+      return;
+    }
+
+    const confirmExcluir = window.confirm(
+      "Tem certeza que deseja excluir este desafio? Esta ação não pode ser desfeita e removerá todas as inscrições relacionadas."
+    );
+    if (!confirmExcluir) {
+      return;
+    }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/excluir_desafio/${desafioId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/excluir_desafio/${desafioId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (res.ok) {
-        alert("Desafio excluído com sucesso.");
-        // Remove o desafio da lista de criados
-        setDesafiosCriados(desafiosCriados.filter(d => d.ID_DESAFIO !== desafioId));
+      if (response.ok) {
+        alert(data.mensagem || "Desafio excluído com sucesso!");
+        setDesafiosCriados((prevDesafios) =>
+          prevDesafios.filter((d) => d.ID_DESAFIO !== desafioId)
+        );
       } else {
         alert(data.erro || "Erro ao excluir desafio.");
       }
-    } catch (err) {
-      console.error("Erro ao excluir desafio:", err);
-      alert("Erro na requisição.");
+    } catch (error) {
+      console.error("Erro na requisição de exclusão de desafio:", error);
+      alert("Erro na requisição de exclusão de desafio. Verifique o console para mais detalhes.");
     }
   };
 
-  const renderCard = (desafio, isCriado = false) => (
-    <div className="meu-desafio-card" key={desafio.ID_DESAFIO}>
-      {desafio.foto ? ( // Assumindo que o campo da foto é 'foto'
-        <img
-          className="meu-desafio-imagem"
-          src={`http://localhost:5000/uploads/${desafio.foto}`}
-          alt={desafio.Titulo}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "/placeholder.png"; // certifique-se de ter este arquivo em /public
-          }}
-        />
-      ) : (
-        <img
-          className="meu-desafio-imagem"
-          src="/placeholder.png" // Fallback se não houver foto
-          alt={desafio.Titulo}
-        />
-      )}
+  // Nova função para cancelar inscrição em desafio
+  const cancelarInscricaoDesafio = async (desafioId) => {
+    if (!token) {
+      alert("Você precisa estar logado para cancelar uma inscrição.");
+      return;
+    }
 
-      <div className="meu-desafio-info">
-        <h3>{desafio.Titulo}</h3> {/* Ajustado para 'Titulo' */}
-        <p className="organizador">Organizado por: {desafio.nome_usuario || "Você"}</p> {/* Assumindo que a API retorna 'nome_usuario' para criados */}
-        <p>XP: {desafio.XP}</p> {/* Adicionado XP */}
-        {desafio.Descricao && <p className="descricao">{desafio.Descricao}</p>} {/* Ajustado para 'Descricao' */}
-        
-        {isCriado ? (
-          <>
-            <button className="desafio-btn editar" onClick={() => iniciarEdicao(desafio)}>
-              Editar Desafio
-            </button>
-            <button className="desafio-btn excluir" onClick={() => excluirDesafio(desafio.ID_DESAFIO)}>
-              Excluir Desafio
-            </button>
+    const confirmCancel = window.confirm(
+      "Tem certeza que deseja cancelar sua inscrição neste desafio?"
+    );
+    if (!confirmCancel) {
+      return;
+    }
 
-            {desafio.Status !== "finalizado" ? (
-              <button
-                className="desafio-btn finalizar"
-                onClick={() => {
-                  const confirmar = window.confirm("Deseja realmente finalizar este desafio? O XP será distribuído para os inscritos.");
-                  if (!confirmar) return;
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/cancelar_inscricao_desafio/${desafioId}`,
+        {
+          method: "DELETE", // Ou o método que você definiu para cancelar inscrição
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-                  fetch(`http://localhost:5000/api/finalizar_desafio/${desafio.ID_DESAFIO}`, {
-                    method: "POST",
-                    headers: { Authorization: `Bearer ${token}` },
-                  })
-                    .then(async (res) => {
-                      const data = await res.json();
-                      if (res.ok) {
-                        alert(data.mensagem);
-                        // Atualiza a lista de desafios após finalizar
-                        setDesafiosCriados((prev) =>
-                          prev.map((d) =>
-                            d.ID_DESAFIO === desafio.ID_DESAFIO ? { ...d, Status: "finalizado" } : d
-                          )
-                        );
-                      } else {
-                        alert(data.erro || "Erro ao finalizar desafio.");
-                      }
-                    })
-                    .catch((err) => {
-                      console.error("Erro ao finalizar desafio:", err);
-                      alert("Erro na requisição.");
-                    });
-                }}
-              >
-                Finalizar Desafio
-              </button>
-            ) : (
-              <p className="status-finalizado">Desafio finalizado</p>
-            )}
-          </>
-        ) : (
-          <button className="desafio-btn cancelar" onClick={() => cancelarInscricaoDesafio(desafio.ID_DESAFIO)}>
-            Cancelar Inscrição
-          </button>
-        )}
-      </div>
-    </div>
-  );
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.mensagem || "Inscrição cancelada com sucesso!");
+        setDesafiosInscritos((prevDesafios) =>
+          prevDesafios.filter((d) => d.ID_DESAFIO !== desafioId)
+        );
+      } else {
+        alert(data.erro || "Erro ao cancelar inscrição.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição de cancelar inscrição:", error);
+      alert("Erro na requisição de cancelar inscrição. Verifique o console para mais detalhes.");
+    }
+  };
+
+  if (loadingCriados || loadingInscritos) { // Verifica ambos os loadings
+    return <p className="text-center text-xl mt-10">Carregando seus desafios...</p>;
+  }
+
+  // Combina os erros para exibir uma mensagem geral
+  if (errorCriados || errorInscritos) {
+    return (
+      <p className="text-center text-red-500 text-xl mt-10">
+        Erro: {errorCriados} {errorInscritos && `| ${errorInscritos}`}
+      </p>
+    );
+  }
 
   return (
-    <div className="meus-desafios-container">
-      <h2>Meus Desafios</h2>
+    <div className="meus-desafios-container bg-gray-900 text-white min-h-screen p-8">
+      <h2 className="text-3xl font-bold mb-8 text-center">Meus Desafios Criados</h2>
+      {desafiosCriados.length === 0 && (
+        <p className="text-center text-gray-400">Você ainda não criou nenhum desafio.</p>
+      )}
+      <div className="desafios-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {desafiosCriados.map((desafio) => {
+          const estaFinalizado = desafio.finalizado;
 
-      {desafioEditando && (
-        <div className="editar-form-container">
-          <h3>Editar Desafio</h3>
-          <input
-            type="text"
-            name="titulo"
-            placeholder="Título"
-            value={formData.titulo}
-            onChange={handleInputChange}
-          />
-          <textarea
-            name="descricao"
-            placeholder="Descrição"
-            value={formData.descricao}
-            onChange={handleInputChange}
-          />
-          <input
-            type="number" // XP é um número
-            name="xp"
-            placeholder="XP"
-            value={formData.xp}
-            onChange={handleInputChange}
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, foto: e.target.files[0] }))
-            }
-          />
-          <div className="editar-form-buttons">
-            <button className="desafio-btn editar" onClick={salvarEdicao}>Salvar</button>
-            <button className="desafio-btn cancelar" onClick={cancelarEdicao}>Cancelar</button>
-          </div>
+          return (
+            <div
+              className="desafio-card bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105"
+              key={desafio.ID_DESAFIO}
+            >
+              {desafio.foto ? (
+                <img
+                  className="w-full h-48 object-cover"
+                  src={`http://localhost:5000/uploads/${desafio.foto}`}
+                  alt={desafio.Titulo}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel";
+                  }}
+                />
+              ) : (
+                <img
+                  className="w-full h-48 object-cover"
+                  src="https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"
+                  alt={desafio.Titulo}
+                />
+              )}
+              <div className="desafio-info p-6">
+                <h3 className="text-xl font-semibold mb-2">{desafio.Titulo}</h3>
+                <p className="organizador text-sm text-gray-400 mb-1">
+                  Organizado por: {desafio.nome_usuario || "Você"}
+                </p>
+                <p className="descricao text-gray-300 mb-3 text-sm h-20 overflow-y-auto">
+                  {desafio.Descricao}
+                </p>
+                <p className="xp text-teal-400 font-bold mb-4">XP: {desafio.XP}</p>
+
+                {estaFinalizado ? (
+                  <p className="status-finalizado text-red-500 font-bold">Desafio Finalizado!</p>
+                ) : (
+                  <div className="flex flex-col space-y-2 mt-4">
+                    <button
+                      onClick={() => editarDesafio(desafio.ID_DESAFIO)}
+                      className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md font-semibold transition-colors"
+                    >
+                      Editar Desafio
+                    </button>
+                    <button
+                      onClick={() => excluirDesafio(desafio.ID_DESAFIO)}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md font-semibold transition-colors"
+                    >
+                      Excluir Desafio
+                    </button>
+                    <button
+                      onClick={() => finalizarDesafio(desafio.ID_DESAFIO)}
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md font-semibold transition-colors"
+                    >
+                      Finalizar Desafio
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* SEÇÃO NOVAMENTE ADICIONADA: Desafios que me Inscrevi */}
+      <h2 className="text-3xl font-bold mb-8 text-center mt-12">Desafios que me Inscrevi</h2>
+      {loadingInscritos ? (
+        <p className="text-center text-xl mt-10">Carregando desafios inscritos...</p>
+      ) : errorInscritos ? (
+        <p className="text-center text-red-500 text-xl mt-10">
+          Erro ao carregar desafios inscritos: {errorInscritos}
+        </p>
+      ) : desafiosInscritos.length === 0 ? (
+        <p className="text-center text-gray-400">Você ainda não está inscrito em nenhum desafio.</p>
+      ) : (
+        <div className="desafios-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {desafiosInscritos.map((desafio) => {
+            const estaFinalizado = desafio.finalizado; // Usando a propriedade finalizado
+
+            return (
+              <div
+                className="desafio-card bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105"
+                key={desafio.ID_DESAFIO}
+              >
+                {desafio.foto ? (
+                  <img
+                    className="w-full h-48 object-cover"
+                    src={`http://localhost:5000/uploads/${desafio.foto}`}
+                    alt={desafio.Titulo}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel";
+                    }}
+                  />
+                ) : (
+                  <img
+                    className="w-full h-48 object-cover"
+                    src="https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"
+                    alt={desafio.Titulo}
+                  />
+                )}
+                <div className="desafio-info p-6">
+                  <h3 className="text-xl font-semibold mb-2">{desafio.Titulo}</h3>
+                  <p className="organizador text-sm text-gray-400 mb-1">
+                    Organizado por: {desafio.nome_usuario || "Anônimo"}
+                  </p>
+                  <p className="descricao text-gray-300 mb-3 text-sm h-20 overflow-y-auto">
+                    {desafio.Descricao}
+                  </p>
+                  <p className="xp text-teal-400 font-bold mb-4">XP: {desafio.XP}</p>
+
+                  {estaFinalizado ? (
+                    <p className="status-finalizado text-red-500 font-bold">Desafio Finalizado!</p>
+                  ) : (
+                    <button
+                      className="desafio-btn cancelar w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md font-semibold transition-colors"
+                      onClick={() => cancelarInscricaoDesafio(desafio.ID_DESAFIO)}
+                    >
+                      Cancelar Inscrição
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
-
-      <section>
-        <h3>Desafios Criados por Mim</h3>
-        {desafiosCriados.length === 0 ? (
-          <p className="mensagem-vazia">Você ainda não criou nenhum desafio.</p>
-        ) : (
-          <div className="meus-desafios-grid">
-            {desafiosCriados.map((desafio) => renderCard(desafio, true))}
-          </div>
-        )}
-      </section>
-
-      <section>
-        <h3>Desafios que me Inscrevi</h3>
-        {desafiosInscritos.length === 0 ? (
-          <p className="mensagem-vazia">Você ainda não está inscrito em nenhum desafio.</p>
-        ) : (
-          <div className="meus-desafios-grid">
-            {desafiosInscritos.map((desafio) => renderCard(desafio, false))}
-          </div>
-        )}
-      </section>
     </div>
   );
 }

@@ -2,15 +2,29 @@ import React, { useState, useEffect } from "react";
 import "./Desafios.css";
 import exemploImg from "../assets/imagemcard.png";
 import { Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode"; // Importar jwt-decode
 
 export default function ListaDesafios() {
   const [desafios, setDesafios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [inscritosDesafiosIds, setInscritosDesafiosIds] = useState([]); // Renomeado para clareza
+  const [inscritosDesafiosIds, setInscritosDesafiosIds] = useState([]);
   const token = localStorage.getItem("token");
+  const [currentUserId, setCurrentUserId] = useState(null); // Estado para armazenar o ID do usuário logado
 
   useEffect(() => {
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        setCurrentUserId(decodedToken.id); // Pega o ID do usuário do token
+      } catch (e) {
+        console.error("Erro ao decodificar o token:", e);
+        setCurrentUserId(null);
+      }
+    } else {
+      setCurrentUserId(null);
+    }
+
     const fetchDesafios = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/desafios");
@@ -18,8 +32,8 @@ export default function ListaDesafios() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        const lastThreeDesafios = data.slice(-3);
-        setDesafios(lastThreeDesafios);
+        const lastThreeDesafios = data.slice(-3); // Ou remova esta linha se quiser todos os desafios
+        setDesafios(data); // Deixei para carregar todos os desafios, ajuste se quiser os últimos 3
         setLoading(false);
       } catch (e) {
         setError(e.message);
@@ -27,15 +41,14 @@ export default function ListaDesafios() {
       }
     };
 
-    // FUNÇÃO PARA BUSCAR APENAS OS IDs DOS DESAFIOS QUE O USUÁRIO ESTÁ INSCRITO
     const fetchInscricoesDesafiosIds = async () => {
       if (!token) {
-        setInscritosDesafiosIds([]); // Limpa as inscrições se não houver token
+        setInscritosDesafiosIds([]);
         return;
       }
       try {
         const response = await fetch(
-          "http://localhost:5000/api/meus_desafios_ids", // <--- USE ESTE ENDPOINT!
+          "http://localhost:5000/api/meus_desafios_ids",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -45,15 +58,14 @@ export default function ListaDesafios() {
           throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setInscritosDesafiosIds(data); // Assume que a API retorna um array de IDs diretamente
+        setInscritosDesafiosIds(data);
       } catch (e) {
         console.error("Erro ao buscar IDs de inscrições em desafios:", e);
-        // Opcionalmente, pode-se definir um estado de erro específico para as inscrições aqui
       }
     };
 
     fetchDesafios();
-    fetchInscricoesDesafiosIds(); // Chame a nova função que busca apenas os IDs
+    fetchInscricoesDesafiosIds();
   }, [token]);
 
   const inscreverEmDesafio = async (desafioId) => {
@@ -81,7 +93,6 @@ export default function ListaDesafios() {
 
       if (response.status === 201) {
         alert(data.mensagem || "Inscrição realizada com sucesso!");
-        // Adiciona o novo desafioId à lista de IDs de desafios inscritos
         setInscritosDesafiosIds((prevInscritos) => [...prevInscritos, desafioId]);
       } else {
         alert(data.erro || data.message || "Erro ao se inscrever no desafio.");
@@ -91,6 +102,96 @@ export default function ListaDesafios() {
       alert("Erro na requisição de inscrição. Verifique o console para mais detalhes.");
     }
   };
+
+  // Nova função para finalizar desafio
+  const finalizarDesafio = async (desafioId) => {
+    if (!token) {
+      alert("Você precisa estar logado para finalizar um desafio.");
+      return;
+    }
+
+    const confirmFinalizar = window.confirm("Tem certeza que deseja finalizar este desafio? Esta ação não pode ser desfeita.");
+    if (!confirmFinalizar) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/finalizar_desafio/${desafioId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json", // PUT geralmente envia JSON
+          },
+          // body: JSON.stringify({}) // Não precisa de body se só está mudando o status
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) { // response.ok para status 2xx
+        alert(data.mensagem || "Desafio finalizado com sucesso!");
+        // Atualiza o estado para que o frontend reflita a mudança
+        setDesafios((prevDesafios) =>
+          prevDesafios.map((d) =>
+            d.ID_DESAFIO === desafioId ? { ...d, finalizado: true } : d
+          )
+        );
+      } else {
+        alert(data.erro || "Erro ao finalizar desafio.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição de finalizar desafio:", error);
+      alert("Erro na requisição de finalizar desafio. Verifique o console para mais detalhes.");
+    }
+  };
+
+
+  // Funções de editar e excluir desafio (se você já as tem, apenas mantenha)
+  const editarDesafio = (desafioId) => {
+    // Implemente a lógica de navegação para a tela de edição
+    // Ex: navigate(`/editar-desafio/${desafioId}`);
+    alert(`Lógica para editar desafio ${desafioId} seria implementada aqui.`);
+  };
+
+  const excluirDesafio = async (desafioId) => {
+    if (!token) {
+        alert("Você precisa estar logado para excluir um desafio.");
+        return;
+    }
+
+    const confirmExcluir = window.confirm("Tem certeza que deseja excluir este desafio? Esta ação não pode ser desfeita e removerá todas as inscrições relacionadas.");
+    if (!confirmExcluir) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `http://localhost:5000/api/excluir_desafio/${desafioId}`,
+            {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(data.mensagem || "Desafio excluído com sucesso!");
+            // Remove o desafio da lista no estado
+            setDesafios((prevDesafios) => prevDesafios.filter(d => d.ID_DESAFIO !== desafioId));
+        } else {
+            alert(data.erro || "Erro ao excluir desafio.");
+        }
+    } catch (error) {
+        console.error("Erro na requisição de exclusão de desafio:", error);
+        alert("Erro na requisição de exclusão de desafio. Verifique o console para mais detalhes.");
+    }
+  };
+
 
   if (loading) {
     return <p className="text-center text-xl mt-10">Carregando desafios...</p>;
@@ -109,8 +210,10 @@ export default function ListaDesafios() {
         )}
         <div className="desafios-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {desafios.map((desafio) => {
-            // Verifica se o desafio atual está na lista de IDs de desafios inscritos
             const jaInscrito = inscritosDesafiosIds.includes(desafio.ID_DESAFIO);
+            // Verifica se o usuário logado é o criador do desafio
+            const isCriador = currentUserId === desafio.ID_USUARIO;
+            const estaFinalizado = desafio.finalizado; // Use a nova propriedade
 
             return (
               <div
@@ -143,23 +246,62 @@ export default function ListaDesafios() {
                     {desafio.Descricao}
                   </p>
                   <p className="xp text-teal-400 font-bold mb-4">XP: {desafio.XP}</p>
-                  {/* Lógica do botão */}
-                  {token && ( // Mostrar botão apenas se logado
-                    jaInscrito ? ( // Use a variável 'jaInscrito'
-                      <button
-                        className="w-full bg-green-500 text-white py-2 px-4 rounded-md font-semibold cursor-not-allowed"
-                        disabled
-                      >
-                        Inscrito
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => inscreverEmDesafio(desafio.ID_DESAFIO)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md font-semibold transition-colors"
-                      >
-                        Inscrever-se {/* TEXTO DO BOTÃO AQUI */}
-                      </button>
-                    )
+                  {/* Status de Finalizado */}
+                  {estaFinalizado && (
+                    <p className="text-red-500 font-bold mb-2">Desafio Finalizado!</p>
+                  )}
+
+                  {token && ( // Mostrar botões de ação apenas se logado
+                    <>
+                      {/* Botão de inscrição/inscrito (sempre visível se logado e não for o criador) */}
+                      {!isCriador && ( // Não mostra o botão de inscrição se for o criador
+                        jaInscrito ? (
+                          <button
+                            className="w-full bg-green-500 text-white py-2 px-4 rounded-md font-semibold cursor-not-allowed"
+                            disabled
+                          >
+                            Inscrito
+                          </button>
+                        ) : (
+                          !estaFinalizado && ( // Só permite inscrever se não estiver finalizado
+                            <button
+                              onClick={() => inscreverEmDesafio(desafio.ID_DESAFIO)}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md font-semibold transition-colors"
+                            >
+                              Inscrever-se
+                            </button>
+                          )
+                        )
+                      )}
+
+                      {/* Botões de gerenciamento (apenas para o criador e se não estiver finalizado) */}
+                      {isCriador && !estaFinalizado && (
+                        <div className="flex flex-col space-y-2 mt-4">
+                            <button
+                                onClick={() => editarDesafio(desafio.ID_DESAFIO)}
+                                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md font-semibold transition-colors"
+                            >
+                                Editar Desafio
+                            </button>
+                            <button
+                                onClick={() => excluirDesafio(desafio.ID_DESAFIO)}
+                                className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md font-semibold transition-colors"
+                            >
+                                Excluir Desafio
+                            </button>
+                            <button
+                                onClick={() => finalizarDesafio(desafio.ID_DESAFIO)}
+                                className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md font-semibold transition-colors"
+                            >
+                                Finalizar Desafio
+                            </button>
+                        </div>
+                      )}
+                      {/* Se for o criador e o desafio ESTIVER finalizado, pode exibir um status ou nada */}
+                      {isCriador && estaFinalizado && (
+                         <p className="text-center text-gray-500 mt-4">Desafio gerenciado (Finalizado)</p>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

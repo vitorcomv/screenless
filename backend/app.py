@@ -311,7 +311,7 @@ def obter_desafios():
 
         # Buscar todos os desafios
         sql = """
-        SELECT ID_DESAFIO, nome_usuario, Titulo, Descricao, XP, foto 
+        SELECT ID_DESAFIO, nome_usuario, Titulo, Descricao, XP, foto, finalizado
         FROM DESAFIOS
         """
         cursor.execute(sql)
@@ -661,7 +661,7 @@ def desafios_criados():
         # Adapte a query para a sua estrutura de tabela de desafios
         # Certifique-se de selecionar as colunas Titulo, Descricao, XP, foto, ID_DESAFIO
         sql = """
-        SELECT d.ID_DESAFIO, d.Titulo, d.Descricao, d.XP, d.foto,
+        SELECT d.ID_DESAFIO, d.Titulo, d.Descricao, d.XP, d.foto, d.finalizado,
        (SELECT Nome FROM USUARIO WHERE ID_USUARIO = d.ID_USUARIO) AS nome_usuario -- MUDANÇA AQUI: d.ID_USUARIO
         FROM DESAFIOS d
         WHERE d.ID_USUARIO = %s -- MUDANÇA AQUI: d.ID_USUARIO
@@ -691,7 +691,7 @@ def desafios_inscritos():
         id_usuario = request.usuario_id
 
         sql = """
-        SELECT d.ID_DESAFIO, d.Titulo, d.Descricao, d.XP, d.foto,
+        SELECT d.ID_DESAFIO, d.Titulo, d.Descricao, d.XP, d.foto, d.finalizado,
        (SELECT Nome FROM USUARIO WHERE ID_USUARIO = d.ID_USUARIO) AS nome_usuario -- MUDANÇA AQUI: d.ID_USUARIO
         FROM DESAFIOS d
         JOIN HISTORICO_DESAFIO hd ON d.ID_DESAFIO = hd.ID_DESAFIO
@@ -849,9 +849,9 @@ def excluir_desafio(desafio_id):
         if conn and conn.is_connected(): conn.close()
 
 #Rota para finalizar desafio e distribuir XP
-@app.route("/api/finalizar_desafio/<int:desafio_id>", methods=["POST"])
+@app.route("/api/finalizar_desafio_post/<int:desafio_id>", methods=["POST"])
 @token_obrigatorio
-def finalizar_desafio(desafio_id):
+def finalizar_desafio_post(desafio_id):
     conn = None
     cursor = None
     try:
@@ -897,6 +897,48 @@ def finalizar_desafio(desafio_id):
             cursor.close()
         if conn and conn.is_connected():
             conn.close()
+
+# Rota para finalizar um desafio
+@app.route("/api/finalizar_desafio_put/<int:desafio_id>", methods=["PUT"])
+@token_obrigatorio
+def finalizar_desafio_put(desafio_id):
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        id_usuario = request.usuario_id
+
+        # 1. Verificar se o desafio existe e se o usuário logado é o criador
+        cursor.execute("SELECT ID_USUARIO FROM DESAFIOS WHERE ID_DESAFIO = %s", (desafio_id,))
+        criador = cursor.fetchone()
+
+        if not criador:
+            return jsonify({"erro": "Desafio não encontrado."}), 404
+        if criador[0] != id_usuario:
+            return jsonify({"erro": "Você não tem permissão para finalizar este desafio."}), 403
+
+        # 2. Atualizar o status 'finalizado' para TRUE
+        sql = """
+        UPDATE DESAFIOS
+        SET finalizado = TRUE
+        WHERE ID_DESAFIO = %s
+        """
+        cursor.execute(sql, (desafio_id,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({"erro": "Desafio não encontrado ou já finalizado."}), 404
+
+        return jsonify({"mensagem": "Desafio finalizado com sucesso!"}), 200
+
+    except Exception as e:
+        print(f"Erro ao finalizar desafio: {e}")
+        return jsonify({"erro": str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
 
 # Rota para criar um relato (modificado)
 @app.route("/api/criar_relato", methods=["POST"])
