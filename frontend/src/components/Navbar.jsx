@@ -138,6 +138,9 @@ export default function Navbar() {
                     <Link to="/meus-desafios" onClick={() => setMenuAberto(false)}>
                       Meus Desafios
                     </Link>
+                    <Link to="/mural-de-insignias" onClick={() => setMenuAberto(false)}>
+                      Mural de Insígnias
+                    </Link>
                     <button onClick={handleLogout}>Sair</button>
                   </div>
                 )}

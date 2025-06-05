@@ -8,6 +8,7 @@ const Home = () => {
   const [relatoTitulo, setRelatoTitulo] = useState(''); // Estado para o título do relato
   const [relatoTexto, setRelatoTexto] = useState('');
   const [relatos, setRelatos] = useState([]);
+  const [token, setToken] = useState(localStorage.getItem('token'));  
 
   useEffect(() => {
     fetch('http://localhost:5000/api/mensagem')
@@ -41,30 +42,39 @@ const Home = () => {
   const handleSubmitRelato = async (e) => {
     e.preventDefault();
 
-    const user_id = localStorage.getItem('user_id') || 1;
-    const nome_usuario = localStorage.getItem('nome_usuario') || 'Usuário Anônimo';
+    // Verifica se há um token. Se não, o usuário não está logado.
+    const currentToken = localStorage.getItem('token'); // Pega o token mais atual
+    if (!currentToken) {
+      alert('Você precisa estar logado para enviar um relato.');
+      // Você pode querer redirecionar para a página de login aqui.
+      // Ex: navigate('/login'); (se você importar e usar useNavigate)
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:5000/api/criar_relato', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentToken}`,
         },
         body: JSON.stringify({
           titulo: relatoTitulo, // Usando o estado do título
           relato: relatoTexto, // Enviando como 'relato'
-          user_id: user_id,
-          nome_usuario: nome_usuario,
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ erro: `Erro HTTP ${response.status}` })); // Trata caso o corpo do erro não seja JSON
         throw new Error(errorData.erro || `HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
-      alert(result.mensagem);
+      alert(result.mensagem || "Relato enviado com sucesso!");
+      
+      if (result.novas_insignias_conquistadas && result.novas_insignias_conquistadas.length > 0) {
+        alert(`Parabéns! Você ganhou ${result.novas_insignias_conquistadas.length > 1 ? 'as insígnias' : 'a insígnia'}: ${result.novas_insignias_conquistadas.join(', ')}`);
+      }
 
       setRelatoTitulo(''); // Limpa o campo do título
       setRelatoTexto(''); // Limpa o campo do texto

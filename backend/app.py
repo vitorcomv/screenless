@@ -26,10 +26,15 @@ def token_obrigatorio(f):
             request.nome = dados['nome']
             request.sobrenome = dados['sobrenome']
             request.foto_url = dados.get('foto_url', None)
+            request.insignia_selecionada_id = dados.get('insignia_selecionada_id', None)
+            request.insignia_icone_url = dados.get('insignia_icone_url', None)
         except jwt.ExpiredSignatureError:
             return jsonify({'erro': 'Token expirado'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'erro': 'Token inválido'}), 401
+        except Exception as e:
+            app.logger.error(f"Erro na decodificação do token: {str(e)}")
+            return jsonify({'erro': 'Erro interno na autenticação'}), 500
         return f(*args, **kwargs)
     return decorator
 
@@ -56,7 +61,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/uploads/<filename>')
+@app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
@@ -113,46 +118,71 @@ def registrar_usuario():
 @app.route("/api/login", methods=["POST"])
 def login_usuario():
     data = request.json
+    conn = None # Definido para garantir o escopo
+    cursor = None # Definido para garantir o escopo
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        sql = "SELECT Id_USUARIO AS id, nome, sobrenome, usuario, senha, foto_perfil FROM USUARIO WHERE usuario = %s"
+        # SQL modificado para incluir dados da insígnia selecionada
+        sql = """
+            SELECT
+                u.Id_USUARIO AS id, u.nome, u.sobrenome, u.usuario, u.senha, u.foto_perfil,
+                u.insignia_selecionada_id,
+                i.icone_url AS insignia_icone_url_db
+            FROM USUARIO u
+            LEFT JOIN INSIGNIA i ON u.insignia_selecionada_id = i.ID_INSIGNIA
+            WHERE u.usuario = %s
+        """
         cursor.execute(sql, (data['usuario'],))
         user = cursor.fetchone()
 
         if user and check_password_hash(user["senha"], data["senha"]):
-            # Construir URL completa da foto se existir
-            foto_url = None
+            foto_url_completa = None
             if user.get("foto_perfil"):
-                foto_url = f"http://localhost:5000/uploads/{user['foto_perfil']}"
-            
-            token = jwt.encode({
+                foto_url_completa = f"http://localhost:5000/uploads/{user['foto_perfil']}" # Mantém seu padrão
+
+            insignia_icone_url_completa = None
+            if user.get("insignia_icone_url_db"):
+                # Assumindo que insignia_icone_url_db é algo como "insignias/nome_icone.png"
+                # e será servido pela rota /uploads/<path:filename>
+                insignia_icone_url_completa = f"http://localhost:5000/uploads/{user['insignia_icone_url_db']}"
+
+            token_payload = {
                 'id': user["id"],
                 'usuario': user["usuario"],
                 'nome': user["nome"],
                 'sobrenome': user["sobrenome"],
-                'foto_url': foto_url,  # Mudança aqui: usar foto_url em vez de foto_perfil
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-            }, SECRET_KEY, algorithm="HS256")
-            
+                'foto_url': foto_url_completa, # URL completa
+                'insignia_selecionada_id': user.get('insignia_selecionada_id'), # Adicionado
+                'insignia_icone_url': insignia_icone_url_completa, # Adicionado URL completa
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1) # Mantém 1 hora como no seu código
+            }
+            # Remove chaves com valor None se desejar, para um token mais limpo
+            token_payload_final = {k: v for k, v in token_payload.items() if v is not None}
+
+            token = jwt.encode(token_payload_final, SECRET_KEY, algorithm="HS256")
+
             return jsonify({
                 "mensagem": "Login bem-sucedido",
-                "usuario": user["usuario"],
-                "nome": user["nome"],
+                "usuario": user["usuario"], # Mantido
+                "nome": user["nome"],       # Mantido
                 "token": token,
-                "foto_url": foto_url  # Mudança aqui: usar foto_url
+                "foto_url": foto_url_completa, # Mantido
+                "insignia_selecionada_id": user.get('insignia_selecionada_id'), # Adicionado
+                "insignia_icone_url": insignia_icone_url_completa # Adicionado
             }), 200
         else:
             return jsonify({"erro": "Usuário ou senha inválidos"}), 401
 
     except Exception as e:
-        return jsonify({"erro": str(e)}), 500
-
+        # Adicionar um log do erro pode ser útil para debug
+        # app.logger.error(f"Erro no login: {str(e)}")
+        return jsonify({"erro": "Erro interno ao tentar fazer login: " + str(e)}), 500
     finally:
         if cursor:
             cursor.close()
-        if conn:
+        if conn and conn.is_connected(): # Boa prática verificar se a conexão está ativa
             conn.close()
 
 #Rota que retorna o XP do usuário logado
@@ -270,14 +300,14 @@ def obter_eventos():
 #Rota para finalizar evento e distribuir XP
 @app.route("/api/finalizar_evento/<int:evento_id>", methods=["POST"])
 @token_obrigatorio
-def finalizar_evento(evento_id):
+def finalizar_evento_e_verificar_insignias(evento_id):
     conn = None
     cursor = None
     try:
         conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True) # Você está usando dictionary=True
 
-        id_usuario = request.usuario_id
+        id_usuario_logado = request.usuario_id # Vem do token, geralmente é int
 
         # Busca dados do evento
         cursor.execute("SELECT ID_USUARIO_CRIADOR, Status, data_hora FROM EVENTO WHERE ID_EVENTO = %s", (evento_id,))
@@ -286,47 +316,61 @@ def finalizar_evento(evento_id):
         if not evento:
             return jsonify({"erro": "Evento não encontrado."}), 404
 
-        criador_id, status, data_hora_evento = evento
+        # CORREÇÃO AQUI: Acessar como dicionário
+        criador_id_db = evento['ID_USUARIO_CRIADOR'] # ID_USUARIO_CRIADOR é int no DB
+        status_db = evento['Status']
+        data_hora_evento_db = evento['data_hora']
+
+        # Debug: Imprimir os IDs e seus tipos para verificar
+        print(f"ID do Usuário Logado (token): {id_usuario_logado}, Tipo: {type(id_usuario_logado)}")
+        print(f"ID do Criador do Evento (DB): {criador_id_db}, Tipo: {type(criador_id_db)}")
 
         # Verifica se é o criador
-        if criador_id != id_usuario:
+        if criador_id_db != id_usuario_logado:
             return jsonify({"erro": "Você não é o criador deste evento."}), 403
 
-        # Verifica se já foi finalizado
-        if status == "finalizado":
+        if status_db == "finalizado": # Use a variável corrigida
             return jsonify({"erro": "Evento já foi finalizado."}), 400
 
-        # Verifica se a data atual é igual à data agendada do evento (apenas a parte da data)
-        data_evento = data_hora_evento.date()
+        data_evento = data_hora_evento_db.date() # Use a variável corrigida
         data_hoje = datetime.datetime.utcnow().date()
 
         if data_hoje < data_evento:
             return jsonify({"erro": "O evento só pode ser finalizado na data agendada."}), 400
 
-        # Atualiza status para finalizado
         cursor.execute("UPDATE EVENTO SET Status = 'finalizado' WHERE ID_EVENTO = %s", (evento_id,))
 
-        # Busca inscritos
         cursor.execute("SELECT ID_USUARIO FROM HISTORICO_EVENTO WHERE ID_EVENTO = %s", (evento_id,))
-        inscritos = cursor.fetchall()
+        inscritos_dicts = cursor.fetchall() # Retorna uma lista de dicionários
 
-        xp_evento = 100  # XP fixo
+        xp_evento = 100
+        usuarios_que_ganharam_xp_e_precisam_verificar_insignias = set()
 
-        for (id_inscrito,) in inscritos:
-            cursor.execute("""
-                UPDATE USUARIO 
-                SET xp_usuario = IFNULL(xp_usuario, 0) + %s 
-                WHERE ID_USUARIO = %s
-            """, (xp_evento, id_inscrito))
+        # CORREÇÃO AQUI: Iterar sobre lista de dicionários
+        for inscrito_dict in inscritos_dicts:
+            id_inscrito = inscrito_dict['ID_USUARIO']
+            cursor.execute(
+                "UPDATE USUARIO SET xp_usuario = IFNULL(xp_usuario, 0) + %s WHERE ID_USUARIO = %s",
+                (xp_evento, id_inscrito)
+            )
+            usuarios_que_ganharam_xp_e_precisam_verificar_insignias.add(id_inscrito)
 
         conn.commit()
-        return jsonify({"mensagem": f"Evento finalizado e XP distribuído para {len(inscritos)} usuários."}), 200
+        
+        print(f"[Integração] Evento {evento_id} finalizado. Verificando insígnias para participantes.")
+        for id_usr_participante in usuarios_que_ganharam_xp_e_precisam_verificar_insignias:
+            print(f"[Integração] Verificando insígnias para participante ID: {id_usr_participante} do evento {evento_id}")
+            verificar_e_conceder_insignias(id_usr_participante)
+
+        return jsonify({"mensagem": f"Evento finalizado, XP distribuído e insígnias verificadas para {len(inscritos_dicts)} usuários."}), 200
 
     except Exception as e:
         if conn:
             conn.rollback()
-        return jsonify({"erro": str(e)}), 500
-
+        # É uma boa ideia logar o erro completo para debug:
+        # import traceback
+        # print(traceback.format_exc())
+        return jsonify({"erro": f"Erro em finalizar_evento: {str(e)}"}), 500
     finally:
         if cursor:
             cursor.close()
@@ -936,47 +980,66 @@ def excluir_desafio(desafio_id):
 #Rota para finalizar desafio e distribuir XP
 @app.route("/api/finalizar_desafio_post/<int:desafio_id>", methods=["POST"])
 @token_obrigatorio
-def finalizar_desafio_post(desafio_id):
+def finalizar_desafio_e_verificar_insignias(desafio_id):
     conn = None
     cursor = None
     try:
         conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True) # Você está usando dictionary=True
 
-        id_usuario = request.usuario_id
+        id_usuario_logado = request.usuario_id # Vem do token, geralmente é int
 
-        # Verifica se o usuário é o criador do desafio
         cursor.execute("SELECT ID_USUARIO, XP, Status FROM DESAFIOS WHERE ID_DESAFIO = %s", (desafio_id,))
         desafio = cursor.fetchone()
         if not desafio:
             return jsonify({"erro": "Desafio não encontrado."}), 404
 
-        criador_id, xp_desafio, status = desafio
-        if criador_id != id_usuario:
+        # CORREÇÃO AQUI: Acessar como dicionário
+        criador_id_db = desafio['ID_USUARIO'] # ID_USUARIO é int no DB
+        xp_desafio_db = desafio['XP']
+        status_db = desafio['Status']
+
+        # Debug: Imprimir os IDs e seus tipos para verificar
+        print(f"ID do Usuário Logado (token): {id_usuario_logado}, Tipo: {type(id_usuario_logado)}")
+        print(f"ID do Criador do Desafio (DB): {criador_id_db}, Tipo: {type(criador_id_db)}")
+
+        if criador_id_db != id_usuario_logado:
             return jsonify({"erro": "Você não é o criador deste desafio."}), 403
 
-        if status == "finalizado":
+        if status_db == "finalizado": # Use a variável corrigida
             return jsonify({"erro": "Desafio já está finalizado."}), 400
 
-        # Atualiza status para finalizado
         cursor.execute("UPDATE DESAFIOS SET Status = 'finalizado', finalizado = 1 WHERE ID_DESAFIO = %s", (desafio_id,))
 
-        # Busca todos os usuários inscritos
         cursor.execute("SELECT ID_USUARIO FROM HISTORICO_DESAFIO WHERE ID_DESAFIO = %s", (desafio_id,))
-        inscritos = cursor.fetchall()
+        inscritos_dicts = cursor.fetchall() # Retorna uma lista de dicionários
 
-        # Para cada inscrito, soma o XP do desafio
-        for (id_usuario_inscrito,) in inscritos:
-            cursor.execute("UPDATE USUARIO SET xp_usuario = IFNULL(xp_usuario, 0) + %s WHERE ID_USUARIO = %s", (xp_desafio, id_usuario_inscrito))
+        usuarios_que_ganharam_xp_e_precisam_verificar_insignias = set()
+
+        # CORREÇÃO AQUI: Iterar sobre lista de dicionários
+        for inscrito_dict in inscritos_dicts:
+            id_usuario_inscrito = inscrito_dict['ID_USUARIO']
+            cursor.execute(
+                "UPDATE USUARIO SET xp_usuario = IFNULL(xp_usuario, 0) + %s WHERE ID_USUARIO = %s",
+                (xp_desafio_db, id_usuario_inscrito) # Use a variável corrigida
+            )
+            usuarios_que_ganharam_xp_e_precisam_verificar_insignias.add(id_usuario_inscrito)
 
         conn.commit()
-        return jsonify({"mensagem": f"Desafio finalizado e XP distribuído para {len(inscritos)} usuários."}), 200
+
+        print(f"[Integração] Desafio {desafio_id} finalizado. Verificando insígnias para participantes.")
+        for id_usr_participante in usuarios_que_ganharam_xp_e_precisam_verificar_insignias:
+            print(f"[Integração] Verificando insígnias para participante ID: {id_usr_participante} do desafio {desafio_id}")
+            verificar_e_conceder_insignias(id_usr_participante)
+
+        return jsonify({"mensagem": f"Desafio finalizado, XP distribuído e insígnias verificadas para {len(inscritos_dicts)} usuários."}), 200
 
     except Exception as e:
         if conn:
             conn.rollback()
-        return jsonify({"erro": str(e)}), 500
-
+        # import traceback
+        # print(traceback.format_exc())
+        return jsonify({"erro": f"Erro em finalizar_desafio: {str(e)}"}), 500
     finally:
         if cursor:
             cursor.close()
@@ -1025,34 +1088,53 @@ def finalizar_desafio_put(desafio_id):
         if cursor: cursor.close()
         if conn and conn.is_connected(): conn.close()
 
-# Rota para criar um relato (modificado)
+# Rota para criar um relato (MODIFICADO E CORRIGIDO)
 @app.route("/api/criar_relato", methods=["POST"])
-def criar_relato():
+@token_obrigatorio # <<< ADICIONAR DECORADOR PARA SEGURANÇA E CONSISTÊNCIA
+def criar_relato_corrigido(): # Renomeei para clareza, pode manter o nome original
     conn = None
     cursor = None
     try:
+        # AGORA PEGAMOS O ID DO USUÁRIO DO TOKEN, COMO NAS OUTRAS ROTAS
+        id_usuario_criador = request.usuario_id 
+
+        # O frontend não precisa mais enviar user_id no corpo
+        titulo = request.json.get('titulo')
+        relato_texto = request.json.get('relato') # Manteve 'relato' como chave para o texto
+
+        if not all([titulo, relato_texto]): # Não precisamos mais verificar user_id aqui, pois vem do token
+            return jsonify({"erro": "Título e relato são obrigatórios."}), 400
+
         conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-
-        titulo = request.json.get('titulo')  
-        relato_texto = request.json.get('relato')
-        user_id = request.json.get('user_id') 
-
-        if not all([titulo, relato_texto, user_id]):
-            return jsonify({"erro": "Dados incompletos para criar o relato."}), 400
+        cursor = conn.cursor() # Não precisa de dictionary=True para INSERTs simples
 
         sql = """
-        INSERT INTO RELATO (ID_USUARIO, titulo, texto, data_criacao)
-        VALUES (%s, %s, %s, NOW())
+        INSERT INTO RELATO (ID_USUARIO, titulo, texto, data_criacao) 
+        VALUES (%s, %s, %s, NOW()) 
         """
-        values = (user_id, titulo, relato_texto)
+        # Usar id_usuario_criador obtido do token
+        values = (id_usuario_criador, titulo, relato_texto) 
         cursor.execute(sql, values)
+        id_novo_relato = cursor.lastrowid # Para retornar o ID do relato criado
         conn.commit()
-        return jsonify({"mensagem": "Relato criado com sucesso!"}), 201
+        
+        print(f"[Integração] Relato criado. Verificando insígnias para usuário ID: {id_usuario_criador}")
+        novas_insignias = verificar_e_conceder_insignias(id_usuario_criador)
+        if novas_insignias:
+            print(f"[Integração] Usuário ID {id_usuario_criador} ganhou novas insígnias por criar relato: {novas_insignias}")
+        
+        # Pode ser útil retornar as novas insígnias para o frontend
+        return jsonify({
+            "mensagem": "Relato criado com sucesso!",
+            "id_relato": id_novo_relato,
+            "novas_insignias_conquistadas": novas_insignias
+        }), 201
 
     except Exception as e:
+        if conn: conn.rollback() # Adicionado rollback em caso de erro
+        # import traceback
+        # print(traceback.format_exc())
         return jsonify({"erro": "Erro ao criar relato: " + str(e)}), 500
-
     finally:
         if cursor:
             cursor.close()
@@ -1233,6 +1315,267 @@ def meus_desafios_ids():
     finally:
         if cursor: cursor.close()
         if conn and conn.is_connected(): conn.close()
+
+#Rota para Mural de Insígnias
+
+@app.route('/api/mural-insignias', methods=['GET'])
+@token_obrigatorio
+def get_mural_insignias():
+    id_usuario_logado = request.usuario_id
+    conn = None
+    cursor = None
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # 1. Buscar todas as insígnias cadastradas no sistema
+        cursor.execute("SELECT ID_INSIGNIA, nome, descricao, icone_url FROM INSIGNIA")
+        todas_insignias_db = cursor.fetchall()
+
+        if not todas_insignias_db:
+            return jsonify([]), 200 # Retorna lista vazia se não houver insígnias
+
+        # 2. Buscar as IDs das insígnias conquistadas pelo usuário logado
+        sql_conquistadas = "SELECT ID_INSIGNIA FROM USUARIO_INSIGNIA WHERE ID_USUARIO = %s"
+        cursor.execute(sql_conquistadas, (id_usuario_logado,))
+        insignias_conquistadas_raw = cursor.fetchall()
+        # Criar um conjunto de IDs para busca rápida
+        set_conquistadas_ids = {item['ID_INSIGNIA'] for item in insignias_conquistadas_raw}
+
+        # 3. Obter a ID da insígnia atualmente selecionada pelo usuário
+        # Podemos pegar do request (que foi populado pelo token) ou buscar no DB para garantir a info mais recente.
+        # Vamos buscar no DB para garantir consistência, caso o token esteja um pouco defasado (improvável com exp de 1h, mas mais robusto).
+        sql_usuario_info = "SELECT insignia_selecionada_id FROM USUARIO WHERE Id_USUARIO = %s"
+        cursor.execute(sql_usuario_info, (id_usuario_logado,))
+        usuario_db_info = cursor.fetchone()
+        id_insignia_selecionada_pelo_usuario = usuario_db_info['insignia_selecionada_id'] if usuario_db_info else None
+        # Alternativamente, você poderia usar:
+        # id_insignia_selecionada_pelo_usuario = request.insignia_selecionada_id
+
+        # 4. Montar o resultado final
+        resultado_mural = []
+        for insignia_db in todas_insignias_db:
+            icone_url_final = None
+            if insignia_db.get('icone_url'):
+                # Constrói a URL completa para o ícone
+                # Ex: se icone_url for "insignias/pioneiro.png", a URL será "http://localhost:5000/uploads/insignias/pioneiro.png"
+                icone_url_final = f"http://localhost:5000/uploads/{insignia_db['icone_url']}"
+
+            resultado_mural.append({
+                'ID_INSIGNIA': insignia_db['ID_INSIGNIA'],
+                'nome': insignia_db['nome'],
+                'descricao': insignia_db['descricao'],
+                'icone_url': icone_url_final, # URL completa para o frontend
+                'conquistada': insignia_db['ID_INSIGNIA'] in set_conquistadas_ids,
+                'selecionada': insignia_db['ID_INSIGNIA'] == id_insignia_selecionada_pelo_usuario
+            })
+
+        return jsonify(resultado_mural), 200
+
+    except mysql.connector.Error as err_db:
+        app.logger.error(f"Erro de banco de dados em /api/mural-insignias: {err_db}")
+        return jsonify({'erro': f'Erro de banco de dados: {str(err_db)}'}), 500
+    except Exception as e_geral:
+        app.logger.error(f"Erro inesperado em /api/mural-insignias: {e_geral}")
+        return jsonify({'erro': f'Erro inesperado no servidor: {str(e_geral)}'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+@app.route('/api/usuario/insignia-selecionada', methods=['PUT'])
+@token_obrigatorio
+def selecionar_insignia_para_usuario():
+    id_usuario_logado = request.usuario_id
+    dados_requisicao = request.get_json()
+
+    if dados_requisicao is None:
+        return jsonify({'erro': 'Corpo da requisição não pode ser vazio. Forneça "id_insignia".'}), 400
+
+    # O frontend pode enviar null para desmarcar a insígnia
+    id_insignia_para_selecionar = dados_requisicao.get('id_insignia') # Pode ser um int ou None
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        nova_insignia_icone_url = None # Para retornar ao frontend
+
+        if id_insignia_para_selecionar is not None:
+            # Verificar se o ID da insígnia é um inteiro válido
+            try:
+                id_insignia_para_selecionar = int(id_insignia_para_selecionar)
+            except ValueError:
+                return jsonify({'erro': 'ID da insígnia inválido.'}), 400
+
+            # 1. Verificar se a insígnia existe
+            cursor.execute("SELECT icone_url FROM INSIGNIA WHERE ID_INSIGNIA = %s", (id_insignia_para_selecionar,))
+            insignia_info = cursor.fetchone()
+            if not insignia_info:
+                return jsonify({'erro': 'Insígnia não encontrada no sistema.'}), 404
+
+            # 2. Verificar se o usuário conquistou esta insígnia
+            sql_check_conquista = """
+                SELECT 1 FROM USUARIO_INSIGNIA
+                WHERE ID_USUARIO = %s AND ID_INSIGNIA = %s
+            """
+            cursor.execute(sql_check_conquista, (id_usuario_logado, id_insignia_para_selecionar))
+            usuario_possui_insignia = cursor.fetchone()
+
+            if not usuario_possui_insignia:
+                return jsonify({'erro': 'Você não conquistou esta insígnia para selecioná-la.'}), 403 # Forbidden
+
+            # 3. Atualizar a insígnia selecionada do usuário
+            sql_update_usuario = "UPDATE USUARIO SET insignia_selecionada_id = %s WHERE Id_USUARIO = %s"
+            cursor.execute(sql_update_usuario, (id_insignia_para_selecionar, id_usuario_logado))
+            
+            if insignia_info.get('icone_url'):
+                nova_insignia_icone_url = f"http://localhost:5000/uploads/{insignia_info['icone_url']}"
+            mensagem_sucesso = "Insígnia selecionada com sucesso!"
+
+        else:
+            # Usuário quer desmarcar a insígnia (enviou id_insignia: null)
+            sql_update_usuario = "UPDATE USUARIO SET insignia_selecionada_id = NULL WHERE Id_USUARIO = %s"
+            cursor.execute(sql_update_usuario, (id_usuario_logado,))
+            mensagem_sucesso = "Insígnia desmarcada com sucesso!"
+            id_insignia_para_selecionar = None # Garante que o valor retornado seja null
+
+        conn.commit()
+
+        # Para atualizar o token no frontend, seria ideal que o frontend
+        # fizesse um novo request de login silencioso ou atualizasse
+        # o token localmente. Retornar os dados aqui ajuda o frontend
+        # a atualizar o estado visual imediatamente.
+        return jsonify({
+            'mensagem': mensagem_sucesso,
+            'insignia_selecionada_id': id_insignia_para_selecionar, # Retorna o ID ou null
+            'insignia_icone_url': nova_insignia_icone_url # Retorna a URL do ícone ou null
+        }), 200
+
+    except mysql.connector.Error as err_db:
+        if conn:
+            conn.rollback()
+        # app.logger.error(f"Erro de DB em /api/usuario/insignia-selecionada: {err_db}")
+        return jsonify({'erro': f'Erro de banco de dados: {str(err_db)}'}), 500
+    except Exception as e_geral:
+        if conn:
+            conn.rollback()
+        # app.logger.error(f"Erro inesperado em /api/usuario/insignia-selecionada: {e_geral}")
+        return jsonify({'erro': f'Erro inesperado no servidor: {str(e_geral)}'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+def verificar_e_conceder_insignias(id_usuario):
+    conn = None
+    cursor = None
+    novas_insignias_conquistadas_nomes = [] # Para log ou notificação
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # 1. Obter estatísticas do usuário
+        # Eventos participados
+        cursor.execute("SELECT COUNT(*) AS total_eventos FROM HISTORICO_EVENTO WHERE ID_USUARIO = %s", (id_usuario,))
+        stats_eventos = cursor.fetchone()['total_eventos'] or 0
+
+        # Desafios participados/completados
+        # Assumindo que HISTORICO_DESAFIO registra participação em desafios finalizados pelo usuário
+        cursor.execute("SELECT COUNT(hd.ID_DESAFIO) AS total_desafios FROM HISTORICO_DESAFIO hd JOIN DESAFIOS d ON hd.ID_DESAFIO = d.ID_DESAFIO WHERE hd.ID_USUARIO = %s AND d.finalizado = TRUE", (id_usuario,))
+        # Ou se 'finalizado' na tabela DESAFIOS é global e você quer contar apenas a participação:
+        # cursor.execute("SELECT COUNT(*) AS total_desafios FROM HISTORICO_DESAFIO WHERE ID_USUARIO = %s", (id_usuario,))
+        stats_desafios = cursor.fetchone()['total_desafios'] or 0
+        
+        # Relatos criados
+        # Verifique se a tabela é COMUNIDADE ou RELATO para os relatos que contam para insígnias
+        # Vou usar RELATO conforme seu schema inicial, ajuste se necessário.
+        cursor.execute("SELECT COUNT(*) AS total_relatos FROM RELATO WHERE ID_USUARIO = %s", (id_usuario,))
+        stats_relatos = cursor.fetchone()['total_relatos'] or 0
+
+        # XP do usuário
+        cursor.execute("SELECT xp_usuario FROM USUARIO WHERE Id_USUARIO = %s", (id_usuario,))
+        usuario_data = cursor.fetchone()
+        stats_xp = usuario_data['xp_usuario'] if usuario_data and usuario_data['xp_usuario'] is not None else 0
+
+        # Montar um dicionário de estatísticas para usar no eval()
+        estatisticas_usuario = {
+            'eventos': stats_eventos,
+            'desafios': stats_desafios,
+            'relatos': stats_relatos,
+            'xp_usuario': stats_xp
+            # Adicione outras estatísticas que suas insígnias possam precisar
+        }
+        print(f"[Insígnias] Estatísticas para Usuário ID {id_usuario}: {estatisticas_usuario}") # Log para debug
+
+        # 2. Buscar insígnias que o usuário ainda NÃO possui
+        sql_insignias_elegiveis = """
+            SELECT i.ID_INSIGNIA, i.nome, i.condicao
+            FROM INSIGNIA i
+            LEFT JOIN USUARIO_INSIGNIA ui ON i.ID_INSIGNIA = ui.ID_INSIGNIA AND ui.ID_USUARIO = %s
+            WHERE ui.ID_INSIGNIA IS NULL AND i.condicao IS NOT NULL AND i.condicao != ''
+        """
+        cursor.execute(sql_insignias_elegiveis, (id_usuario,))
+        insignias_elegiveis = cursor.fetchall()
+
+        if not insignias_elegiveis:
+            print(f"[Insígnias] Nenhuma nova insígnia elegível encontrada ou todas já foram conquistadas pelo usuário ID {id_usuario}.")
+            return # Nenhuma nova insígnia para verificar
+
+        # 3. Avaliar condições e conceder insígnias
+        for insignia in insignias_elegiveis:
+            condicao_str = insignia['condicao']
+            try:
+                # ATENÇÃO: eval() pode ser perigoso se a string 'condicao_str' vier de fontes não confiáveis.
+                # Aqui, assumimos que as condições são definidas por administradores e são seguras.
+                # O segundo argumento de eval ({}) é o escopo global (vazio para segurança).
+                # O terceiro argumento (estatisticas_usuario) são as variáveis locais disponíveis para a expressão.
+                if eval(condicao_str, {}, estatisticas_usuario):
+                    # Condição atendida! Conceder a insígnia.
+                    print(f"[Insígnias] Usuário ID {id_usuario} atendeu à condição '{condicao_str}' para a insígnia '{insignia['nome']}'.")
+                    sql_insert_conquista = "INSERT INTO USUARIO_INSIGNIA (ID_USUARIO, ID_INSIGNIA) VALUES (%s, %s)"
+                    cursor.execute(sql_insert_conquista, (id_usuario, insignia['ID_INSIGNIA']))
+                    novas_insignias_conquistadas_nomes.append(insignia['nome'])
+            except NameError as ne:
+                # Ocorre se uma variável na string de condição não existir em 'estatisticas_usuario'
+                print(f"[Insígnias Aviso] Erro ao avaliar condição '{condicao_str}' para insígnia ID {insignia['ID_INSIGNIA']}: Variável não definida - {ne}. Verifique a string de condição e o dict 'estatisticas_usuario'.")
+            except SyntaxError as se:
+                print(f"[Insígnias Aviso] Erro de sintaxe na condição '{condicao_str}' para insígnia ID {insignia['ID_INSIGNIA']}: {se}.")
+            except Exception as e:
+                # Outros erros durante a avaliação da condição
+                print(f"[Insígnias Erro] Erro inesperado ao avaliar condição '{condicao_str}' para insígnia ID {insignia['ID_INSIGNIA']}: {e}")
+                # Considere logar o erro `e` de forma mais robusta
+
+        if novas_insignias_conquistadas_nomes:
+            conn.commit()
+            print(f"[Insígnias] Usuário ID {id_usuario} conquistou novas insígnias: {', '.join(novas_insignias_conquistadas_nomes)}")
+        else:
+            conn.rollback() # Ou apenas não fazer commit se nada mudou
+            print(f"[Insígnias] Nenhuma nova insígnia concedida ao usuário ID {id_usuario} nesta verificação.")
+
+    except mysql.connector.Error as err_db:
+        if conn:
+            conn.rollback()
+        print(f"[Insígnias Erro DB] Erro de banco de dados ao verificar insígnias para usuário ID {id_usuario}: {err_db}")
+    except Exception as e_geral:
+        if conn:
+            conn.rollback()
+        print(f"[Insígnias Erro Geral] Erro inesperado ao verificar insígnias para usuário ID {id_usuario}: {e_geral}")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
+
+    # Você pode retornar novas_insignias_conquistadas_nomes se quiser notificar o usuário no frontend
+    return novas_insignias_conquistadas_nomes
 
 # CORREÇÃO PARA ELASTIC BEANSTALK
 application = app
