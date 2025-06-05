@@ -246,10 +246,7 @@ export default function ListaDesafios() {
                     {desafio.Descricao}
                   </p>
                   <p className="xp text-teal-400 font-bold mb-4">XP: {desafio.XP}</p>
-                  {/* Status de Finalizado */}
-                  {estaFinalizado && (
-                    <p className="text-red-500 font-bold mb-2">Desafio Finalizado!</p>
-                  )}
+
 
                   {token && ( // Mostrar botões de ação apenas se logado
                     <>

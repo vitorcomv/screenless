@@ -393,6 +393,7 @@ def obter_desafios():
         sql = """
         SELECT ID_DESAFIO, nome_usuario, Titulo, Descricao, XP, foto, finalizado
         FROM DESAFIOS
+        WHERE Status = 'ativo' 
         """
         cursor.execute(sql)
         desafios = cursor.fetchall()
@@ -958,7 +959,7 @@ def finalizar_desafio_post(desafio_id):
             return jsonify({"erro": "Desafio já está finalizado."}), 400
 
         # Atualiza status para finalizado
-        cursor.execute("UPDATE DESAFIOS SET Status = 'finalizado' WHERE ID_DESAFIO = %s", (desafio_id,))
+        cursor.execute("UPDATE DESAFIOS SET Status = 'finalizado', finalizado = 1 WHERE ID_DESAFIO = %s", (desafio_id,))
 
         # Busca todos os usuários inscritos
         cursor.execute("SELECT ID_USUARIO FROM HISTORICO_DESAFIO WHERE ID_DESAFIO = %s", (desafio_id,))

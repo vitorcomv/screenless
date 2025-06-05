@@ -232,6 +232,7 @@ export default function MeusDesafios() {
       )}
       <div className="desafios-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {desafiosCriados.map((desafio) => {
+          console.log('Desafio do backend:', desafio.Titulo, 'finalizado:', desafio.finalizado, 'tipo:', typeof desafio.finalizado);
           const estaFinalizado = desafio.finalizado;
 
           return (
