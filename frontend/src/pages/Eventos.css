@@ -16,6 +16,15 @@
   text-align: center;
 }
 
+/* Informações da paginação */
+.info-paginacao {
+  color: #00796b;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
 .eventos-grid {
   display: flex;
   gap: 20px;
@@ -148,6 +157,100 @@
   font-size: 12px;
 }
 
+/* Estilos para paginação */
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+  margin-bottom: 40px;
+}
+
+.paginacao-btn {
+  background-color: #26a69a;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.paginacao-btn:hover:not(:disabled) {
+  background-color: #00897b;
+  transform: translateY(-2px);
+}
+
+.paginacao-btn:disabled {
+  background-color: #b0bec5;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+.paginacao-numeros {
+  display: flex;
+  gap: 5px;
+  margin: 0 15px;
+}
+
+.paginacao-numero {
+  background-color: #ffffff;
+  color: #26a69a;
+  border: 2px solid #26a69a;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 40px;
+}
+
+.paginacao-numero:hover {
+  background-color: #e0f2f1;
+  transform: translateY(-1px);
+}
+
+.paginacao-numero.ativo {
+  background-color: #26a69a;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(38, 166, 154, 0.3);
+}
+
+/* Estados de loading e erro */
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: 18px;
+  color: #26a69a;
+  font-weight: 500;
+}
+
+.error {
+  color: #e91e63;
+}
+
+/* Mensagem quando não há eventos */
+.sem-eventos {
+  text-align: center;
+  padding: 60px 20px;
+  color: #00796b;
+}
+
+.sem-eventos p {
+  font-size: 18px;
+  margin: 0;
+  opacity: 0.7;
+}
+
 .proxima-imagem {
   width: 100%;
   position: relative;
@@ -213,6 +316,24 @@
   .lista-eventos-container h2 {
     font-size: 24px;
   }
+
+  /* Responsividade da paginação */
+  .paginacao {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .paginacao-numeros {
+    margin: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .paginacao-btn {
+    min-width: 80px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -229,5 +350,15 @@
     width: 90%;
     font-size: 14px;
     padding: 12px 20px;
+  }
+
+  .paginacao-numero {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 35px;
+  }
+
+  .info-paginacao {
+    font-size: 12px;
   }
 }

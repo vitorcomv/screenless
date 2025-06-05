@@ -4,11 +4,14 @@ import proximaImagem from '../assets/imagemfundo.png';
 import { Link } from "react-router-dom";
 
 export default function ListaEventos() {
+  const [todosEventos, setTodosEventos] = useState([]);
   const [eventos, setEventos] = useState([]);
   const [inscritos, setInscritos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  
+  const eventosPorPagina = 6; // Mostra 6 eventos por página
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -16,8 +19,13 @@ export default function ListaEventos() {
       try {
         const response = await fetch("http://localhost:5000/api/eventos");
         const data = await response.json();
-        const lastThreeEventos = data.slice(-3);
-        setEventos(lastThreeEventos);
+        
+        console.log("Dados dos eventos:", data);
+        
+        // Ordena eventos por data (mais recentes primeiro)
+        const eventosOrdenados = data.sort((a, b) => new Date(b.data_hora_original) - new Date(a.data_hora_original));
+        
+        setTodosEventos(eventosOrdenados);
         setLoading(false);
       } catch (e) {
         setError(e);
@@ -34,7 +42,16 @@ export default function ListaEventos() {
           }
         });
         const data = await response.json();
-        setInscritos(data);
+        
+        if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'number') {
+          setInscritos(data);
+        } 
+        else if (Array.isArray(data) && data.length > 0 && data[0].ID_EVENTO) {
+          setInscritos(data.map(evento => evento.ID_EVENTO));
+        }
+        else {
+          setInscritos([]);
+        }
       } catch (e) {
         console.error("Erro ao buscar inscrições:", e);
       }
@@ -43,6 +60,13 @@ export default function ListaEventos() {
     fetchEventos();
     fetchInscricoes();
   }, [token]);
+
+  // Atualiza os eventos exibidos quando muda a página ou os dados
+  useEffect(() => {
+    const indiceInicio = (paginaAtual - 1) * eventosPorPagina;
+    const indiceFim = indiceInicio + eventosPorPagina;
+    setEventos(todosEventos.slice(indiceInicio, indiceFim));
+  }, [todosEventos, paginaAtual]);
 
   const inscreverEmEvento = async (eventoId) => {
     if (!token) {
@@ -66,7 +90,6 @@ export default function ListaEventos() {
 
       if (response.status === 201) {
         alert(data.mensagem);
-        // Atualiza a lista de inscritos
         setInscritos([...inscritos, eventoId]);
       } else {
         alert(data.erro || "Erro ao se inscrever no evento.");
@@ -76,17 +99,56 @@ export default function ListaEventos() {
     }
   };
 
-  if (loading) return <div>Carregando eventos...</div>;
-  if (error) return <div>Erro ao carregar eventos: {error.message}</div>;
+  // Cálculos para paginação
+  const totalPaginas = Math.ceil(todosEventos.length / eventosPorPagina);
+  const temPaginaAnterior = paginaAtual > 1;
+  const temProximaPagina = paginaAtual < totalPaginas;
+
+  const irParaPagina = (numeroPagina) => {
+    setPaginaAtual(numeroPagina);
+    // Scroll suave para o topo da lista de eventos
+    document.querySelector('.lista-eventos-container')?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+
+  const paginaAnterior = () => {
+    if (temPaginaAnterior) {
+      irParaPagina(paginaAtual - 1);
+    }
+  };
+
+  const proximaPagina = () => {
+    if (temProximaPagina) {
+      irParaPagina(paginaAtual + 1);
+    }
+  };
+
+  if (loading) return <div className="loading">Carregando eventos...</div>;
+  if (error) return <div className="error">Erro ao carregar eventos: {error.message}</div>;
 
   return (
     <div>
       <div className="lista-eventos-container">
-        <h2>Próximos Eventos</h2>
+        <h2>Eventos</h2>
+        
+        {/* Informações da paginação */}
+        {todosEventos.length > 0 && (
+          <div className="info-paginacao">
+            Mostrando {((paginaAtual - 1) * eventosPorPagina) + 1} - {Math.min(paginaAtual * eventosPorPagina, todosEventos.length)} de {todosEventos.length} eventos
+          </div>
+        )}
+        
         <div className="eventos-grid">
           {eventos.map((evento) => {
             const jaInscrito = inscritos.includes(evento.ID_EVENTO);
             const eventoFinalizado = evento.Status === "finalizado";
+
+            console.log(`Evento ${evento.ID_EVENTO}:`, {
+              titulo: evento.titulo,
+              Status: evento.Status,
+              eventoFinalizado
+            });
 
             return (
               <div className="evento-card" key={evento.ID_EVENTO}>
@@ -122,6 +184,49 @@ export default function ListaEventos() {
             );
           })}
         </div>
+
+        {/* Controles de paginação */}
+        {totalPaginas > 1 && (
+          <div className="paginacao">
+            <button 
+              className="paginacao-btn anterior" 
+              onClick={paginaAnterior}
+              disabled={!temPaginaAnterior}
+            >
+              ← Anterior
+            </button>
+            
+            <div className="paginacao-numeros">
+              {Array.from({ length: totalPaginas }, (_, index) => {
+                const numeroPagina = index + 1;
+                return (
+                  <button
+                    key={numeroPagina}
+                    className={`paginacao-numero ${paginaAtual === numeroPagina ? 'ativo' : ''}`}
+                    onClick={() => irParaPagina(numeroPagina)}
+                  >
+                    {numeroPagina}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button 
+              className="paginacao-btn proximo" 
+              onClick={proximaPagina}
+              disabled={!temProximaPagina}
+            >
+              Próximo →
+            </button>
+          </div>
+        )}
+
+        {/* Mensagem quando não há eventos */}
+        {todosEventos.length === 0 && !loading && (
+          <div className="sem-eventos">
+            <p>Nenhum evento encontrado.</p>
+          </div>
+        )}
       </div>
 
       <div className="proxima-imagem">

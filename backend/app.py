@@ -238,7 +238,21 @@ def obter_eventos():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        sql = "SELECT ID_EVENTO, titulo, organizador, endereco, DATE_FORMAT(data_hora, '%d/%m/%Y às %H:%i') AS data_hora, descricao, foto FROM EVENTO"
+        # CORREÇÃO: Adicionado o campo Status na query
+        sql = """
+        SELECT 
+            ID_EVENTO, 
+            titulo, 
+            organizador, 
+            endereco, 
+            DATE_FORMAT(data_hora, '%d/%m/%Y às %H:%i') AS data_hora,
+            data_hora as data_hora_original,
+            descricao, 
+            foto,
+            Status
+        FROM EVENTO
+        ORDER BY data_hora DESC
+        """
         cursor.execute(sql)
         eventos = cursor.fetchall()
 
