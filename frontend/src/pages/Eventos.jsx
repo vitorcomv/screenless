@@ -152,19 +152,32 @@ export default function ListaEventos() {
 
             return (
               <div className="evento-card" key={evento.ID_EVENTO}>
-                {evento.foto && (
+                {evento.foto_url && (
                   <img
-                    src={`http://localhost:5000/uploads/${evento.foto}`}
+                    src={evento.foto_url}
                     alt={evento.titulo}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = "https://via.placeholder.com/200x150";
+                      e.target.src = "/placeholder.png";
                     }}
                   />
                 )}
                 <div className="evento-info">
                   <h3>{evento.titulo}</h3>
-                  <p className="organizador">{evento.organizador}</p>
+
+                  {/* TRECHO MODIFICADO - INÍCIO */}
+                  <div className="autor-container">
+                    <p className="organizador">{evento.autor_nome}</p>
+                    {evento.autor_insignia_url && (
+                      <img 
+                        src={evento.autor_insignia_url} 
+                        alt="Insígnia do organizador" 
+                        className="insignia-no-card"
+                      />
+                    )}
+                  </div>
+                  {/* TRECHO MODIFICADO - FIM */}
+                  
                   <p className="endereco">{evento.endereco}</p>
                   <p className="data-hora">{evento.data_hora}</p>
 

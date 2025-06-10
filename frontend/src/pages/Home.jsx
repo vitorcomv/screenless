@@ -169,8 +169,17 @@ const Home = () => {
                           </svg>
                         </div>
                         <div className="user-info">
-                          <span className="user-name">{relato.nome_usuario}</span>
-                          <p className="relato-date">{new Date(relato.data_criacao).toLocaleDateString('pt-BR')}</p>
+                          <div className="user-name-container">
+                            <span className="user-name">{relato.autor_nome}</span>
+                            {relato.autor_insignia_url && (
+                              <img 
+                                src={relato.autor_insignia_url}
+                                alt="Insígnia do usuário"
+                                className="insignia-no-relato"
+                              />
+                            )}
+                          </div>
+                          <p className="relato-date">{relato.data_criacao_formatada}</p>
                         </div>
                       </div>
                       <div className="comment-content">

@@ -15,6 +15,7 @@ export default function Navbar() {
   const menuRef = useRef(null);
   const [xpUsuario, setXpUsuario] = useState(0);
   const [nivel, setNivel] = useState("bronze");
+  const [erroCarregandoImagem, setErroCarregandoImagem] = useState(false);
 
   const handleScrollToSection = (id) => {
     if (window.location.pathname !== "/") {
@@ -79,6 +80,11 @@ export default function Navbar() {
       });
   }, [usuarioLogado]);
 
+  useEffect(() => {
+    setErroCarregandoImagem(false);
+  }, [fotoUsuario]);
+
+
   return (
     <nav className="navbar">
       <div className="nav-left">
@@ -109,45 +115,49 @@ export default function Navbar() {
 
       <div className="auth">
         {usuarioLogado ? (
-          <>
-            <div className="user-wrapper">
-              <div className="nivel-info">
-                <img src={getNivelImg()} alt={nivel} className="nivel-icon" />
-                <span>{xpUsuario}/{getXpLimite()}</span>
-              </div>
-
-              <div className="user-menu" ref={menuRef}>
-                <button onClick={toggleMenu} className="user-button">
-                  {fotoUsuario ? (
-                    <img src={fotoUsuario} alt="avatar" className="avatar" />
-                  ) : (
-                    <span className="avatar-placeholder">
-                      {usuarioLogado?.charAt(0)}
-                    </span>
-                  )}
-                  <span className="user-nome">{usuarioLogado}</span> ▼
-                </button>
-                {menuAberto && (
-                  <div className="dropdown-menu">
-                    <Link to="/meu-perfil" onClick={() => setMenuAberto(false)}>
-                      Meu Perfil
-                    </Link>
-                    <Link to="/meus-eventos" onClick={() => setMenuAberto(false)}>
-                      Meus Eventos
-                    </Link>
-                    <Link to="/meus-desafios" onClick={() => setMenuAberto(false)}>
-                      Meus Desafios
-                    </Link>
-                    <Link to="/mural-de-insignias" onClick={() => setMenuAberto(false)}>
-                      Mural de Insígnias
-                    </Link>
-                    <button onClick={handleLogout}>Sair</button>
-                  </div>
-                )}
-              </div>
+          <div className="user-wrapper">
+            <div className="nivel-info">
+              <img src={getNivelImg()} alt={nivel} className="nivel-icon" />
+              <span>{xpUsuario}/{getXpLimite()}</span>
             </div>
 
-          </>
+            <div className="user-menu" ref={menuRef}>
+              <button onClick={toggleMenu} className="user-button">
+                {fotoUsuario && !erroCarregandoImagem ? (
+                  <img
+                    src={fotoUsuario}
+                    alt="avatar"
+                    className="avatar"
+                    onLoad={() => setErroCarregandoImagem(false)} // confirma sucesso
+                    onError={() => setErroCarregandoImagem(true)} // confirma falha
+                  />
+                ) : (
+                  <span className="avatar-placeholder">
+                    {usuarioLogado?.charAt(0)}
+                  </span>
+                )}
+                <span className="user-nome">{usuarioLogado}</span> ▼
+              </button>
+
+              {menuAberto && (
+                <div className="dropdown-menu">
+                  <Link to="/meu-perfil" onClick={() => setMenuAberto(false)}>
+                    Meu Perfil
+                  </Link>
+                  <Link to="/meus-eventos" onClick={() => setMenuAberto(false)}>
+                    Meus Eventos
+                  </Link>
+                  <Link to="/meus-desafios" onClick={() => setMenuAberto(false)}>
+                    Meus Desafios
+                  </Link>
+                  <Link to="/mural-de-insignias" onClick={() => setMenuAberto(false)}>
+                    Mural de Insígnias
+                  </Link>
+                  <button onClick={handleLogout}>Sair</button>
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
           <div className="nav-right">
             <Link to="/login">Login</Link>

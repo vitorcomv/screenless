@@ -268,23 +268,35 @@ def obter_eventos():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        # CORREÇÃO: Adicionado o campo Status na query
+        # SQL MODIFICADO para incluir dados do autor e sua insígnia
         sql = """
-        SELECT 
-            ID_EVENTO, 
-            titulo, 
-            organizador, 
-            endereco, 
-            DATE_FORMAT(data_hora, '%d/%m/%Y às %H:%i') AS data_hora,
-            data_hora as data_hora_original,
-            descricao, 
-            foto,
-            Status
-        FROM EVENTO
-        ORDER BY data_hora DESC
+            SELECT 
+                e.ID_EVENTO, 
+                e.titulo, 
+                e.endereco, 
+                DATE_FORMAT(e.data_hora, '%d/%m/%Y às %H:%i') AS data_hora,
+                e.data_hora AS data_hora_original,
+                e.descricao, 
+                e.foto,
+                e.Status,
+                u.nome AS autor_nome, -- Nome do autor vindo da tabela USUARIO
+                i.icone_url AS autor_insignia_url -- URL da insígnia do autor
+            FROM EVENTO e
+            -- Junta com USUARIO para pegar o nome do autor
+            JOIN USUARIO u ON e.ID_USUARIO_CRIADOR = u.Id_USUARIO
+            -- Junta com INSIGNIA para pegar a insígnia (LEFT JOIN para não falhar se não houver)
+            LEFT JOIN INSIGNIA i ON u.insignia_selecionada_id = i.ID_INSIGNIA
+            ORDER BY e.data_hora DESC
         """
         cursor.execute(sql)
         eventos = cursor.fetchall()
+
+        # Constrói a URL completa para as imagens
+        for evento in eventos:
+            if evento['foto']:
+                evento['foto_url'] = f"http://localhost:5000/uploads/{evento['foto']}"
+            if evento['autor_insignia_url']:
+                evento['autor_insignia_url'] = f"http://localhost:5000/uploads/{evento['autor_insignia_url']}"
 
         return jsonify(eventos), 200
 
@@ -433,14 +445,34 @@ def obter_desafios():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        # Buscar todos os desafios
+        # SQL MODIFICADO para incluir dados do autor e sua insígnia
         sql = """
-        SELECT ID_DESAFIO, nome_usuario, Titulo, Descricao, XP, foto, finalizado
-        FROM DESAFIOS
-        WHERE Status = 'ativo' 
+            SELECT 
+                d.ID_DESAFIO,
+                d.Titulo,
+                d.Descricao,
+                d.XP,
+                d.foto,
+                d.finalizado,
+                d.ID_USUARIO, -- Adicionado para verificação no frontend
+                u.nome AS autor_nome, -- Nome do autor vindo da tabela USUARIO
+                i.icone_url AS autor_insignia_url -- URL da insígnia do autor
+            FROM DESAFIOS d
+            -- Junta com USUARIO para pegar o nome do autor
+            JOIN USUARIO u ON d.ID_USUARIO = u.Id_USUARIO
+            -- Junta com INSIGNIA para pegar a insígnia (LEFT JOIN para não falhar se não houver)
+            LEFT JOIN INSIGNIA i ON u.insignia_selecionada_id = i.ID_INSIGNIA
+            WHERE d.Status = 'ativo'
         """
         cursor.execute(sql)
         desafios = cursor.fetchall()
+
+        # Constrói a URL completa para as imagens
+        for desafio in desafios:
+            if desafio.get('foto'):
+                desafio['foto_url'] = f"http://localhost:5000/uploads/{desafio['foto']}"
+            if desafio.get('autor_insignia_url'):
+                desafio['autor_insignia_url'] = f"http://localhost:5000/uploads/{desafio['autor_insignia_url']}"
 
         return jsonify(desafios), 200
 
@@ -839,9 +871,9 @@ def desafios_inscritos():
         if conn and conn.is_connected(): conn.close()
 
 # Rota para cancelar inscrição em desafio
-@app.route("/api/cancelar_inscricao_desafio", methods=["DELETE"])
+@app.route("/api/cancelar_inscricao_desafio/<int:desafio_id>", methods=["DELETE"])
 @token_obrigatorio
-def cancelar_inscricao_desafio():
+def cancelar_inscricao_desafio_por_id(desafio_id): # O nome da função pode ser o mesmo, mas o parâmetro é novo
     conn = None
     cursor = None
     try:
@@ -849,11 +881,14 @@ def cancelar_inscricao_desafio():
         cursor = conn.cursor()
 
         id_usuario = request.usuario_id
-        desafio_id = request.args.get('desafio_id') # Recebe via query parameter
+        # Não precisamos mais do request.args, o desafio_id vem do parâmetro da URL
 
         if not desafio_id:
+            # Esta verificação se torna redundante, mas podemos manter por segurança
             return jsonify({"erro": "ID do desafio é obrigatório"}), 400
 
+        # O nome da sua tabela pode ser HISTORICO_DESAFIO ou USUARIO_DESAFIO.
+        # Ajuste se o nome estiver diferente.
         sql = """
         DELETE FROM HISTORICO_DESAFIO
         WHERE ID_USUARIO = %s AND ID_DESAFIO = %s
@@ -867,6 +902,8 @@ def cancelar_inscricao_desafio():
         return jsonify({"mensagem": "Inscrição cancelada com sucesso!"}), 200
 
     except Exception as e:
+        if conn and conn.is_connected():
+            conn.rollback()
         return jsonify({"erro": str(e)}), 500
     finally:
         if cursor: cursor.close()
@@ -1150,19 +1187,31 @@ def obter_relatos():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
+        # SQL MODIFICADO para incluir nome real e insígnia do autor
         sql = """
-        SELECT r.ID_RELATO, r.titulo, r.texto, r.data_criacao, u.usuario AS nome_usuario
-        FROM RELATO r
-        JOIN USUARIO u ON r.ID_USUARIO = u.ID_USUARIO
-        ORDER BY r.data_criacao DESC
+            SELECT 
+                r.ID_RELATO, 
+                r.titulo, 
+                r.texto, 
+                r.data_criacao, 
+                u.nome AS autor_nome,  -- Usando o nome real do usuário
+                i.icone_url AS autor_insignia_url -- Buscando a URL da insígnia
+            FROM RELATO r
+            JOIN USUARIO u ON r.ID_USUARIO = u.Id_USUARIO
+            LEFT JOIN INSIGNIA i ON u.insignia_selecionada_id = i.ID_INSIGNIA
+            ORDER BY r.data_criacao DESC
         """
         cursor.execute(sql)
         relatos = cursor.fetchall()
 
-        # Formatar a data para exibição
+        # Formatar a data e construir a URL da insígnia
         for relato in relatos:
-            if relato['data_criacao']:
-                relato['data_criacao'] = relato['data_criacao'].strftime('%d/%m/%Y')
+            if relato.get('data_criacao'):
+                # Convertendo a data para o formato dd/mm/aaaa
+                relato['data_criacao_formatada'] = relato['data_criacao'].strftime('%d/%m/%Y')
+            
+            if relato.get('autor_insignia_url'):
+                relato['autor_insignia_url'] = f"http://localhost:5000/uploads/{relato['autor_insignia_url']}"
 
         return jsonify(relatos), 200
 

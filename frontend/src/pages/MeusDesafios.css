@@ -1,202 +1,164 @@
-/* Container principal */
-.meus-desafios-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  font-family: Arial, sans-serif;
-  color: #333; /* Ajuste a cor do texto para o seu tema */
+.meus-desafios-page {
+  background-color: #111827; /* bg-gray-900 */
+  color: #ffffff; /* text-white */
+  min-height: 100vh;
+  padding: 2rem; /* p-8 */
 }
 
-.meus-desafios-container h2 {
+/* Títulos de Seção (ex: "Meus Desafios Criados") */
+.section-title {
+  font-size: 1.875rem; /* text-3xl */
+  line-height: 2.25rem;
+  font-weight: 700; /* font-bold */
+  margin-bottom: 2rem; /* mb-8 */
   text-align: center;
-  margin-bottom: 30px;
-  font-size: 2.5em;
-  color: #007bff; /* Exemplo de cor para o título */
 }
 
-/* Seções (Criados / Inscritos) */
-.meus-desafios-container section {
-  margin-bottom: 40px;
-  background-color: #f8f9fa; /* Fundo da seção */
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Título da segunda seção */
+.section-title.inscritos {
+  margin-top: 3rem; /* mt-12 */
 }
 
-.meus-desafios-container section h3 {
-  font-size: 1.8em;
-  margin-bottom: 20px;
-  color: #0056b3; /* Exemplo de cor para subtítulo */
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 10px;
-}
-
-.mensagem-vazia {
+/* Mensagens de feedback (loading, erro, vazio) */
+.feedback-message {
   text-align: center;
-  color: #6c757d;
-  font-style: italic;
-  padding: 20px;
+  font-size: 1.25rem; /* text-xl */
+  line-height: 1.75rem;
+  margin-top: 2.5rem; /* mt-10 */
+}
+.feedback-message.error {
+  color: #ef4444; /* text-red-500 */
+}
+.feedback-message.empty {
+  color: #9ca3af; /* text-gray-400 */
 }
 
-/* Grid de cards */
-.meus-desafios-grid {
+/* Grid que alinha os cards */
+.cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.5rem; /* gap-6 */
+}
+@media (min-width: 768px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* md:grid-cols-2 */
+  }
+}
+@media (min-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* lg:grid-cols-3 */
+  }
 }
 
-/* Card individual de desafio */
-.meu-desafio-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Card individual */
+.card-desafio {
+  background-color: #1f2937; /* bg-gray-800 */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
   overflow: hidden;
+  transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease-in-out;
+}
+.card-desafio:hover {
+  transform: scale(1.05);
 }
 
-.meu-desafio-card:hover {
-  transform: translateY(-5px);
-}
-
-.meu-desafio-imagem {
+.card-desafio .card-image {
   width: 100%;
-  height: 180px; /* Altura fixa para as imagens dos cards */
+  height: 12rem; /* h-48 */
   object-fit: cover;
 }
 
-.meu-desafio-info {
-  padding: 15px;
-  flex-grow: 1; /* Faz com que o conteúdo ocupe o espaço restante */
+.card-desafio .card-info {
+  padding: 1.5rem; /* p-6 */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
 
-.meu-desafio-info h3 {
-  font-size: 1.4em;
-  margin-bottom: 8px;
-  color: #343a40;
+.card-info h3 {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600; /* font-semibold */
+  margin-bottom: 0.5rem; /* mb-2 */
 }
 
-.meu-desafio-info p {
-  font-size: 0.9em;
-  color: #555;
-  margin-bottom: 5px;
+.card-info .organizador {
+  font-size: 0.875rem; /* text-sm */
+  color: #9ca3af; /* text-gray-400 */
+  margin-bottom: 0.25rem; /* mb-1 */
 }
 
-.meu-desafio-info .organizador {
-  font-weight: bold;
-  color: #6c757d;
-}
-
-.meu-desafio-info .descricao {
-  font-size: 0.85em;
-  color: #666;
-  margin-top: 10px;
-  max-height: 80px; /* Limita a altura da descrição */
+.card-info .descricao {
+  font-size: 0.875rem; /* text-sm */
+  color: #d1d5db; /* text-gray-300 */
+  margin-bottom: 0.75rem; /* mb-3 */
+  height: 5rem; /* h-20 */
   overflow-y: auto;
-  line-height: 1.4;
 }
 
-/* Botões nos cards */
-.desafio-btn {
-  display: block;
-  width: 100%;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9em;
-  font-weight: bold;
-  margin-top: 10px;
-  transition: background-color 0.2s ease;
+.card-info .xp {
+  color: #2dd4bf; /* text-teal-400 */
+  font-weight: 700; /* font-bold */
+  margin-bottom: 1rem; /* mb-4 */
 }
 
-.desafio-btn.editar {
-  background-color: #007bff;
-  color: white;
+/* Status de desafio finalizado */
+.status-finalizado {
+  color: #ef4444; /* text-red-500 */
+  font-weight: 700; /* font-bold */
 }
 
-.desafio-btn.editar:hover {
-  background-color: #0056b3;
-}
-
-.desafio-btn.excluir {
-  background-color: #dc3545;
-  color: white;
-}
-
-.desafio-btn.excluir:hover {
-  background-color: #c82333;
-}
-
-.desafio-btn.cancelar {
-  background-color: #ffc107;
-  color: #212529;
-}
-
-.desafio-btn.cancelar:hover {
-  background-color: #e0a800;
-}
-
-/* Formulário de Edição */
-.editar-form-container {
-  background-color: #e9ecef;
-  padding: 25px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-}
-
-.editar-form-container h3 {
-  text-align: center;
-  font-size: 1.8em;
-  margin-bottom: 20px;
-  color: #343a40;
-}
-
-.editar-form-container input[type="text"],
-.editar-form-container input[type="number"],
-.editar-form-container textarea {
-  width: calc(100% - 20px);
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 1em;
-}
-
-.editar-form-container input[type="file"] {
-  margin-bottom: 15px;
-}
-
-.editar-form-buttons {
+/* Container para os botões de gerenciamento */
+.gerenciamento-botoes {
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
+  flex-direction: column;
+  margin-top: 1rem; /* mt-4 */
+}
+/* Espaçamento entre botões */
+.gerenciamento-botoes > * + * {
+  margin-top: 0.5rem; /* space-y-2 */
 }
 
-.editar-form-buttons .desafio-btn {
-  width: auto;
-  padding: 10px 20px;
+/* Estilo base para botões de gerenciamento */
+.btn-gerenciamento {
+  width: 100%;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border: none;
+  border-radius: 0.375rem; /* rounded-md */
+  color: #ffffff;
+  font-weight: 600; /* font-semibold */
+  transition: background-color 0.2s;
+  cursor: pointer;
 }
 
-/* Responsividade básica */
-@media (max-width: 768px) {
-  .meus-desafios-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  }
+.btn-editar {
+  background-color: #f59e0b; /* bg-yellow-500 */
+}
+.btn-editar:hover {
+  background-color: #d97706; /* hover:bg-yellow-600 */
 }
 
-@media (max-width: 480px) {
-  .meus-desafios-container h2 {
-    font-size: 2em;
-  }
-  .meus-desafios-container section h3 {
-    font-size: 1.5em;
-  }
-  .meus-desafios-grid {
-    grid-template-columns: 1fr;
-  }
+.btn-excluir {
+  background-color: #dc2626; /* bg-red-600 */
+}
+.btn-excluir:hover {
+  background-color: #b91c1c; /* hover:bg-red-700 */
+}
+
+.btn-finalizar {
+  background-color: #9333ea; /* bg-purple-600 */
+}
+.btn-finalizar:hover {
+  background-color: #7e22ce; /* hover:bg-purple-700 */
+}
+
+.btn-cancelar {
+  background-color: #dc2626; /* bg-red-600 */
+}
+.btn-cancelar:hover {
+  background-color: #b91c1c; /* hover:bg-red-700 */
 }

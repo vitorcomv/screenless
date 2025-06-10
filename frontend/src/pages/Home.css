@@ -715,7 +715,17 @@ body {
     outline: none;
 }
 
+.user-name-container {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Espaço entre o nome e a insígnia */
+}
 
+.insignia-no-relato {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
 
 /* Animações Keyframes */
 @keyframes fadeIn {

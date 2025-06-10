@@ -32,7 +32,7 @@ export default function Login() {
     const data = await response.json();
     if (response.ok) {
       // Mudança aqui: usar foto_url em vez de foto_perfil
-      login(data.token, data.usuario, data.foto_url);
+      login(data.token, data.usuario, data.foto_url, data.insignia_icone_url);
       navigate("/");
     } else {
       setErroLogin(data.erro);

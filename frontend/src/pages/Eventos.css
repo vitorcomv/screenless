@@ -291,6 +291,28 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
+.autor-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Espaço entre o nome e a insígnia */
+  margin: 4px 0;
+}
+
+/* ...POR ESTE BLOCO CORRIGIDO */
+.autor-container .insignia-no-card {
+  width: 24px;       /* Define a largura correta */
+  height: 24px;      /* Define a altura correta */
+  object-fit: contain;
+  
+  /* IMPORTANTE: anula os estilos da regra geral que não queremos */
+  margin-bottom: 0; 
+  border-radius: 0;
+}
+
+.organizador {
+    margin: 0; /* Remove margens padrão do parágrafo */
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .lista-eventos-container {
