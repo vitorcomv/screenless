@@ -14,6 +14,14 @@ export default function MeusEventos() {
     foto: null,
   });
 
+  const [eventosCriadosPaginados, setEventosCriadosPaginados] = useState([]);
+  const [paginaAtualCriados, setPaginaAtualCriados] = useState(1);
+  
+  const [eventosInscritosPaginados, setEventosInscritosPaginados] = useState([]);
+  const [paginaAtualInscritos, setPaginaAtualInscritos] = useState(1);
+
+  const eventosPorPagina = 3;
+
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -64,6 +72,40 @@ export default function MeusEventos() {
         // navigate("/login"); // Exemplo de redirecionamento
     }
   }, [token, navigate]); // Adicionado navigate como dependência se usado dentro do useEffect
+
+  useEffect(() => {
+    const indiceInicio = (paginaAtualCriados - 1) * eventosPorPagina;
+    const indiceFim = indiceInicio + eventosPorPagina;
+    setEventosCriadosPaginados(eventosCriados.slice(indiceInicio, indiceFim));
+  }, [eventosCriados, paginaAtualCriados]);
+
+  useEffect(() => {
+    const indiceInicio = (paginaAtualInscritos - 1) * eventosPorPagina;
+    const indiceFim = indiceInicio + eventosPorPagina;
+    setEventosInscritosPaginados(eventosInscritos.slice(indiceInicio, indiceFim));
+  }, [eventosInscritos, paginaAtualInscritos]);
+
+  // --- LÓGICA DE PAGINAÇÃO PARA EVENTOS CRIADOS ---
+  const totalPaginasCriados = Math.ceil(eventosCriados.length / eventosPorPagina);
+  const temPaginaAnteriorCriados = paginaAtualCriados > 1;
+  const temProximaPaginaCriados = paginaAtualCriados < totalPaginasCriados;
+  const irParaPaginaCriados = (num) => {
+      setPaginaAtualCriados(num);
+      document.querySelector('#secao-criados')?.scrollIntoView({ behavior: 'smooth' });
+  };
+  const paginaAnteriorCriados = () => { if (temPaginaAnteriorCriados) irParaPaginaCriados(paginaAtualCriados - 1); };
+  const proximaPaginaCriados = () => { if (temProximaPaginaCriados) irParaPaginaCriados(paginaAtualCriados + 1); };
+
+  // --- LÓGICA DE PAGINAÇÃO PARA EVENTOS INSCRITOS ---
+  const totalPaginasInscritos = Math.ceil(eventosInscritos.length / eventosPorPagina);
+  const temPaginaAnteriorInscritos = paginaAtualInscritos > 1;
+  const temProximaPaginaInscritos = paginaAtualInscritos < totalPaginasInscritos;
+  const irParaPaginaInscritos = (num) => {
+      setPaginaAtualInscritos(num);
+      document.querySelector('#secao-inscritos')?.scrollIntoView({ behavior: 'smooth' });
+  };
+  const paginaAnteriorInscritos = () => { if (temPaginaAnteriorInscritos) irParaPaginaInscritos(paginaAtualInscritos - 1); };
+  const proximaPaginaInscritos = () => { if (temProximaPaginaInscritos) irParaPaginaInscritos(paginaAtualInscritos + 1); };
 
   const iniciarEdicao = (evento) => {
     const dataFormatada = new Date(evento.data_hora)
@@ -374,29 +416,59 @@ export default function MeusEventos() {
         </div>
       )}
 
-      <section>
+      <section id="secao-criados">
         <h3>Eventos Criados</h3>
         {eventosCriados.length === 0 ? (
-          <p className="mensagem-vazia">
-            {token ? "Você ainda não criou nenhum evento." : "Faça login para ver seus eventos criados."}
-          </p>
+          <p className="mensagem-vazia">{token ? "Você ainda não criou nenhum evento." : "Faça login para ver seus eventos criados."}</p>
         ) : (
-          <div className="meus-eventos-grid">
-            {eventosCriados.map((evento) => renderCard(evento, true))}
-          </div>
+          <>
+            <div className="info-paginacao">
+              Mostrando {eventosCriadosPaginados.length > 0 ? ((paginaAtualCriados - 1) * eventosPorPagina) + 1 : 0} - {Math.min(paginaAtualCriados * eventosPorPagina, eventosCriados.length)} de {eventosCriados.length} eventos
+            </div>
+            <div className="meus-eventos-grid">
+              {eventosCriadosPaginados.map((evento) => renderCard(evento, true))}
+            </div>
+            {totalPaginasCriados > 1 && (
+              <div className="paginacao" style={{ marginTop: '20px' }}>
+                <button className="paginacao-btn anterior" onClick={paginaAnteriorCriados} disabled={!temPaginaAnteriorCriados}>← Anterior</button>
+                <div className="paginacao-numeros">
+                  {Array.from({ length: totalPaginasCriados }, (_, index) => {
+                    const numeroPagina = index + 1;
+                    return <button key={numeroPagina} className={`paginacao-numero ${paginaAtualCriados === numeroPagina ? 'ativo' : ''}`} onClick={() => irParaPaginaCriados(numeroPagina)}>{numeroPagina}</button>;
+                  })}
+                </div>
+                <button className="paginacao-btn proximo" onClick={proximaPaginaCriados} disabled={!temProximaPaginaCriados}>Próximo →</button>
+              </div>
+            )}
+          </>
         )}
       </section>
 
-      <section>
+      <section id="secao-inscritos">
         <h3>Eventos Inscritos</h3>
         {eventosInscritos.length === 0 ? (
-          <p className="mensagem-vazia">
-           {token ? "Você ainda não está inscrito em nenhum evento." : "Faça login para ver os eventos em que está inscrito."}
-          </p>
+          <p className="mensagem-vazia">{token ? "Você ainda não está inscrito em nenhum evento." : "Faça login para ver os eventos em que está inscrito."}</p>
         ) : (
-          <div className="meus-eventos-grid">
-            {eventosInscritos.map((evento) => renderCard(evento, false))}
-          </div>
+          <>
+            <div className="info-paginacao">
+              Mostrando {eventosInscritosPaginados.length > 0 ? ((paginaAtualInscritos - 1) * eventosPorPagina) + 1 : 0} - {Math.min(paginaAtualInscritos * eventosPorPagina, eventosInscritos.length)} de {eventosInscritos.length} eventos
+            </div>
+            <div className="meus-eventos-grid">
+              {eventosInscritosPaginados.map((evento) => renderCard(evento, false))}
+            </div>
+            {totalPaginasInscritos > 1 && (
+              <div className="paginacao" style={{ marginTop: '20px' }}>
+                <button className="paginacao-btn anterior" onClick={paginaAnteriorInscritos} disabled={!temPaginaAnteriorInscritos}>← Anterior</button>
+                <div className="paginacao-numeros">
+                  {Array.from({ length: totalPaginasInscritos }, (_, index) => {
+                    const numeroPagina = index + 1;
+                    return <button key={numeroPagina} className={`paginacao-numero ${paginaAtualInscritos === numeroPagina ? 'ativo' : ''}`} onClick={() => irParaPaginaInscritos(numeroPagina)}>{numeroPagina}</button>;
+                  })}
+                </div>
+                <button className="paginacao-btn proximo" onClick={proximaPaginaInscritos} disabled={!temProximaPaginaInscritos}>Próximo →</button>
+              </div>
+            )}
+          </>
         )}
       </section>
     </div>

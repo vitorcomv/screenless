@@ -16,6 +16,15 @@ export default function MeusDesafios() {
 
   const [desafioEmEdicao, setDesafioEmEdicao] = useState(null);
 
+  // --- ESTADOS PARA PAGINAÇÃO ---
+  const [desafiosCriadosPaginados, setDesafiosCriadosPaginados] = useState([]);
+  const [paginaAtualCriados, setPaginaAtualCriados] = useState(1);
+  
+  const [desafiosInscritosPaginados, setDesafiosInscritosPaginados] = useState([]);
+  const [paginaAtualInscritos, setPaginaAtualInscritos] = useState(1);
+
+  const desafiosPorPagina = 3;
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -70,6 +79,42 @@ export default function MeusDesafios() {
     fetchDesafiosCriados();
     fetchDesafiosInscritos();
   }, [token]);
+
+  // --- EFEITOS PARA ATUALIZAR LISTAS PAGINADAS ---
+  useEffect(() => {
+    const indiceInicio = (paginaAtualCriados - 1) * desafiosPorPagina;
+    const indiceFim = indiceInicio + desafiosPorPagina;
+    setDesafiosCriadosPaginados(desafiosCriados.slice(indiceInicio, indiceFim));
+  }, [desafiosCriados, paginaAtualCriados]);
+
+  useEffect(() => {
+    const indiceInicio = (paginaAtualInscritos - 1) * desafiosPorPagina;
+    const indiceFim = indiceInicio + desafiosPorPagina;
+    setDesafiosInscritosPaginados(desafiosInscritos.slice(indiceInicio, indiceFim));
+  }, [desafiosInscritos, paginaAtualInscritos]);
+
+
+  // --- LÓGICA DE PAGINAÇÃO PARA DESAFIOS CRIADOS ---
+  const totalPaginasCriados = Math.ceil(desafiosCriados.length / desafiosPorPagina);
+  const temPaginaAnteriorCriados = paginaAtualCriados > 1;
+  const temProximaPaginaCriados = paginaAtualCriados < totalPaginasCriados;
+  const irParaPaginaCriados = (num) => {
+      setPaginaAtualCriados(num);
+      document.querySelector('#secao-criados')?.scrollIntoView({ behavior: 'smooth' });
+  };
+  const paginaAnteriorCriados = () => { if (temPaginaAnteriorCriados) irParaPaginaCriados(paginaAtualCriados - 1); };
+  const proximaPaginaCriados = () => { if (temProximaPaginaCriados) irParaPaginaCriados(paginaAtualCriados + 1); };
+
+  // --- LÓGICA DE PAGINAÇÃO PARA DESAFIOS INSCRITOS ---
+  const totalPaginasInscritos = Math.ceil(desafiosInscritos.length / desafiosPorPagina);
+  const temPaginaAnteriorInscritos = paginaAtualInscritos > 1;
+  const temProximaPaginaInscritos = paginaAtualInscritos < totalPaginasInscritos;
+  const irParaPaginaInscritos = (num) => {
+      setPaginaAtualInscritos(num);
+      document.querySelector('#secao-inscritos')?.scrollIntoView({ behavior: 'smooth' });
+  };
+  const paginaAnteriorInscritos = () => { if (temPaginaAnteriorInscritos) irParaPaginaInscritos(paginaAtualInscritos - 1); };
+  const proximaPaginaInscritos = () => { if (temProximaPaginaInscritos) irParaPaginaInscritos(paginaAtualInscritos + 1); };
 
   const finalizarDesafio = async (desafioId) => {
     if (!token) {
@@ -218,8 +263,6 @@ export default function MeusDesafios() {
 
   return (
     <div className="meus-desafios-page">
-      <div className="meus-desafios-page">
-      {/* O formulário modal será renderizado aqui quando um desafio for selecionado */}
       {desafioEmEdicao && (
         <FormularioEdicaoDesafio
           desafioParaEditar={desafioEmEdicao}
@@ -227,75 +270,91 @@ export default function MeusDesafios() {
           onCancel={() => setDesafioEmEdicao(null)}
         />
       )}
-      <h2 className="section-title">Meus Desafios Criados</h2>
-      {desafiosCriados.length === 0 ? (
-        <p className="feedback-message empty">Você ainda não criou nenhum desafio.</p>
-      ) : (
-        <div className="cards-grid">
-          {desafiosCriados.map((desafio) => (
-            <div className="card-desafio" key={desafio.ID_DESAFIO}>
-              <img
-                className="card-image"
-                src={desafio.foto ? `http://localhost:5000/uploads/${desafio.foto}` : "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
-                alt={desafio.Titulo}
-              />
-              <div className="card-info">
-                <h3>{desafio.Titulo}</h3>
-                <p className="organizador">Organizado por: {desafio.nome_usuario || "Você"}</p>
-                <p className="descricao">{desafio.Descricao}</p>
-                <p className="xp">XP: {desafio.XP}</p>
-
-                {desafio.finalizado ? (
-                  <p className="status-finalizado">Desafio Finalizado!</p>
-                ) : (
-                  <div className="gerenciamento-botoes">
-                    <button onClick={() => handleEditarClick(desafio)} className="btn-gerenciamento btn-editar">
-                      Editar Desafio
-                    </button>
-                    <button onClick={() => excluirDesafio(desafio.ID_DESAFIO)} className="btn-gerenciamento btn-excluir">
-                      Excluir Desafio
-                    </button>
-                    <button onClick={() => finalizarDesafio(desafio.ID_DESAFIO)} className="btn-gerenciamento btn-finalizar">
-                      Finalizar Desafio
-                    </button>
+      
+      <div id="secao-criados">
+        <h2 className="section-title">Meus Desafios Criados</h2>
+        {errorCriados && <p className="feedback-message error">Erro: {errorCriados}</p>}
+        {!errorCriados && desafiosCriados.length === 0 ? (
+          <p className="feedback-message empty">Você ainda não criou nenhum desafio.</p>
+        ) : (
+          <>
+            <div className="info-paginacao">
+              Mostrando {desafiosCriadosPaginados.length > 0 ? ((paginaAtualCriados - 1) * desafiosPorPagina) + 1 : 0} - {Math.min(paginaAtualCriados * desafiosPorPagina, desafiosCriados.length)} de {desafiosCriados.length} desafios
+            </div>
+            <div className="cards-grid">
+              {desafiosCriadosPaginados.map((desafio) => (
+                <div className="card-desafio" key={desafio.ID_DESAFIO}>
+                  <img className="card-image" src={`http://localhost:5000/uploads/${desafio.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"} alt={desafio.Titulo}/>
+                  <div className="card-info">
+                    <h3>{desafio.Titulo}</h3>
+                    <p className="organizador">Organizado por: {desafio.nome_usuario || "Você"}</p>
+                    <p className="descricao">{desafio.Descricao}</p>
+                    <p className="xp">XP: {desafio.XP}</p>
+                    {desafio.finalizado ? (
+                      <p className="status-finalizado">Desafio Finalizado!</p>
+                    ) : (
+                      <div className="gerenciamento-botoes">
+                        <button onClick={() => handleEditarClick(desafio)} className="btn-gerenciamento btn-editar">Editar</button>
+                        <button onClick={() => excluirDesafio(desafio.ID_DESAFIO)} className="btn-gerenciamento btn-excluir">Excluir</button>
+                        <button onClick={() => finalizarDesafio(desafio.ID_DESAFIO)} className="btn-gerenciamento btn-finalizar">Finalizar</button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
-
-      <h2 className="section-title inscritos">Desafios que me Inscrevi</h2>
-      {desafiosInscritos.length === 0 ? (
-        <p className="feedback-message empty">Você ainda não está inscrito em nenhum desafio.</p>
-      ) : (
-        <div className="cards-grid">
-          {desafiosInscritos.map((desafio) => (
-            <div className="card-desafio" key={desafio.ID_DESAFIO}>
-              <img
-                className="card-image"
-                src={desafio.foto ? `http://localhost:5000/uploads/${desafio.foto}` : "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
-                alt={desafio.Titulo}
-              />
-              <div className="card-info">
-                <h3>{desafio.Titulo}</h3>
-                <p className="organizador">Organizado por: {desafio.nome_usuario || "Anônimo"}</p>
-                <p className="descricao">{desafio.Descricao}</p>
-                <p className="xp">XP: {desafio.XP}</p>
-
-                {desafio.finalizado ? (
-                  <p className="status-finalizado">Desafio Finalizado!</p>
-                ) : (
-                  <button onClick={() => cancelarInscricaoDesafio(desafio.ID_DESAFIO)} className="btn-gerenciamento btn-cancelar">
-                    Cancelar Inscrição
-                  </button>
-                )}
+            {totalPaginasCriados > 1 && (
+              <div className="paginacao" style={{ marginTop: '20px' }}>
+                <button className="paginacao-btn anterior" onClick={paginaAnteriorCriados} disabled={!temPaginaAnteriorCriados}>← Anterior</button>
+                <div className="paginacao-numeros">
+                  {Array.from({ length: totalPaginasCriados }, (_, i) => <button key={i+1} className={`paginacao-numero ${paginaAtualCriados === i+1 ? 'ativo' : ''}`} onClick={() => irParaPaginaCriados(i+1)}>{i+1}</button>)}
+                </div>
+                <button className="paginacao-btn proximo" onClick={proximaPaginaCriados} disabled={!temProximaPaginaCriados}>Próximo →</button>
               </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <div id="secao-inscritos">
+        <h2 className="section-title inscritos">Desafios que me Inscrevi</h2>
+        {errorInscritos && <p className="feedback-message error">Erro: {errorInscritos}</p>}
+        {!errorInscritos && desafiosInscritos.length === 0 ? (
+          <p className="feedback-message empty">Você ainda não está inscrito em nenhum desafio.</p>
+        ) : (
+          <>
+            <div className="info-paginacao">
+              Mostrando {desafiosInscritosPaginados.length > 0 ? ((paginaAtualInscritos - 1) * desafiosPorPagina) + 1 : 0} - {Math.min(paginaAtualInscritos * desafiosPorPagina, desafiosInscritos.length)} de {desafiosInscritos.length} desafios
             </div>
-          ))}
-        </div>
-      )}
+            <div className="cards-grid">
+              {desafiosInscritosPaginados.map((desafio) => (
+                <div className="card-desafio" key={desafio.ID_DESAFIO}>
+                  <img className="card-image" src={`http://localhost:5000/uploads/${desafio.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"} alt={desafio.Titulo}/>
+                  <div className="card-info">
+                    <h3>{desafio.Titulo}</h3>
+                    <p className="organizador">Organizado por: {desafio.nome_usuario || "Anônimo"}</p>
+                    <p className="descricao">{desafio.Descricao}</p>
+                    <p className="xp">XP: {desafio.XP}</p>
+                    {desafio.finalizado ? (
+                      <p className="status-finalizado">Desafio Finalizado!</p>
+                    ) : (
+                      <button onClick={() => cancelarInscricaoDesafio(desafio.ID_DESAFIO)} className="btn-gerenciamento btn-cancelar">Cancelar Inscrição</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+             {totalPaginasInscritos > 1 && (
+              <div className="paginacao" style={{ marginTop: '20px' }}>
+                <button className="paginacao-btn anterior" onClick={paginaAnteriorInscritos} disabled={!temPaginaAnteriorInscritos}>← Anterior</button>
+                <div className="paginacao-numeros">
+                  {Array.from({ length: totalPaginasInscritos }, (_, i) => <button key={i+1} className={`paginacao-numero ${paginaAtualInscritos === i+1 ? 'ativo' : ''}`} onClick={() => irParaPaginaInscritos(i+1)}>{i+1}</button>)}
+                </div>
+                <button className="paginacao-btn proximo" onClick={proximaPaginaInscritos} disabled={!temProximaPaginaInscritos}>Próximo →</button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

@@ -7,176 +7,263 @@ import { AuthContext } from "../context/AuthContext";
 import BotaoBloqueado from "../components/BotaoBloqueado";
 
 export default function ListaDesafios() {
-  const { nivelUsuario } = useContext(AuthContext);
-  const [desafios, setDesafios] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [inscritosDesafiosIds, setInscritosDesafiosIds] = useState([]);
-  const token = localStorage.getItem("token");
-  const [currentUserId, setCurrentUserId] = useState(null);
+    const { nivelUsuario } = useContext(AuthContext);
+    const [todosDesafios, setTodosDesafios] = useState([]); // 1. Guarda TODOS os desafios
+    const [desafios, setDesafios] = useState([]); // Guarda os desafios da página atual
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [inscritosDesafiosIds, setInscritosDesafiosIds] = useState([]);
+    const token = localStorage.getItem("token");
+    const [currentUserId, setCurrentUserId] = useState(null);
 
-  useEffect(() => {
-    // Decodifica o token para saber quem é o usuário logado
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setCurrentUserId(decodedToken.id);
-      } catch (e) {
-        console.error("Erro ao decodificar o token:", e);
-      }
-    }
+    // --- LÓGICA DE PAGINAÇÃO ---
+    const [paginaAtual, setPaginaAtual] = useState(1);
+    const desafiosPorPagina = 6; // Mesmo número de itens por página que em Eventos
 
-    // Busca TODOS os desafios ativos para listar publicamente
-    const fetchDesafios = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/desafios");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    useEffect(() => {
+        // Decodifica o token para saber quem é o usuário logado
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                setCurrentUserId(decodedToken.id);
+            } catch (e) {
+                console.error("Erro ao decodificar o token:", e);
+            }
         }
-        const data = await response.json();
-        setDesafios(data);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
+
+        // Busca TODOS os desafios ativos para listar publicamente
+        const fetchDesafios = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/api/desafios");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                // 2. Ordena por ID (ou outra lógica, como data de criação se disponível)
+                // e armazena no estado que guarda TODOS os desafios.
+                const desafiosOrdenados = data.sort((a, b) => b.ID_DESAFIO - a.ID_DESAFIO); // Mais recentes primeiro
+                setTodosDesafios(desafiosOrdenados);
+            } catch (e) {
+                setError(e.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Busca apenas os IDs dos desafios em que o usuário está inscrito
+        const fetchInscricoesDesafiosIds = async () => {
+            if (!token) return;
+            try {
+                const response = await fetch("http://localhost:5000/api/meus_desafios_ids", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!response.ok) throw new Error("Falha ao buscar inscrições");
+                const data = await response.json();
+                setInscritosDesafiosIds(data);
+            } catch (e) {
+                console.error("Erro ao buscar IDs de inscrições:", e);
+            }
+        };
+
+        fetchDesafios();
+        fetchInscricoesDesafiosIds();
+    }, [token]);
+
+    // 3. Efeito que atualiza os desafios visíveis quando a página ou os dados mudam
+    useEffect(() => {
+        const indiceInicio = (paginaAtual - 1) * desafiosPorPagina;
+        const indiceFim = indiceInicio + desafiosPorPagina;
+        setDesafios(todosDesafios.slice(indiceInicio, indiceFim));
+    }, [todosDesafios, paginaAtual]);
+
+
+    // A ÚNICA AÇÃO DESTA PÁGINA: Inscrever-se em um desafio
+    const inscreverEmDesafio = async (desafioId) => {
+        if (!token) {
+            alert("Você precisa estar logado para se inscrever.");
+            return;
+        }
+        try {
+            const formData = new FormData();
+            formData.append('desafio_id', desafioId);
+
+            const response = await fetch("http://localhost:5000/api/inscrever_desafio", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.mensagem || "Inscrição realizada com sucesso!");
+                setInscritosDesafiosIds((prevInscritos) => [...prevInscritos, desafioId]);
+            } else {
+                alert(data.erro || "Erro ao se inscrever no desafio.");
+            }
+        } catch (error) {
+            console.error("Erro na requisição de inscrição:", error);
+            alert("Ocorreu um erro na comunicação com o servidor.");
+        }
     };
 
-    // Busca apenas os IDs dos desafios em que o usuário está inscrito
-    const fetchInscricoesDesafiosIds = async () => {
-      if (!token) return;
-      try {
-        const response = await fetch("http://localhost:5000/api/meus_desafios_ids", {
-          headers: { Authorization: `Bearer ${token}` },
+    // --- FUNÇÕES E CÁLCULOS PARA PAGINAÇÃO ---
+    const totalPaginas = Math.ceil(todosDesafios.length / desafiosPorPagina);
+    const temPaginaAnterior = paginaAtual > 1;
+    const temProximaPagina = paginaAtual < totalPaginas;
+
+    const irParaPagina = (numeroPagina) => {
+        setPaginaAtual(numeroPagina);
+        // Scroll suave para o topo da lista de desafios
+        document.querySelector('.lista-desafios-container')?.scrollIntoView({
+            behavior: 'smooth'
         });
-        if (!response.ok) throw new Error("Falha ao buscar inscrições");
-        const data = await response.json();
-        setInscritosDesafiosIds(data);
-      } catch (e) {
-        console.error("Erro ao buscar IDs de inscrições:", e);
-      }
     };
 
-    fetchDesafios();
-    fetchInscricoesDesafiosIds();
-  }, [token]);
+    const paginaAnterior = () => {
+        if (temPaginaAnterior) {
+            irParaPagina(paginaAtual - 1);
+        }
+    };
 
-  // A ÚNICA AÇÃO DESTA PÁGINA: Inscrever-se em um desafio
-  const inscreverEmDesafio = async (desafioId) => {
-    if (!token) {
-      alert("Você precisa estar logado para se inscrever.");
-      return;
+    const proximaPagina = () => {
+        if (temProximaPagina) {
+            irParaPagina(paginaAtual + 1);
+        }
+    };
+
+    if (loading) {
+        return <p className="loading-message">Carregando desafios...</p>;
     }
-    try {
-      const formData = new FormData();
-      formData.append('desafio_id', desafioId);
 
-      const response = await fetch("http://localhost:5000/api/inscrever_desafio", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        alert(data.mensagem || "Inscrição realizada com sucesso!");
-        setInscritosDesafiosIds((prevInscritos) => [...prevInscritos, desafioId]);
-      } else {
-        alert(data.erro || "Erro ao se inscrever no desafio.");
-      }
-    } catch (error) {
-      console.error("Erro na requisição de inscrição:", error);
-      alert("Ocorreu um erro na comunicação com o servidor.");
+    if (error) {
+        return <p className="error-message">Erro ao carregar desafios: {error}</p>;
     }
-  };
 
-  if (loading) {
-    return <p className="loading-message">Carregando desafios...</p>;
-  }
+    return (
+        <div className="desafios-page-wrapper">
+            <div className="lista-desafios-container">
+                <h2>Próximos Desafios</h2>
 
-  if (error) {
-    return <p className="error-message">Erro ao carregar desafios: {error}</p>;
-  }
+                {/* --- 4. INFORMAÇÕES DA PAGINAÇÃO --- */}
+                {todosDesafios.length > 0 && (
+                    <div className="info-paginacao">
+                        Mostrando {((paginaAtual - 1) * desafiosPorPagina) + 1} - {Math.min(paginaAtual * desafiosPorPagina, todosDesafios.length)} de {todosDesafios.length} desafios
+                    </div>
+                )}
 
-  return (
-    <div className="desafios-page-wrapper">
-      <div className="lista-desafios-container">
-        <h2>Próximos Desafios</h2>
-        {desafios.length === 0 && !loading && (
-          <p className="no-desafios-message">Nenhum desafio encontrado no momento.</p>
-        )}
-        <div className="desafios-grid">
-          {desafios.map((desafio) => {
-            const jaInscrito = inscritosDesafiosIds.includes(desafio.ID_DESAFIO);
-            const isCriador = currentUserId === desafio.ID_USUARIO;
+                {/* 5. A lista agora mapeia o estado 'desafios', que contém apenas os itens da página atual */}
+                <div className="desafios-grid">
+                    {desafios.map((desafio) => {
+                        const jaInscrito = inscritosDesafiosIds.includes(desafio.ID_DESAFIO);
+                        const isCriador = currentUserId === desafio.ID_USUARIO;
 
-            return (
-              <div className="desafio-card" key={desafio.ID_DESAFIO}>
-                <img
-                  className="card-image"
-                  src={desafio.foto_url || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
-                  alt={desafio.Titulo}
-                />
-                <div className="desafio-info">
-                  <h3>{desafio.Titulo}</h3>
-                  <div className="autor-container-desafio">
-                    <p className="organizador">
-                      Criado por: {desafio.autor_nome || "Anônimo"}
-                    </p>
-                    {desafio.autor_insignia_url && (
-                      <img
-                        src={desafio.autor_insignia_url}
-                        alt="Insígnia do criador"
-                        className="insignia-no-card-desafio"
-                      />
-                    )}
-                  </div>
-                  <p className="descricao">{desafio.Descricao}</p>
-                  <p className="xp">XP: {desafio.XP}</p>
-                  
-                  {token && !isCriador && (
-                    jaInscrito ? (
-                      <button className="desafio-btn btn-inscrito" disabled>
-                        Inscrito
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => inscreverEmDesafio(desafio.ID_DESAFIO)}
-                        className="desafio-btn btn-inscrever"
-                      >
-                        Inscrever-se
-                      </button>
-                    )
-                  )}
+                        return (
+                            <div className="desafio-card" key={desafio.ID_DESAFIO}>
+                                <img
+                                    className="card-image"
+                                    src={desafio.foto_url || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
+                                    alt={desafio.Titulo}
+                                />
+                                <div className="desafio-info">
+                                    <h3>{desafio.Titulo}</h3>
+                                    <div className="autor-container-desafio">
+                                        <p className="organizador">
+                                            Criado por: {desafio.autor_nome || "Anônimo"}
+                                        </p>
+                                        {desafio.autor_insignia_url && (
+                                            <img
+                                                src={desafio.autor_insignia_url}
+                                                alt="Insígnia do criador"
+                                                className="insignia-no-card-desafio"
+                                            />
+                                        )}
+                                    </div>
+                                    <p className="descricao">{desafio.Descricao}</p>
+                                    <p className="xp">XP: {desafio.XP}</p>
+
+                                    {token && !isCriador && (
+                                        jaInscrito ? (
+                                            <button className="desafio-btn btn-inscrito" disabled>
+                                                Inscrito
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => inscreverEmDesafio(desafio.ID_DESAFIO)}
+                                                className="desafio-btn btn-inscrever"
+                                            >
+                                                Inscrever-se
+                                            </button>
+                                        )
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
-              </div>
-            );
-          })}
+
+                {/* --- 6. CONTROLES DE PAGINAÇÃO --- */}
+                {totalPaginas > 1 && (
+                    <div className="paginacao">
+                        <button
+                            className="paginacao-btn anterior"
+                            onClick={paginaAnterior}
+                            disabled={!temPaginaAnterior}
+                        >
+                            ← Anterior
+                        </button>
+
+                        <div className="paginacao-numeros">
+                            {Array.from({ length: totalPaginas }, (_, index) => {
+                                const numeroPagina = index + 1;
+                                return (
+                                    <button
+                                        key={numeroPagina}
+                                        className={`paginacao-numero ${paginaAtual === numeroPagina ? 'ativo' : ''}`}
+                                        onClick={() => irParaPagina(numeroPagina)}
+                                    >
+                                        {numeroPagina}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <button
+                            className="paginacao-btn proximo"
+                            onClick={proximaPagina}
+                            disabled={!temProximaPagina}
+                        >
+                            Próximo →
+                        </button>
+                    </div>
+                )}
+
+
+                {todosDesafios.length === 0 && !loading && (
+                    <p className="no-desafios-message">Nenhum desafio encontrado no momento.</p>
+                )}
+            </div>
+            <div className="div-imagem-fundo">
+                <img
+                    className="imagem-fundo"
+                    src={exemploImg}
+                    alt="Imagem de fundo com pessoas colaborando"
+                />
+                <div className="div_botao">
+                    {(nivelUsuario === 'prata' || nivelUsuario === 'ouro') ? (
+                        <Link to="/criar-desafio">
+                            <button className="butãoCriarEvento">CRIE SEU DESAFIO</button>
+                        </Link>
+                    ) : (
+                        <BotaoBloqueado
+                            nivelNecessario="Prata"
+                            paraCriar="um desafio"
+                            className="butãoCriarEvento"
+                        />
+                    )}
+                </div>
+            </div>
         </div>
-      </div>
-      <div className="div-imagem-fundo">
-        <img
-          className="imagem-fundo"
-          src={exemploImg}
-          alt="Imagem de fundo com pessoas colaborando"
-        />
-        <div className="div_botao">
-          {/* --- LÓGICA ATUALIZADA --- */}
-          {(nivelUsuario === 'prata' || nivelUsuario === 'ouro') ? (
-            <Link to="/criar-desafio">
-              <button className="butãoCriarEvento">CRIE SEU DESAFIO</button>
-            </Link>
-          ) : (
-            <BotaoBloqueado 
-              nivelNecessario="Prata" 
-              paraCriar="um desafio"
-              className="butãoCriarEvento" // Passa a mesma classe para manter o tamanho
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
