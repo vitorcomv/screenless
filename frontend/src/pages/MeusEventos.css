@@ -1,18 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+  --primary-color: #22c55e;
+  --primary-dark: #16a34a;
+  --secondary-color: #f97316;
+  --danger-color: #ef4444;
+  --danger-dark: #dc2626;
+  --light-gray: #e5e7eb;
+  --dark-text: #1f2937;
+  --white-text: #ffffff;
+  --background-light: #f0fdf4;
+  --card-background: #ffffff;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--dark-text);
+  background-color: var(--background-light);
+}
+
 .meus-eventos-container {
-  background-color: #f0f8f7;
-  padding: 40px 20px;
+  background-color: var(--background-light);
+  padding: 60px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.meus-eventos-container h2,
+.meus-eventos-container section > h3 {
+  font-family: 'Chewy', cursive;
+  color: var(--primary-color);
+  text-align: center;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 .meus-eventos-container h2 {
-  color: #26a69a;
+  font-size: 3.5rem;
   margin-bottom: 30px;
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
 }
 
 .meus-eventos-container section {
@@ -21,202 +50,250 @@
   margin-bottom: 3rem;
 }
 
-.meus-eventos-container section h3 {
-  color: #26a69a;
-  font-size: 22px;
-  margin-bottom: 20px;
-  text-align: center;
+.meus-eventos-container section > h3 {
+  font-size: 2.5rem;
+  margin-bottom: 25px;
 }
 
 .mensagem-vazia {
   font-style: italic;
-  color: #888;
+  color: #52525b;
   text-align: center;
+  font-size: 1.1rem;
+  padding: 20px;
 }
 
 .meus-eventos-grid {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 25px;
   justify-content: center;
   width: 100%;
 }
 
 .meus-evento-card {
-  background-color: #00796b;
+  background-color: var(--card-background);
   border-radius: 15px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   padding: 15px;
-  width: 300px;
-  flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 3px solid transparent;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.meus-evento-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-color);
 }
 
 .meus-evento-imagem {
   width: 100%;
-  height: auto;
-  max-height: 300px;
+  height: 180px;
   object-fit: cover;
   border-radius: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .meus-evento-info {
-  padding: 0;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
   text-align: left;
 }
 
 .meus-evento-info h3 {
-  color: #fff;
-  margin-top: 0;
-  margin-bottom: 5px;
-  font-size: 18px;
-  font-weight: bold;
+  color: var(--dark-text);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 0 0 10px;
+  text-shadow: none;
 }
 
 .meus-evento-info p {
-  margin-bottom: 5px;
-  font-size: 12px;
-  color: #fff;
+  color: #4b5563;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
 }
 
-.meus-evento-info .organizador {
-  font-style: italic;
+.meus-evento-info .descricao {
+  max-height: 70px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  font-size: 0.85rem;
+}
+
+.botoes-acao-evento {
+  margin-top: auto;
+  padding-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
 }
 
 .evento-btn {
-  margin-top: 10px;
-  padding: 8px 12px;
-  font-size: 14px;
+  color: var(--white-text);
   border: none;
-  border-radius: 6px;
+  padding: 6px 14px;
   cursor: pointer;
-  font-weight: bold;    
-  width: 100%;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.evento-btn.editar {
-  background-color: #4CAF50;
-  color: white;
+.evento-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-.evento-btn.editar:hover {
-  background-color: #45a049;
-}
+.evento-btn.editar { background-color: var(--primary-color); }
+.evento-btn.editar:hover { background-color: var(--primary-dark); }
 
-.evento-btn.cancelar {
-  background-color: #f44336;
-  color: white;
-}
+.evento-btn.concluir { background-color: var(--primary-color); }
+.evento-btn.concluir:hover { background-color: var(--primary-dark); }
 
-.evento-btn.cancelar:hover {
-  background-color: #d32f2f;
-}
+.evento-btn.cancelar { background-color: var(--danger-color); }
+.evento-btn.cancelar:hover { background-color: var(--danger-dark); }
 
-.evento-btn.excluir {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.evento-btn.excluir:hover {
-  background-color: #d32f2f;
-}
-
-.evento-btn.concluir {
-  background-color: #009688; /* Um tom de verde/azul (teal) */
-  color: white;
-}
-
-.evento-btn.concluir:hover {
-  background-color: #00796b; /* Um tom mais escuro para hover */
-}
+.evento-btn.excluir { background-color: var(--danger-color); }
+.evento-btn.excluir:hover { background-color: var(--danger-dark); }
 
 .meus-evento-status-finalizado {
   font-weight: bold;
-  color: #e91e63; /* Uma cor de destaque, como rosa ou vermelho claro */
-  margin-top: 10px;
-  padding: 8px;
-  background-color: rgba(255, 255, 255, 0.1); /* Fundo leve para destaque no card escuro */
-  border-radius: 6px;
+  color: var(--secondary-color);
+  margin-top: auto;
+  padding: 12px;
+  background-color: #fff7ed;
+  border-radius: 8px;
   text-align: center;
+  font-size: 1rem;
+  border: 1px solid var(--secondary-color);
 }
 
-.meus-evento-info .descricao { /* Para garantir que a descrição não fique muito longa */
-  max-height: 60px; /* Ajuste conforme necessário */
-  overflow-y: auto;
-  margin-bottom: 10px;
-  font-size: 11px; /* Ajuste para melhor leitura se o texto for longo */
-  word-break: break-word;
+.info-paginacao {
+  color: var(--dark-text);
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
 }
 
-/* Estilos para o formulário de edição (opcional, para melhor aparência) */
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.paginacao-btn {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.paginacao-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.paginacao-btn:disabled {
+  background-color: var(--light-gray);
+  color: #a1a1aa;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.paginacao-numeros {
+  display: flex;
+  gap: 8px;
+}
+
+.paginacao-numero {
+  background-color: var(--card-background);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 45px;
+}
+
+.paginacao-numero:hover {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+}
+
+.paginacao-numero.ativo {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  pointer-events: none;
+}
+
 .editar-form-container {
-  background-color: #00695c; /* Um pouco mais claro que o card */
-  padding: 20px;
-  border-radius: 10px;
+  background-color: var(--card-background);
+  padding: 25px;
+  border-radius: 15px;
   margin-bottom: 30px;
   width: 100%;
-  max-width: 500px; /* Limita a largura do formulário */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 2px solid var(--light-gray);
 }
 
 .editar-form-container h3 {
-  color: #ffffff;
-  text-align: center;
-  margin-bottom: 20px;
+  color: var(--dark-text);
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  text-shadow: none;
 }
 
 .form-input,
 .form-textarea,
 .form-input-file {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-bottom: 15px;
-  border-radius: 5px;
-  border: 1px solid #004d40;
-  background-color: #e0f2f1; /* Fundo claro para os inputs */
-  color: #004d40; /* Texto escuro nos inputs */
-  box-sizing: border-box; /* Para incluir padding e border na largura total */
+  border-radius: 8px;
+  border: 1px solid var(--light-gray);
+  background-color: #f8fafc;
+  color: var(--dark-text);
+  box-sizing: border-box;
+  font-size: 1rem;
 }
 
-.form-textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-.form-input-file {
-  padding: 5px; /* Ajuste específico para input de arquivo */
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
 }
 
 .editar-form-buttons {
   display: flex;
-  justify-content: space-between; /* Botões com espaço entre eles */
-  gap: 10px; /* Espaço entre os botões */
-}
-
-.editar-form-buttons .evento-btn {
-  flex-grow: 1; /* Faz os botões ocuparem o espaço disponível */
-}
-
-.evento-btn.cancelar-edicao { /* Estilo para o botão de cancelar edição */
-  background-color: #757575; /* Cinza */
-  color: white;
-}
-
-.evento-btn.cancelar-edicao:hover {
-  background-color: #616161;
-}
-
-/* Responsividade para os cards */
-@media (max-width: 680px) {
-  .meus-eventos-grid {
-    justify-content: center; /* Centraliza os cards quando eles quebram a linha */
-  }
-  .meus-evento-card {
-    width: 90%; /* Cards ocupam mais largura em telas pequenas */
-    max-width: 350px; /* Mas não ficam excessivamente largos */
-  }
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 10px;
 }
