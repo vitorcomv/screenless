@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
-import { Link } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
+import FormularioEdicaoDesafio from "../components/FormularioEdicaoDesafio";
 import "./MeusDesafios.css";
 
 export default function MeusDesafios() {
+  const navigate = useNavigate();
   const [desafiosCriados, setDesafiosCriados] = useState([]);
   const [loadingCriados, setLoadingCriados] = useState(true);
   const [errorCriados, setErrorCriados] = useState(null);
@@ -12,6 +13,8 @@ export default function MeusDesafios() {
   const [desafiosInscritos, setDesafiosInscritos] = useState([]);
   const [loadingInscritos, setLoadingInscritos] = useState(true);
   const [errorInscritos, setErrorInscritos] = useState(null);
+
+  const [desafioEmEdicao, setDesafioEmEdicao] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -69,19 +72,136 @@ export default function MeusDesafios() {
   }, [token]);
 
   const finalizarDesafio = async (desafioId) => {
-    // ... (lógica da função continua a mesma)
+    if (!token) {
+      alert("Você precisa estar logado para finalizar um desafio.");
+      return;
+    }
+
+    const confirmFinalizar = window.confirm(
+      "Tem certeza que deseja finalizar este desafio? Esta ação não pode ser desfeita."
+    );
+    if (!confirmFinalizar) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/finalizar_desafio_post/${desafioId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.mensagem || "Desafio finalizado com sucesso!");
+        setDesafiosCriados((prevDesafios) =>
+          prevDesafios.map((d) =>
+            d.ID_DESAFIO === desafioId ? { ...d, finalizado: true } : d
+          )
+        );
+      } else {
+        alert(data.erro || "Erro ao finalizar desafio.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição de finalizar desafio:", error);
+      alert("Erro na requisição de finalizar desafio. Verifique o console para mais detalhes.");
+    }
   };
 
-  const editarDesafio = (desafioId) => {
-    alert(`Lógica para editar desafio ${desafioId} seria implementada aqui.`);
+  const handleEditarClick = (desafio) => {
+    setDesafioEmEdicao(desafio);
+  };
+
+  // NOVO: Função chamada quando a edição é salva com sucesso
+  const handleSaveEdicao = (desafioAtualizado) => {
+    setDesafiosCriados(prev => 
+      prev.map(d => 
+        d.ID_DESAFIO === desafioAtualizado.ID_DESAFIO ? desafioAtualizado : d
+      )
+    );
+    setDesafioEmEdicao(null); // Fecha o modal
   };
 
   const excluirDesafio = async (desafioId) => {
-    // ... (lógica da função continua a mesma)
-  };
+    if (!token) {
+      alert("Você precisa estar logado para excluir um desafio.");
+    return;
+    }
 
+    const confirmExcluir = window.confirm(
+    "Tem certeza que deseja excluir este desafio? Esta ação não pode ser desfeita e removerá todas as inscrições relacionadas."
+    );
+    if (!confirmExcluir) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/excluir_desafio/${desafioId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.mensagem || "Desafio excluído com sucesso!");
+        setDesafiosCriados((prevDesafios) =>
+          prevDesafios.filter((d) => d.ID_DESAFIO !== desafioId)
+        );
+      } else {
+        alert(data.erro || "Erro ao excluir desafio.");
+      }
+    } catch (error) {
+    console.error("Erro na requisição de exclusão de desafio:", error);
+    alert("Erro na requisição de exclusão de desafio. Verifique o console para mais detalhes.");
+    }
+  };
   const cancelarInscricaoDesafio = async (desafioId) => {
-    // ... (lógica da função continua a mesma)
+    if (!token) {
+      alert("Você precisa estar logado para cancelar uma inscrição.");
+    return;
+    }
+
+    const confirmCancel = window.confirm(
+    "Tem certeza que deseja cancelar sua inscrição neste desafio?"
+    );
+    if (!confirmCancel) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/cancelar_inscricao_desafio/${desafioId}`,
+        {
+          method: "DELETE", // Ou o método que você definiu para cancelar inscrição
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.mensagem || "Inscrição cancelada com sucesso!");
+        setDesafiosInscritos((prevDesafios) =>
+          prevDesafios.filter((d) => d.ID_DESAFIO !== desafioId)
+        );
+      } else {
+        alert(data.erro || "Erro ao cancelar inscrição.");
+      }
+    } catch (error) {
+    console.error("Erro na requisição de cancelar inscrição:", error);
+    alert("Erro na requisição de cancelar inscrição. Verifique o console para mais detalhes.");
+    }
   };
 
   if (loadingCriados || loadingInscritos) {
@@ -98,6 +218,15 @@ export default function MeusDesafios() {
 
   return (
     <div className="meus-desafios-page">
+      <div className="meus-desafios-page">
+      {/* O formulário modal será renderizado aqui quando um desafio for selecionado */}
+      {desafioEmEdicao && (
+        <FormularioEdicaoDesafio
+          desafioParaEditar={desafioEmEdicao}
+          onSave={handleSaveEdicao}
+          onCancel={() => setDesafioEmEdicao(null)}
+        />
+      )}
       <h2 className="section-title">Meus Desafios Criados</h2>
       {desafiosCriados.length === 0 ? (
         <p className="feedback-message empty">Você ainda não criou nenhum desafio.</p>
@@ -120,7 +249,7 @@ export default function MeusDesafios() {
                   <p className="status-finalizado">Desafio Finalizado!</p>
                 ) : (
                   <div className="gerenciamento-botoes">
-                    <button onClick={() => editarDesafio(desafio.ID_DESAFIO)} className="btn-gerenciamento btn-editar">
+                    <button onClick={() => handleEditarClick(desafio)} className="btn-gerenciamento btn-editar">
                       Editar Desafio
                     </button>
                     <button onClick={() => excluirDesafio(desafio.ID_DESAFIO)} className="btn-gerenciamento btn-excluir">
@@ -167,6 +296,7 @@ export default function MeusDesafios() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

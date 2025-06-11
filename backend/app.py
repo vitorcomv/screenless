@@ -954,6 +954,33 @@ def cancelar_inscricao_desafio_por_id(desafio_id): # O nome da função pode ser
         if cursor: cursor.close()
         if conn and conn.is_connected(): conn.close()
 
+# Rota para BUSCAR os dados de UM desafio específico para edição
+@app.route('/api/desafio/<int:desafio_id>', methods=['GET'])
+@token_obrigatorio
+def obter_desafio_para_edicao(desafio_id):
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        
+        # SQL para buscar o desafio, garantindo que o usuário logado seja o criador
+        sql = "SELECT * FROM DESAFIOS WHERE ID_DESAFIO = %s AND ID_USUARIO = %s"
+        cursor.execute(sql, (desafio_id, request.usuario_id))
+        desafio = cursor.fetchone()
+
+        if desafio:
+            return jsonify(desafio), 200
+        else:
+            # Retorna 404 se o desafio não existe OU se não pertence ao usuário
+            return jsonify({'erro': 'Desafio não encontrado ou você não tem permissão para acessá-lo.'}), 404
+
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+    finally:
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
+
 # Rota para editar um desafio (PUT)
 @app.route("/api/editar_desafio/<int:desafio_id>", methods=["PUT"])
 @token_obrigatorio
