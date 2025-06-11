@@ -284,7 +284,10 @@ export default function MeusDesafios() {
             <div className="cards-grid">
               {desafiosCriadosPaginados.map((desafio) => (
                 <div className="card-desafio" key={desafio.ID_DESAFIO}>
-                  <img className="card-image" src={`http://localhost:5000/uploads/${desafio.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"} alt={desafio.Titulo}/>
+                  <img className="card-image" 
+                    src={`http://localhost:5000/uploads/${desafio.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"} 
+                    alt={desafio.Titulo}
+                    onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel"; }}/>
                   <div className="card-info">
                     <h3>{desafio.Titulo}</h3>
                     <p className="organizador">Organizado por: {desafio.nome_usuario || "Você"}</p>
@@ -329,7 +332,11 @@ export default function MeusDesafios() {
             <div className="cards-grid">
               {desafiosInscritosPaginados.map((desafio) => (
                 <div className="card-desafio" key={desafio.ID_DESAFIO}>
-                  <img className="card-image" src={`http://localhost:5000/uploads/${desafio.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"} alt={desafio.Titulo}/>
+                  <img className="card-image" 
+                    src={`http://localhost:5000/uploads/${desafio.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"} 
+                    alt={desafio.Titulo}
+                    onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel"; }}
+                    />
                   <div className="card-info">
                     <h3>{desafio.Titulo}</h3>
                     <p className="organizador">Organizado por: {desafio.nome_usuario || "Anônimo"}</p>

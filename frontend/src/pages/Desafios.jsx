@@ -165,6 +165,7 @@ export default function ListaDesafios() {
                                     className="card-image"
                                     src={desafio.foto_url || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
                                     alt={desafio.Titulo}
+                                    onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel"; }}
                                 />
                                 <div className="desafio-info">
                                     <h3>{desafio.Titulo}</h3>
