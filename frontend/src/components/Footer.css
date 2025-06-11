@@ -1,0 +1,108 @@
+/* Estilo geral do container do footer */
+.footer-container {
+  background-color: #1f1f1f; /* Um cinza bem escuro */
+  color: #a7a7a7; /* Cinza claro para o texto */
+  padding: 40px 20px 10px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  /* CORREÇÃO: Puxa o rodapé para cima para cobrir qualquer borda do elemento anterior */
+  margin-top: -5px; 
+  position: relative; /* Garante que a margem funcione corretamente */
+}
+
+/* Container do conteúdo principal do footer */
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 30px; /* Espaço entre as seções */
+}
+
+/* Estilo de cada seção do footer */
+.footer-section {
+  flex: 1;
+  min-width: 250px; /* Garante que as seções não fiquem muito espremidas */
+}
+
+.footer-section h1,
+.footer-section h2 {
+  color: #ffffff; /* Branco para os títulos */
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.footer-logo-img {
+  height: 40px; /* Ajuste a altura conforme o design do seu logo */
+  width: auto; /* Mantém a proporção da imagem */
+  margin-bottom: 15px; /* Adiciona um espaço abaixo do logo */
+}
+
+.footer-section p {
+  line-height: 1.6;
+}
+
+/* Estilo da lista de links */
+.footer-section.links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section.links ul li {
+  margin-bottom: 10px;
+}
+
+.footer-section.links a {
+  color: #a7a7a7;
+  text-decoration: none;
+  transition: color 0.3s ease, padding-left 0.3s ease;
+}
+
+.footer-section.links a:hover {
+  color: #1abc9c; /* Cor de destaque ao passar o mouse */
+  padding-left: 5px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center; /* Alinha o ícone e o texto verticalmente */
+  gap: 10px; /* Cria um espaço entre o ícone e o texto */
+}
+
+.contact-icon {
+  width: 18px; /* Define um tamanho para o ícone SVG */
+  height: 18px;
+  fill: currentColor; /* Faz o ícone herdar a cor do texto (cinza) */
+  flex-shrink: 0; /* Impede que o ícone seja espremido */
+}
+
+
+/* Linha inferior com os direitos autorais */
+.footer-bottom {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #333; /* Esta borda interna cinza está correta */
+  font-size: 0.9rem;
+  color: #777;
+}
+
+
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-section {
+    min-width: 100%;
+  }
+  
+  .contact-item {
+    justify-content: center; /* Centraliza o item de contato em telas pequenas */
+  }
+}
