@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./MeusEventos.css";
 import { useNavigate } from "react-router-dom";
+import FormularioEdicaoEvento from "../components/FormularioEdicaoEvento";
 
 export default function MeusEventos() {
   const [eventosCriados, setEventosCriados] = useState([]);
   const [eventosInscritos, setEventosInscritos] = useState([]);
-  const [eventoEditando, setEventoEditando] = useState(null);
-  const [formData, setFormData] = useState({
-    titulo: "",
-    descricao: "",
-    endereco: "",
-    data_hora: "",
-    foto: null,
-  });
+  const [eventoEmEdicao, setEventoEmEdicao] = useState(null);
 
   const [eventosCriadosPaginados, setEventosCriadosPaginados] = useState([]);
   const [paginaAtualCriados, setPaginaAtualCriados] = useState(1);
@@ -107,87 +101,18 @@ export default function MeusEventos() {
   const paginaAnteriorInscritos = () => { if (temPaginaAnteriorInscritos) irParaPaginaInscritos(paginaAtualInscritos - 1); };
   const proximaPaginaInscritos = () => { if (temProximaPaginaInscritos) irParaPaginaInscritos(paginaAtualInscritos + 1); };
 
-  const iniciarEdicao = (evento) => {
-    const dataFormatada = new Date(evento.data_hora)
-      .toISOString()
-      .slice(0, 16);
-
-    setEventoEditando(evento.ID_EVENTO);
-    setFormData({
-      titulo: evento.titulo,
-      descricao: evento.descricao,
-      endereco: evento.endereco,
-      data_hora: dataFormatada,
-      foto: null, // Não pré-populamos a foto, o usuário deve reenviar se quiser mudar
-    });
+  // Funções de controle do formulário modal
+  const handleEditarClick = (evento) => {
+    setEventoEmEdicao(evento);
   };
 
-  const cancelarEdicao = () => {
-    setEventoEditando(null);
-    setFormData({
-      titulo: "",
-      descricao: "",
-      endereco: "",
-      data_hora: "",
-      foto: null,
-    });
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFotoChange = (e) => { // Função separada para o input de arquivo
-    setFormData((prev) => ({ ...prev, foto: e.target.files[0] }));
-  };
-
-
-  const salvarEdicao = async () => {
-    if (!token || !eventoEditando) return;
-
-    const formPayload = new FormData();
-    formPayload.append("titulo", formData.titulo);
-    formPayload.append("descricao", formData.descricao);
-    formPayload.append("endereco", formData.endereco);
-    formPayload.append("data_hora", formData.data_hora);
-    if (formData.foto) {
-      formPayload.append("foto", formData.foto);
-    }
-
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/editar_evento/${eventoEditando}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            // "Content-Type": "multipart/form-data" é definido automaticamente pelo browser ao usar FormData
-          },
-          body: formPayload,
-        }
-      );
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert("Evento atualizado com sucesso.");
-        setEventoEditando(null);
-        // Atualiza o evento na lista, incluindo a foto se uma nova foi enviada (a API deveria retornar o nome da nova foto)
-        setEventosCriados((prev) =>
-          prev.map((e) =>
-            e.ID_EVENTO === eventoEditando
-              ? { ...e, ...formData, foto: data.foto_path || e.foto } // Assumindo que a API retorna `data.foto_path` se a foto foi atualizada
-              : e
-          )
-        );
-      } else {
-        alert(data.erro || "Erro ao atualizar evento.");
-      }
-    } catch (err) {
-      console.error("Erro ao salvar edição:", err);
-      alert("Erro na requisição de salvar edição.");
-    }
+  const handleSaveEdicao = (eventoAtualizado) => {
+    setEventosCriados(prev => 
+      prev.map(e => 
+        e.ID_EVENTO === eventoAtualizado.ID_EVENTO ? eventoAtualizado : e
+      )
+    );
+    setEventoEmEdicao(null); // Fecha o modal após salvar
   };
 
   const cancelarInscricao = async (eventoId) => {
@@ -302,59 +227,40 @@ export default function MeusEventos() {
 
   const renderCard = (evento, isCriado = false) => (
     <div className="meus-evento-card" key={evento.ID_EVENTO}>
-      {evento.foto && (
-        <img
-          className="meus-evento-imagem"
-          src={`http://localhost:5000/uploads/${evento.foto}`}
-          alt={evento.titulo}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel"; // Placeholder
-          }}
-        />
-      )}
-      {!evento.foto && ( // Adicionado para mostrar placeholder se não houver foto
-         <img
-            className="meus-evento-imagem"
-            src="https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"
-            alt={evento.titulo}
-          />
-      )}
-
+      <img
+        className="meus-evento-imagem"
+        src={`http://localhost:5000/uploads/${evento.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
+        alt={evento.titulo}
+        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel"; }}
+      />
       <div className="meus-evento-info">
         <h3>{evento.titulo}</h3>
-        {/* Idealmente, o nome do organizador viria da API em `eventos_inscritos` também */}
-        <p className="organizador">Organizador: {evento.organizador_nome || evento.organizador || "Não informado"}</p>
+        <p>Organizador: {evento.organizador_nome || "Não informado"}</p>
         <p>Endereço: {evento.endereco}</p>
         <p>Data: {new Date(evento.data_hora).toLocaleString('pt-BR')}</p>
         {evento.descricao && <p className="descricao">Descrição: {evento.descricao}</p>}
-        
-        {/* XP do evento não é mostrado aqui, pois é fixo (100 XP) e distribuído no backend */}
-
         {isCriado ? (
-          // Se o evento foi criado pelo usuário logado
           evento.Status === "finalizado" ? (
             <p className="meus-evento-status-finalizado">Evento Finalizado!</p>
           ) : (
-            <>
-              <button className="evento-btn editar" onClick={() => iniciarEdicao(evento)}>
-                Editar Evento
+            <div className="botoes-acao-evento">
+              <button className="evento-btn editar" onClick={() => handleEditarClick(evento)}>
+                Editar
               </button>
               <button className="evento-btn excluir" onClick={() => excluirEvento(evento.ID_EVENTO)}>
-                Excluir Evento
+                Excluir
               </button>
               <button className="evento-btn concluir" onClick={() => finalizarEvento(evento.ID_EVENTO)}>
-                Concluir Evento e Distribuir XP
+                Finalizar e Distribuir XP
               </button>
-            </>
+            </div>
           )
         ) : (
-          // Se o usuário está apenas inscrito no evento
           evento.Status === "finalizado" ? (
-             <p className="meus-evento-status-finalizado">Evento Finalizado! XP já distribuído.</p>
+            <p className="meus-evento-status-finalizado">Evento Finalizado! XP recebido.</p>
           ) : (
             <button className="evento-btn cancelar" onClick={() => cancelarInscricao(evento.ID_EVENTO)}>
-             Cancelar Inscrição
+              Cancelar Inscrição
             </button>
           )
         )}
@@ -366,56 +272,16 @@ export default function MeusEventos() {
     <div className="meus-eventos-container">
       <h2>Meus Eventos</h2>
 
-      {eventoEditando && (
-        <div className="editar-form-container">
-          <h3>Editar Evento</h3>
-          <input
-            type="text"
-            name="titulo"
-            placeholder="Título"
-            value={formData.titulo}
-            onChange={handleInputChange}
-            className="form-input"
-          />
-          <textarea
-            name="descricao"
-            placeholder="Descrição"
-            value={formData.descricao}
-            onChange={handleInputChange}
-            className="form-textarea"
-          />
-          <input
-            type="text"
-            name="endereco"
-            placeholder="Endereço"
-            value={formData.endereco}
-            onChange={handleInputChange}
-            className="form-input"
-          />
-          <input
-            type="datetime-local"
-            name="data_hora"
-            value={formData.data_hora}
-            onChange={handleInputChange}
-            className="form-input"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFotoChange} // Usar handleFotoChange
-            className="form-input-file"
-          />
-          <div className="editar-form-buttons">
-            <button className="evento-btn editar" onClick={salvarEdicao}>
-              Salvar
-            </button>
-            <button className="evento-btn cancelar-edicao" onClick={cancelarEdicao}> {/* Classe diferente para estilo */}
-              Cancelar Edição
-            </button>
-          </div>
-        </div>
+      {/* AQUI FICA A CHAMADA PARA O FORMULÁRIO MODAL */}
+      {eventoEmEdicao && (
+        <FormularioEdicaoEvento
+          eventoParaEditar={eventoEmEdicao}
+          onSave={handleSaveEdicao}
+          onCancel={() => setEventoEmEdicao(null)}
+        />
       )}
 
+      {/* Seção de Eventos Criados com Paginação */}
       <section id="secao-criados">
         <h3>Eventos Criados</h3>
         {eventosCriados.length === 0 ? (
@@ -432,10 +298,7 @@ export default function MeusEventos() {
               <div className="paginacao" style={{ marginTop: '20px' }}>
                 <button className="paginacao-btn anterior" onClick={paginaAnteriorCriados} disabled={!temPaginaAnteriorCriados}>← Anterior</button>
                 <div className="paginacao-numeros">
-                  {Array.from({ length: totalPaginasCriados }, (_, index) => {
-                    const numeroPagina = index + 1;
-                    return <button key={numeroPagina} className={`paginacao-numero ${paginaAtualCriados === numeroPagina ? 'ativo' : ''}`} onClick={() => irParaPaginaCriados(numeroPagina)}>{numeroPagina}</button>;
-                  })}
+                  {Array.from({ length: totalPaginasCriados }, (_, i) => (<button key={i+1} className={`paginacao-numero ${paginaAtualCriados === i + 1 ? 'ativo' : ''}`} onClick={() => irParaPaginaCriados(i + 1)}>{i + 1}</button>))}
                 </div>
                 <button className="paginacao-btn proximo" onClick={proximaPaginaCriados} disabled={!temProximaPaginaCriados}>Próximo →</button>
               </div>
@@ -444,6 +307,7 @@ export default function MeusEventos() {
         )}
       </section>
 
+      {/* Seção de Eventos Inscritos com Paginação */}
       <section id="secao-inscritos">
         <h3>Eventos Inscritos</h3>
         {eventosInscritos.length === 0 ? (
@@ -460,10 +324,7 @@ export default function MeusEventos() {
               <div className="paginacao" style={{ marginTop: '20px' }}>
                 <button className="paginacao-btn anterior" onClick={paginaAnteriorInscritos} disabled={!temPaginaAnteriorInscritos}>← Anterior</button>
                 <div className="paginacao-numeros">
-                  {Array.from({ length: totalPaginasInscritos }, (_, index) => {
-                    const numeroPagina = index + 1;
-                    return <button key={numeroPagina} className={`paginacao-numero ${paginaAtualInscritos === numeroPagina ? 'ativo' : ''}`} onClick={() => irParaPaginaInscritos(numeroPagina)}>{numeroPagina}</button>;
-                  })}
+                  {Array.from({ length: totalPaginasInscritos }, (_, i) => (<button key={i+1} className={`paginacao-numero ${paginaAtualInscritos === i + 1 ? 'ativo' : ''}`} onClick={() => irParaPaginaInscritos(i + 1)}>{i + 1}</button>))}
                 </div>
                 <button className="paginacao-btn proximo" onClick={proximaPaginaInscritos} disabled={!temProximaPaginaInscritos}>Próximo →</button>
               </div>
