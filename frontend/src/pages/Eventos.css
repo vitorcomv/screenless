@@ -384,3 +384,45 @@
     font-size: 12px;
   }
 }
+
+.proxima-imagem .botao-bloqueado-wrapper {
+  /* Copia o posicionamento do botão original */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  
+  /* Adicionado para garantir que o tamanho não colapse */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Esta regra força o tooltip para a posição correta,
+  usando uma transformação que o move para cima
+*/
+.proxima-imagem .tooltip-bloqueado {
+  /* Reseta a posição vertical e horizontal */
+  top: 50%;
+  left: 50%;
+  bottom: auto;
+
+  /* 1. translate(-50%, -50%) -> Alinha o CENTRO do tooltip com o CENTRO do botão.
+    2. translateY(-55px)   -> Move o tooltip 55px PARA CIMA a partir do centro.
+  */
+  transform: translate(-50%, -50%) translateY(-65px);
+}
+
+@media (max-width: 768px) {
+  .proxima-imagem .botao-bloqueado-wrapper {
+    width: 80%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .proxima-imagem .botao-bloqueado-wrapper {
+    width: 90%;
+  }
+}

@@ -1,12 +1,55 @@
-import React, { createContext, useState, useEffect } from "react";
+// src/context/AuthContext.jsx (VERSÃO CORRIGIDA)
+
+import React, { createContext, useState, useEffect, useCallback } from "react";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [usuarioLogado, setUsuarioLogado] = useState(localStorage.getItem("usuario"));
-  const [fotoUsuario, setFotoUsuario] = useState(localStorage.getItem("fotoUsuario"));
-  const [insigniaUsuarioUrl, setInsigniaUsuarioUrl] = useState(null); // NOVO: Estado para a insígnia
+  const [token, setToken] = useState(null);
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
+  const [fotoUsuario, setFotoUsuario] = useState(null);
+  const [insigniaUsuarioUrl, setInsigniaUsuarioUrl] = useState(null);
+  
+  const [xpUsuario, setXpUsuario] = useState(0);
+  const [nivelUsuario, setNivelUsuario] = useState('bronze');
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  // A função 'logout' precisa estar disponível para o useCallback
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    setToken(null);
+    setUsuarioLogado(null);
+    setFotoUsuario(null);
+    setInsigniaUsuarioUrl(null);
+    setXpUsuario(0);
+    setNivelUsuario('bronze');
+  }, []);
+
+  const fetchUsuarioData = useCallback(async (authToken) => {
+    if (!authToken) {
+      setLoadingAuth(false);
+      return;
+    }
+    try {
+      const response = await fetch("http://localhost:5000/api/usuario_xp", {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!response.ok) throw new Error("Falha ao buscar XP");
+      
+      const data = await response.json();
+      const xp = data.xp || 0;
+      setXpUsuario(xp);
+
+      if (xp >= 2000) setNivelUsuario("ouro");
+      else if (xp >= 1000) setNivelUsuario("prata");
+      else setNivelUsuario("bronze");
+
+    } catch (err) {
+      console.error("Erro ao buscar dados do usuário (XP):", err);
+      logout();
+    }
+  }, [logout]);
 
   useEffect(() => {
     const tokenSalvo = localStorage.getItem("token");
@@ -18,40 +61,30 @@ export function AuthProvider({ children }) {
         setToken(tokenSalvo);
         setUsuarioLogado(dados.usuario);
         setFotoUsuario(dados.foto_url);
-        setInsigniaUsuarioUrl(dados.insignia_icone_url); // NOVO: Carrega a insígnia do localStorage
+        setInsigniaUsuarioUrl(dados.insignia_icone_url);
+        fetchUsuarioData(tokenSalvo);
       } catch (e) {
         console.warn("Falha ao fazer parse do usuário:", usuarioSalvo);
-        // Limpa dados corrompidos
-        localStorage.removeItem("token");
-        localStorage.removeItem("usuario");
+        logout();
       }
     }
-  }, []);
+    setLoadingAuth(false);
+  }, [fetchUsuarioData, logout]);
 
-  // MODIFICADO: A função login agora aceita a URL da insígnia
   const login = (tokenRecebido, usuarioRecebido, fotoUrlRecebida = null, insigniaUrlRecebida = null) => {
-    setToken(tokenRecebido);
-    setUsuarioLogado(usuarioRecebido);
-    setFotoUsuario(fotoUrlRecebida);
-    setInsigniaUsuarioUrl(insigniaUrlRecebida); // NOVO: Define a insígnia recebida
-
     localStorage.setItem("token", tokenRecebido);
-    // MODIFICADO: Salva a insígnia junto com os outros dados no localStorage
     localStorage.setItem("usuario", JSON.stringify({ 
         usuario: usuarioRecebido, 
         foto_url: fotoUrlRecebida,
         insignia_icone_url: insigniaUrlRecebida 
     }));
-  };
-
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    setToken(null);
-    setUsuarioLogado(null);
-    setFotoUsuario(null);
-    setInsigniaUsuarioUrl(null); // NOVO: Limpa o estado da insígnia
+    
+    setToken(tokenRecebido);
+    setUsuarioLogado(usuarioRecebido);
+    setFotoUsuario(fotoUrlRecebida);
+    setInsigniaUsuarioUrl(insigniaUrlRecebida);
+    
+    fetchUsuarioData(tokenRecebido);
   };
 
   const atualizarFoto = (novaUrl) => {
@@ -63,7 +96,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // NOVO: Função para atualizar a insígnia (será útil no futuro)
   const atualizarInsignia = (novaInsigniaUrl) => {
     setInsigniaUsuarioUrl(novaInsigniaUrl);
     const usuarioSalvo = JSON.parse(localStorage.getItem("usuario"));
@@ -73,25 +105,24 @@ export function AuthProvider({ children }) {
     }
   };
 
-
-  // A função atualizarUsuario pode ser simplificada ou removida se não for usada.
   const atualizarUsuario = (novoUsuario, novaFotoUrl) => {
     setUsuarioLogado(novoUsuario);
     setFotoUsuario(novaFotoUrl);
-    // Esta implementação está incompleta, pois não atualiza o objeto no localStorage corretamente.
-    // Sugiro usar as funções específicas `atualizarFoto` e `atualizarInsignia`.
   };
 
-  // MODIFICADO: Expondo os novos valores no Provider
+  // OBJETO CORRIGIDO: Agora inclui os dados de XP e Nível
   const providerValue = {
+    token,
     usuarioLogado,
     fotoUsuario,
-    token,
-    insigniaUsuarioUrl, // NOVO
+    insigniaUsuarioUrl,
+    xpUsuario,
+    nivelUsuario,
+    loadingAuth,
     login,
     logout,
     atualizarFoto,
-    atualizarInsignia, // NOVO
+    atualizarInsignia,
     atualizarUsuario
   };
 

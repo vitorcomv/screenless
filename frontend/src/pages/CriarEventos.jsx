@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CriarEventos.css";
 import imagemcard from '../assets/imagemcard.png';
-import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-
 
 export default function CriarEvento() {
   const [form, setForm] = useState({
@@ -17,7 +15,16 @@ export default function CriarEvento() {
   });
 
   const navigate = useNavigate();
-  const { token } = useContext(AuthContext);
+  const { token, nivelUsuario, loadingAuth } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!loadingAuth) {
+      if (nivelUsuario !== 'ouro') {
+        alert("Você precisa ser nível Ouro para criar um evento.");
+        navigate('/eventos');
+      }
+    }
+  }, [nivelUsuario, loadingAuth, navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -67,6 +74,10 @@ export default function CriarEvento() {
       alert("Erro ao criar o evento: " + error.message);
     }
   };
+
+  if (loadingAuth) {
+    return <div className="loading-auth-check">Verificando permissões...</div>;
+  }
 
   return (
     <div className="pagina-criar-evento criar-evento-container-identico">

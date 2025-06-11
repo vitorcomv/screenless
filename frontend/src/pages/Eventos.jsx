@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./Eventos.css";
 import proximaImagem from '../assets/imagemfundo.png';
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import BotaoBloqueado from "../components/BotaoBloqueado";
 
 export default function ListaEventos() {
+  const { nivelUsuario } = useContext(AuthContext);
   const [todosEventos, setTodosEventos] = useState([]);
   const [eventos, setEventos] = useState([]);
   const [inscritos, setInscritos] = useState([]);
@@ -249,9 +252,18 @@ export default function ListaEventos() {
           alt="Imagem de fundo"
           style={{ width: "100%", display: "block" }}
         />
-        <Link to="/criar-eventos">
-          <button className="criar-seu-evento-button">CRIE SEU EVENTO</button>
-        </Link>
+        {/* --- LÓGICA ATUALIZADA --- */}
+        {nivelUsuario === 'ouro' ? (
+          <Link to="/criar-eventos">
+            <button className="criar-seu-evento-button">CRIE SEU EVENTO</button>
+          </Link>
+        ) : (
+          <BotaoBloqueado 
+            nivelNecessario="Ouro" 
+            paraCriar="um evento"
+            className="criar-seu-evento-button" // Passa a mesma classe para manter o tamanho
+          />
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CriarDesafio.css";
-import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-
 
 export default function CriarDesafio() {
   const [form, setForm] = useState({
@@ -14,11 +12,19 @@ export default function CriarDesafio() {
   });
 
   const navigate = useNavigate();
-
-  const { token, usuarioLogado } = useContext(AuthContext);
-
+  const { token, usuarioLogado, nivelUsuario, loadingAuth } = useContext(AuthContext); // Pega dados do contexto
   const [xpErro, setXpErro] = useState("");
 
+  useEffect(() => {
+    // Só roda depois que a autenticação inicial foi verificada
+    if (!loadingAuth) {
+      // Se o usuário NÃO for prata ou ouro, redireciona para a página de desafios
+      if (nivelUsuario !== 'prata' && nivelUsuario !== 'ouro') {
+        alert("Você precisa ser nível Prata ou superior para criar um desafio.");
+        navigate('/desafios');
+      }
+    }
+  }, [nivelUsuario, loadingAuth, navigate]);
 
   const handleChange = (e) => {
   const { name, value } = e.target;
@@ -78,7 +84,10 @@ export default function CriarDesafio() {
       alert("Erro ao criar desafio: " + error.message);
     }
   };
-  
+
+  if (loadingAuth) {
+    return <div className="loading-auth-check">Verificando permissões...</div>;
+  }
 
   return (
     <section className="form-mini">

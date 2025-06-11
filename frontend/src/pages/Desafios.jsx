@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./Desafios.css";
 import exemploImg from "../assets/imagemcard.png";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "../context/AuthContext";
+import BotaoBloqueado from "../components/BotaoBloqueado";
 
 export default function ListaDesafios() {
+  const { nivelUsuario } = useContext(AuthContext);
   const [desafios, setDesafios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -160,9 +163,18 @@ export default function ListaDesafios() {
           alt="Imagem de fundo com pessoas colaborando"
         />
         <div className="div_botao">
-          <Link to="/criar-desafio">
-            <button className="butãoCriarEvento">CRIE SEU DESAFIO</button>
-          </Link>
+          {/* --- LÓGICA ATUALIZADA --- */}
+          {(nivelUsuario === 'prata' || nivelUsuario === 'ouro') ? (
+            <Link to="/criar-desafio">
+              <button className="butãoCriarEvento">CRIE SEU DESAFIO</button>
+            </Link>
+          ) : (
+            <BotaoBloqueado 
+              nivelNecessario="Prata" 
+              paraCriar="um desafio"
+              className="butãoCriarEvento" // Passa a mesma classe para manter o tamanho
+            />
+          )}
         </div>
       </div>
     </div>

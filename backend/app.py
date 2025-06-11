@@ -38,6 +38,49 @@ def token_obrigatorio(f):
         return f(*args, **kwargs)
     return decorator
 
+def nivel_requerido(nivel_minimo):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            # Mapeamento de níveis para XP mínimo
+            niveis_xp = {
+                'bronze': 0,
+                'prata': 1000,
+                'ouro': 2000
+            }
+            
+            xp_necessario = niveis_xp.get(nivel_minimo.lower())
+            
+            # Se o nível fornecido for inválido
+            if xp_necessario is None:
+                return jsonify({'erro': 'Nível de permissão interna inválido'}), 500
+
+            conn_check = None
+            cursor_check = None
+            try:
+                # Obter o ID do usuário que o @token_obrigatorio já colocou no request
+                usuario_id = request.usuario_id
+
+                conn_check = mysql.connector.connect(**db_config)
+                cursor_check = conn_check.cursor(dictionary=True)
+                
+                cursor_check.execute("SELECT xp_usuario FROM USUARIO WHERE id_usuario = %s", (usuario_id,))
+                usuario = cursor_check.fetchone()
+
+                if not usuario or usuario['xp_usuario'] < xp_necessario:
+                    return jsonify({'erro': f'Acesso negado. Você precisa ser nível {nivel_minimo} ou superior.'}), 403 # 403 Forbidden
+
+            except Exception as e:
+                return jsonify({'erro': f'Erro ao verificar permissão: {str(e)}'}), 500
+            finally:
+                if cursor_check: cursor_check.close()
+                if conn_check and conn_check.is_connected(): conn_check.close()
+            
+            # Se a verificação passou, executa a rota original
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
 app = Flask(__name__)
 CORS(app)
 
@@ -216,6 +259,7 @@ def get_usuario_xp():
 # Rota para criar evento
 @app.route("/api/criar_evento", methods=["POST"])
 @token_obrigatorio
+@nivel_requerido('ouro')
 def criar_evento():
     conn = None
     cursor = None
@@ -392,6 +436,7 @@ def finalizar_evento_e_verificar_insignias(evento_id):
 # Rota para criar desafio
 @app.route("/api/criar_desafio", methods=["POST"])
 @token_obrigatorio
+@nivel_requerido('prata')
 def criar_desafio():
     conn = None
     cursor = None
