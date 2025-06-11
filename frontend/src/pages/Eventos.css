@@ -77,9 +77,12 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   padding: 15px;
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   border: 3px solid transparent;
-  max-width: 320px;
-  margin: 0 auto;
+  width: 290px;
+  min-height: 300px;
+  max-height: 500px;
+  justify-self: center;
 }
+
 
 .evento-card:hover {
   transform: translateY(-8px);
@@ -89,17 +92,58 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
 
 .evento-card img {
   width: 100%;
-  height: 180px;
+  height: 160px; /* Diminuí um pouco a altura da imagem para combinar */
   object-fit: cover;
   border-radius: 10px;
   margin-bottom: 15px;
 }
 
-.evento-info { padding: 0; flex-grow: 1; text-align: left; display: flex; flex-direction: column; }
+/* Voltamos ao código anterior, com texto alinhado à esquerda */
+.evento-info {
+  padding: 0;
+  flex-grow: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
 .evento-info h3 { color: var(--dark-text); margin-bottom: 10px; font-size: 1.3rem; }
-.evento-info p { margin-bottom: 8px; font-size: 0.9rem; color: #4b5563; }
+.evento-info p { margin-bottom: 8px !important; font-size: 0.9rem; color: #4b5563; }
 .evento-info .organizador { font-weight: 600; color: var(--primary-dark); }
-.inscrever-button { background-color: var(--primary-color); color: var(--white-text); border: none; padding: 12px 20px; margin-top: 20px; cursor: pointer; border-radius: 50px; font-size: 1rem; font-weight: 600; transition: all 0.3s ease; width: 100%; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+
+.descricao{
+  margin-top: 25px !important;
+}
+
+.evento-footer {
+  margin-top: auto; 
+  padding-top: 15px;
+  width: 100%;
+}
+
+.evento-status-finalizado {
+  text-align: center;
+  font-weight: bold;
+  color: var(--secondary-color);
+  padding: 12px 20px;
+  background-color: #fff7ed;
+  border-radius: 50px;
+}
+
+.inscrever-button {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .inscrever-button:hover:not(:disabled) { background-color: var(--primary-dark); transform: translateY(-2px); }
 .inscrever-button:disabled { background-color: #a7f3d0; color: #10b981; cursor: not-allowed; opacity: 0.8; }
 .autor-container { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; }
@@ -108,7 +152,6 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
 
 .paginacao { align-items: center; justify-content: center; gap: 15px; margin-top: 20px; margin-bottom: 20px; flex-wrap: wrap;}
 
-/* --- Bloco de estilização da paginação adicionado --- */
 .paginacao-btn {
   background-color: var(--primary-color);
   color: var(--white-text);
@@ -165,8 +208,6 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   color: var(--white-text);
   pointer-events: none;
 }
-/* --- Fim do bloco de estilização da paginação --- */
-
 
 /* --- SEÇÃO SEM EVENTOS (CALL TO ACTION) --- */
 .sem-eventos-container {
@@ -237,7 +278,7 @@ a.criar-seu-evento-button {
   .lista-eventos-container { padding: 40px 15px; }
   .lista-eventos-container h2 { font-size: 2.5rem; }
   .eventos-grid { grid-template-columns: 1fr; }
-  .evento-card { max-width: 400px; }
+  .evento-card { width: 95%; }
   .cta-texto { font-size: 1.3rem; }
 }
 

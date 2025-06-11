@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import "./Eventos.css"; // Seu CSS não será modificado
+import "./Eventos.css";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import BotaoBloqueado from "../components/BotaoBloqueado";
@@ -16,7 +16,6 @@ export default function ListaEventos() {
   const eventosPorPagina = 8;
   const token = localStorage.getItem("token");
 
-  // ... (toda a sua lógica de useEffects e outras funções permanece exatamente a mesma) ...
   useEffect(() => {
     const fetchEventos = async () => {
       try {
@@ -78,7 +77,6 @@ export default function ListaEventos() {
 
   const temEventos = todosEventos.length > 0;
 
-  // Componente do Botão para evitar repetição de código
   const BotaoCriarEvento = () => (
     <div className="botao-wrapper">
       {nivelUsuario === 'ouro' ? (
@@ -99,20 +97,19 @@ export default function ListaEventos() {
     <div className={`lista-eventos-container ${temEventos ? 'eventos-visiveis' : ''}`}>
       <h2>Eventos</h2>
 
-      {/* ===== TEXTO DE VOLTA AQUI ===== */}
       <div className="info-paginacao">
-        {/* Adicionamos a condição 'temEventos' para só mostrar se houver eventos */}
         {temEventos && (
           `Mostrando ${((paginaAtual - 1) * eventosPorPagina) + 1} - ${Math.min(paginaAtual * eventosPorPagina, todosEventos.length)} de ${todosEventos.length} eventos`
         )}
       </div>
       
-      {/* Seção com a grade de eventos */}
       <div className="eventos-grid">
         {eventos.map((evento) => (
           <div className="evento-card" key={evento.ID_EVENTO}>
-            {/* ... conteúdo do card ... */}
+            {/* A imagem continua aqui em cima */}
             {evento.foto_url && <img src={evento.foto_url} alt={evento.titulo} onError={(e) => { e.target.onerror = null; e.target.src = "/placeholder.png"; }} />}
+            
+            {/* O corpo agora só contém os textos */}
             <div className="evento-info">
               <h3>{evento.titulo}</h3>
               <div className="autor-container">
@@ -120,7 +117,11 @@ export default function ListaEventos() {
                 {evento.autor_insignia_url && <img src={evento.autor_insignia_url} alt="Insígnia do organizador" className="insignia-no-card"/>}
               </div>
               <p className="endereco">{evento.endereco}</p>
+              <p className="descricao">{evento.descricao}</p>
               <p className="data-hora">{evento.data_hora}</p>
+            </div>
+            
+            <div className="evento-footer">
               {evento.Status === "finalizado" ? (
                 <p className="evento-status-finalizado">Evento Finalizado!</p>
               ) : (
@@ -133,10 +134,8 @@ export default function ListaEventos() {
         ))}
       </div>
 
-      {/* Paginação */}
       {temEventos && totalPaginas > 1 && (
         <div className="paginacao">
-          {/* ... conteúdo da paginação ... */}
           <button className="paginacao-btn anterior" onClick={() => irParaPagina(paginaAtual - 1)} disabled={paginaAtual === 1}>← Anterior</button>
           <div className="paginacao-numeros">
             {Array.from({ length: totalPaginas }, (_, index) => (
@@ -146,19 +145,17 @@ export default function ListaEventos() {
           <button className="paginacao-btn proximo" onClick={() => irParaPagina(paginaAtual + 1)} disabled={paginaAtual === totalPaginas}>Próximo →</button>
         </div>
       )}
-
       
       {!temEventos && (
-  <div className="sem-eventos-container">
-    <div className="cta-container">
-      <p className="cta-texto">
-        Parece que não há nada por aqui... Que tal criar o primeiro evento?
-      </p>
-      <BotaoCriarEvento />
-    </div>
-  </div>
-)}
-
+        <div className="sem-eventos-container">
+          <div className="cta-container">
+            <p className="cta-texto">
+              Parece que não há nada por aqui... Que tal criar o primeiro evento?
+            </p>
+            <BotaoCriarEvento />
+          </div>
+        </div>
+      )}
 
       {temEventos && <BotaoCriarEvento />}
     </div>
