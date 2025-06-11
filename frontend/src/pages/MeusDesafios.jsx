@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, Link } from "react-router-dom";
+import { useAlert } from "../context/AlertContext";
 import FormularioEdicaoDesafio from "../components/FormularioEdicaoDesafio";
 import "./MeusDesafios.css";
 
 export default function MeusDesafios() {
   const navigate = useNavigate();
+  const { showAlert, showConfirm } = useAlert();
+
   const [desafiosCriados, setDesafiosCriados] = useState([]);
   const [loadingCriados, setLoadingCriados] = useState(true);
   const [errorCriados, setErrorCriados] = useState(null);
@@ -118,135 +121,102 @@ export default function MeusDesafios() {
 
   const finalizarDesafio = async (desafioId) => {
     if (!token) {
-      alert("Você precisa estar logado para finalizar um desafio.");
+      showAlert("Você precisa estar logado para finalizar um desafio.", "warning");
       return;
     }
 
-    const confirmFinalizar = window.confirm(
-      "Tem certeza que deseja finalizar este desafio? Esta ação não pode ser desfeita."
-    );
-    if (!confirmFinalizar) {
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/finalizar_desafio_post/${desafioId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+    showConfirm({
+      title: "Finalizar Desafio",
+      message: "Tem certeza que deseja finalizar este desafio? Esta ação não pode ser desfeita.",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/finalizar_desafio_post/${desafioId}`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showAlert(data.mensagem || "Desafio finalizado com sucesso!", "success");
+            setDesafiosCriados((prev) => prev.map((d) => d.ID_DESAFIO === desafioId ? { ...d, finalizado: true } : d));
+          } else {
+            showAlert(data.erro || "Erro ao finalizar desafio.", "error");
+          }
+        } catch (error) {
+          console.error("Erro na requisição de finalizar desafio:", error);
+          showAlert("Erro de conexão ao finalizar desafio.", "error");
         }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        alert(data.mensagem || "Desafio finalizado com sucesso!");
-        setDesafiosCriados((prevDesafios) =>
-          prevDesafios.map((d) =>
-            d.ID_DESAFIO === desafioId ? { ...d, finalizado: true } : d
-          )
-        );
-      } else {
-        alert(data.erro || "Erro ao finalizar desafio.");
-      }
-    } catch (error) {
-      console.error("Erro na requisição de finalizar desafio:", error);
-      alert("Erro na requisição de finalizar desafio. Verifique o console para mais detalhes.");
-    }
+      },
+    });
   };
 
   const handleEditarClick = (desafio) => {
     setDesafioEmEdicao(desafio);
   };
 
-  // NOVO: Função chamada quando a edição é salva com sucesso
   const handleSaveEdicao = (desafioAtualizado) => {
-    setDesafiosCriados(prev => 
-      prev.map(d => 
-        d.ID_DESAFIO === desafioAtualizado.ID_DESAFIO ? desafioAtualizado : d
-      )
-    );
+    setDesafiosCriados(prev => prev.map(d => d.ID_DESAFIO === desafioAtualizado.ID_DESAFIO ? desafioAtualizado : d));
     setDesafioEmEdicao(null); // Fecha o modal
+    showAlert("Desafio atualizado com sucesso!", "success"); // Feedback para o usuário
   };
 
   const excluirDesafio = async (desafioId) => {
     if (!token) {
-      alert("Você precisa estar logado para excluir um desafio.");
-    return;
-    }
-
-    const confirmExcluir = window.confirm(
-    "Tem certeza que deseja excluir este desafio? Esta ação não pode ser desfeita e removerá todas as inscrições relacionadas."
-    );
-    if (!confirmExcluir) {
+      showAlert("Você precisa estar logado para excluir um desafio.", "warning");
       return;
     }
 
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/excluir_desafio/${desafioId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    showConfirm({
+      title: "Excluir Desafio",
+      message: "Tem certeza? Esta ação removerá o desafio permanentemente, incluindo todas as inscrições relacionadas.",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/excluir_desafio/${desafioId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showAlert(data.mensagem || "Desafio excluído com sucesso!", "success");
+            setDesafiosCriados((prev) => prev.filter((d) => d.ID_DESAFIO !== desafioId));
+          } else {
+            showAlert(data.erro || "Erro ao excluir desafio.", "error");
+          }
+        } catch (error) {
+          console.error("Erro na requisição de exclusão:", error);
+          showAlert("Erro de conexão ao excluir desafio.", "error");
         }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        alert(data.mensagem || "Desafio excluído com sucesso!");
-        setDesafiosCriados((prevDesafios) =>
-          prevDesafios.filter((d) => d.ID_DESAFIO !== desafioId)
-        );
-      } else {
-        alert(data.erro || "Erro ao excluir desafio.");
-      }
-    } catch (error) {
-    console.error("Erro na requisição de exclusão de desafio:", error);
-    alert("Erro na requisição de exclusão de desafio. Verifique o console para mais detalhes.");
-    }
+      },
+    });
   };
+
   const cancelarInscricaoDesafio = async (desafioId) => {
     if (!token) {
-      alert("Você precisa estar logado para cancelar uma inscrição.");
-    return;
-    }
-
-    const confirmCancel = window.confirm(
-    "Tem certeza que deseja cancelar sua inscrição neste desafio?"
-    );
-    if (!confirmCancel) {
+      showAlert("Você precisa estar logado para cancelar uma inscrição.", "warning");
       return;
     }
 
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/cancelar_inscricao_desafio/${desafioId}`,
-        {
-          method: "DELETE", // Ou o método que você definiu para cancelar inscrição
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    showConfirm({
+      title: "Cancelar Inscrição",
+      message: "Tem certeza que deseja cancelar sua inscrição neste desafio?",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/cancelar_inscricao_desafio/${desafioId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showAlert(data.mensagem || "Inscrição cancelada com sucesso!", "success");
+            setDesafiosInscritos((prev) => prev.filter((d) => d.ID_DESAFIO !== desafioId));
+          } else {
+            showAlert(data.erro || "Erro ao cancelar inscrição.", "error");
+          }
+        } catch (error) {
+          console.error("Erro na requisição de cancelar inscrição:", error);
+          showAlert("Erro de conexão ao cancelar inscrição.", "error");
         }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        alert(data.mensagem || "Inscrição cancelada com sucesso!");
-        setDesafiosInscritos((prevDesafios) =>
-          prevDesafios.filter((d) => d.ID_DESAFIO !== desafioId)
-        );
-      } else {
-        alert(data.erro || "Erro ao cancelar inscrição.");
-      }
-    } catch (error) {
-    console.error("Erro na requisição de cancelar inscrição:", error);
-    alert("Erro na requisição de cancelar inscrição. Verifique o console para mais detalhes.");
-    }
+      },
+    });
   };
 
   if (loadingCriados || loadingInscritos) {

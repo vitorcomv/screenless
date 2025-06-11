@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { AlertProvider } from './context/AlertContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -45,10 +46,11 @@ function AppWrapper() {
 export default function App() {
   return (
     <Router>
-      <AuthProvider>
-        <AppWrapper />
-      </AuthProvider>
+      <AlertProvider>
+        <AuthProvider>
+          <AppWrapper />
+        </AuthProvider>
+      </AlertProvider>
     </Router>
   );
 }
- 

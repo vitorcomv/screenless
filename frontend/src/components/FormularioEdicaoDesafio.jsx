@@ -51,7 +51,6 @@ export default function FormularioEdicaoDesafio({ desafioParaEditar, onSave, onC
 
       const data = await response.json();
       if (response.ok) {
-        alert(data.mensagem || "Desafio atualizado com sucesso!");
         onSave({ ...desafioParaEditar, ...form, foto: novaImagemFile ? novaImagemFile.name : desafioParaEditar.foto }); // Avisa o componente pai que salvou
       } else {
         alert(data.erro);
