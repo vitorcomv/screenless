@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./FormularioEdicaoDesafio.css"; // Vamos criar este CSS a seguir
+import { useAlert } from "../context/AlertContext";
 
 export default function FormularioEdicaoDesafio({ desafioParaEditar, onSave, onCancel }) {
   const [form, setForm] = useState({
@@ -8,6 +9,7 @@ export default function FormularioEdicaoDesafio({ desafioParaEditar, onSave, onC
     xp: "",
   });
   const [novaImagemFile, setNovaImagemFile] = useState(null);
+  const { showAlert, showConfirm } = useAlert();
 
   // Quando o componente recebe um desafio para editar, preenche o formulário
   useEffect(() => {
@@ -53,10 +55,10 @@ export default function FormularioEdicaoDesafio({ desafioParaEditar, onSave, onC
       if (response.ok) {
         onSave({ ...desafioParaEditar, ...form, foto: novaImagemFile ? novaImagemFile.name : desafioParaEditar.foto }); // Avisa o componente pai que salvou
       } else {
-        alert(data.erro);
+        showAlert({message: data.erro, type: "error"});
       }
     } catch (error) {
-      alert("Erro ao atualizar o desafio: " + error.message);
+      showAlert({message: "Erro ao atualizar o desafio: " + error.message, type: "error"});
     }
   };
 

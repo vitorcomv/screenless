@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CriarDesafio.css";
 import { AuthContext } from "../context/AuthContext";
+import { useAlert } from "../context/AlertContext"; // 1. IMPORTAR O HOOK
 
 export default function CriarDesafio() {
   const [form, setForm] = useState({
@@ -12,34 +13,38 @@ export default function CriarDesafio() {
   });
 
   const navigate = useNavigate();
-  const { token, usuarioLogado, nivelUsuario, loadingAuth } = useContext(AuthContext); // Pega dados do contexto
+  const { token, usuarioLogado, nivelUsuario, loadingAuth } = useContext(AuthContext);
+  const { showAlert } = useAlert(); // 2. OBTER A FUNÇÃO DO CONTEXTO
   const [xpErro, setXpErro] = useState("");
 
   useEffect(() => {
-    // Só roda depois que a autenticação inicial foi verificada
     if (!loadingAuth) {
-      // Se o usuário NÃO for prata ou ouro, redireciona para a página de desafios
       if (nivelUsuario !== 'prata' && nivelUsuario !== 'ouro') {
-        alert("Você precisa ser nível Prata ou superior para criar um desafio.");
+        // 3. SUBSTITUIR O ALERTA DE PERMISSÃO
+        showAlert({
+          title: "Acesso Negado",
+          message: "Você precisa ser nível Prata ou superior para criar um desafio.",
+          type: "error"
+        });
         navigate('/desafios');
       }
     }
-  }, [nivelUsuario, loadingAuth, navigate]);
+  }, [nivelUsuario, loadingAuth, navigate, showAlert]);
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  if (name === "xp") {
-    if (Number(value) > 100) {
-      setXpErro("O XP não pode ser maior que 100.");
-    } else {
-      setXpErro("");
+    if (name === "xp") {
+      if (Number(value) > 100) {
+        setXpErro("O XP não pode ser maior que 100.");
+        // Adiciona um alerta imediato para o usuário
+        showAlert({ title: "Valor Inválido", message: "A recompensa de XP não pode ultrapassar 100.", type: "warning" });
+      } else {
+        setXpErro("");
+      }
     }
-  }
-
-  setForm({ ...form, [name]: value });
-};
-
+    setForm({ ...form, [name]: value });
+  };
 
   const handleImagemChange = (e) => {
     setForm({ ...form, imagem: e.target.files[0] });
@@ -48,9 +53,19 @@ export default function CriarDesafio() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    // Adiciona uma verificação para não enviar o formulário com erro
+    if (xpErro) {
+      showAlert({ title: "Formulário Inválido", message: "Corrija os erros indicados antes de enviar o desafio.", type: "error" });
+      return;
+    }
+
     if (!token) {
-      alert("Você precisa estar logado para criar um desafio.");
+      // 4. SUBSTITUIR OS ALERTAS NO SUBMIT
+      showAlert({
+        title: "Acesso Requerido",
+        message: "Você precisa estar logado para criar um desafio.",
+        type: "warning"
+      });
       return;
     }
   
@@ -75,13 +90,26 @@ export default function CriarDesafio() {
       const data = await response.json();
   
       if (response.ok) {
-        alert(data.mensagem);
-        navigate("/desafios"); // Redireciona para a página de desafios após criar
+        showAlert({
+          title: "Sucesso!",
+          message: data.mensagem || "Desafio criado e enviado para a comunidade!",
+          type: "success"
+        });
+        navigate("/desafios");
       } else {
-        alert(data.erro);
+        showAlert({
+          title: "Erro na Criação",
+          message: data.erro || "Não foi possível criar o desafio.",
+          type: "error"
+        });
       }
     } catch (error) {
-      alert("Erro ao criar desafio: " + error.message);
+      console.error("Erro ao criar desafio:", error);
+      showAlert({
+        title: "Erro de Conexão",
+        message: "Falha ao comunicar com o servidor. Tente novamente.",
+        type: "error"
+      });
     }
   };
 
@@ -89,6 +117,7 @@ export default function CriarDesafio() {
     return <div className="loading-auth-check">Verificando permissões...</div>;
   }
 
+  // O JSX do formulário permanece o mesmo
   return (
     <section className="form-mini">
       <form className="form" onSubmit={handleSubmit}>
@@ -117,18 +146,17 @@ export default function CriarDesafio() {
         />
 
         <input
-        className="input-mini"
-        type="number"
-        name="xp"
-        placeholder="Quantidade de XP"
-        value={form.xp}
-        onChange={handleChange}
-        required
-        min="0"
-        max="100"
+          className="input-mini"
+          type="number"
+          name="xp"
+          placeholder="Quantidade de XP (máx. 100)"
+          value={form.xp}
+          onChange={handleChange}
+          required
+          min="0"
+          max="100"
         />
         {xpErro && <p className="mensagem-erro">{xpErro}</p>}
-
 
         <div className="upload-container">
           <label htmlFor="imagem">Imagem representativa:</label>
