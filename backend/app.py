@@ -259,7 +259,13 @@ def obter_eventos():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        # SQL MODIFICADO para incluir dados do autor e sua insígnia
+        
+        # VERIFIQUE CADA NOME DE TABELA E COLUNA ABAIXO!
+        # Erros comuns: 
+        # - 'EVENTO' vs 'eventos'
+        # - 'ID_USUARIO_CRIADOR' vs 'id_usuario_criador'
+        # - 'u.Id_USUARIO' vs 'u.id_usuario'
+        # - 'u.insignia_selecionada_id' vs 'u.id_insignia_selecionada'
         sql = """
             SELECT 
                 e.ID_EVENTO, 
@@ -273,22 +279,22 @@ def obter_eventos():
                 u.nome AS autor_nome,
                 i.icone_url AS autor_insignia_url
             FROM EVENTO e
-            -- Junta com USUARIO para pegar o nome do autor
             JOIN USUARIO u ON e.ID_USUARIO_CRIADOR = u.Id_USUARIO
-            -- Junta com INSIGNIA para pegar a insígnia (LEFT JOIN para não falhar se não houver)
             LEFT JOIN INSIGNIA i ON u.insignia_selecionada_id = i.ID_INSIGNIA
             ORDER BY e.data_hora DESC
         """
         cursor.execute(sql)
         eventos = cursor.fetchall()
+        
         for evento in eventos:
-            if evento['foto']:
+            # Usar .get() é mais seguro, previne erros se a chave 'foto' não existir
+            if evento.get('foto'):
                 evento['foto_url'] = f"https://screenless-8k2p.onrender.com/uploads/{evento['foto']}"
-            if evento['autor_insignia_url']:
+            if evento.get('autor_insignia_url'):
                 evento['autor_insignia_url'] = f"https://screenless-8k2p.onrender.com/uploads/{evento['autor_insignia_url']}"
+                
         return jsonify(eventos), 200
-    except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+        
     finally:
         if cursor:
             cursor.close()
@@ -401,7 +407,10 @@ def obter_desafios():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        # SQL MODIFICADO para incluir dados do autor e sua insígnia
+
+        # VERIFIQUE CADA NOME DE TABELA E COLUNA ABAIXO!
+        # - 'DESAFIOS' vs 'desafios'
+        # - 'd.ID_USUARIO' vs 'u.Id_USUARIO'
         sql = """
             SELECT 
                 d.ID_DESAFIO,
@@ -410,26 +419,25 @@ def obter_desafios():
                 d.XP,
                 d.foto,
                 d.finalizado,
-                d.ID_USUARIO, -- Adicionado para verificação no frontend
-                u.nome AS autor_nome, -- Nome do autor vindo da tabela USUARIO
-                i.icone_url AS autor_insignia_url -- URL da insígnia do autor
+                d.ID_USUARIO,
+                u.nome AS autor_nome,
+                i.icone_url AS autor_insignia_url
             FROM DESAFIOS d
-            -- Junta com USUARIO para pegar o nome do autor
             JOIN USUARIO u ON d.ID_USUARIO = u.Id_USUARIO
-            -- Junta com INSIGNIA para pegar a insígnia (LEFT JOIN para não falhar se não houver)
             LEFT JOIN INSIGNIA i ON u.insignia_selecionada_id = i.ID_INSIGNIA
             WHERE d.Status = 'ativo'
         """
         cursor.execute(sql)
         desafios = cursor.fetchall()
+
         for desafio in desafios:
             if desafio.get('foto'):
                 desafio['foto_url'] = f"https://screenless-8k2p.onrender.com/uploads/{desafio['foto']}"
             if desafio.get('autor_insignia_url'):
                 desafio['autor_insignia_url'] = f"https://screenless-8k2p.onrender.com/uploads/{desafio['autor_insignia_url']}"
+
         return jsonify(desafios), 200
-    except Exception as e:
-        return jsonify({"erro": str(e)}), 500
+
     finally:
         if cursor:
             cursor.close()
