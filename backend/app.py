@@ -218,6 +218,7 @@ def criar_evento():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
+        id_usuario_logado = request.usuario_id
         titulo = request.form['titulo']
         organizador = f"{request.nome} {request.sobrenome}"  # Substitui o input do frontend
         endereco = request.form['endereco']
@@ -240,6 +241,7 @@ def criar_evento():
         values = (titulo, organizador, endereco, data_hora_evento, descricao, nome_seguro, id_usuario)
         cursor.execute(sql, values)
         conn.commit()
+        verificar_e_conceder_insignias(id_usuario_logado)
         return jsonify({"mensagem": "Evento criado com sucesso!"}), 201
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
@@ -360,6 +362,7 @@ def criar_desafio():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
+        id_usuario_logado = request.usuario_id
         nome_usuario = request.usuario_nome
         titulo = request.form['titulo']
         descricao = request.form['descricao']
@@ -380,6 +383,7 @@ def criar_desafio():
         values = (id_usuario, nome_usuario, titulo, descricao, xp, nome_seguro)
         cursor.execute(sql, values)
         conn.commit()
+        verificar_e_conceder_insignias(id_usuario_logado)
         return jsonify({"mensagem": "Desafio criado com sucesso!"}), 201
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
@@ -1009,7 +1013,7 @@ def criar_relato_corrigido(): # Renomeei para clareza, pode manter o nome origin
     cursor = None
     try:
         # AGORA PEGAMOS O ID DO USUÁRIO DO TOKEN, COMO NAS OUTRAS ROTAS
-        id_usuario_criador = request.usuario_id 
+        id_usuario_logado = request.usuario_id 
 
         # O frontend não precisa mais enviar user_id no corpo
         titulo = request.json.get('titulo')
@@ -1026,15 +1030,15 @@ def criar_relato_corrigido(): # Renomeei para clareza, pode manter o nome origin
         VALUES (%s, %s, %s, NOW()) 
         """
         # Usar id_usuario_criador obtido do token
-        values = (id_usuario_criador, titulo, relato_texto) 
+        values = (id_usuario_logado, titulo, relato_texto) 
         cursor.execute(sql, values)
         id_novo_relato = cursor.lastrowid # Para retornar o ID do relato criado
         conn.commit()
         
-        print(f"[Integração] Relato criado. Verificando insígnias para usuário ID: {id_usuario_criador}")
-        novas_insignias = verificar_e_conceder_insignias(id_usuario_criador)
+        print(f"[Integração] Relato criado. Verificando insígnias para usuário ID: {id_usuario_logado}")
+        novas_insignias = verificar_e_conceder_insignias(id_usuario_logado)
         if novas_insignias:
-            print(f"[Integração] Usuário ID {id_usuario_criador} ganhou novas insígnias por criar relato: {novas_insignias}")
+            print(f"[Integração] Usuário ID {id_usuario_logado} ganhou novas insígnias por criar relato: {novas_insignias}")
         
         # Pode ser útil retornar as novas insígnias para o frontend
         return jsonify({
@@ -1398,49 +1402,49 @@ def selecionar_insignia_para_usuario():
         if conn and conn.is_connected():
             conn.close()
 
+# Esta é a versão ATUALIZADA da sua função. Use esta.
 def verificar_e_conceder_insignias(id_usuario):
     conn = None
     cursor = None
-    novas_insignias_conquistadas_nomes = [] # Para log ou notificação
+    novas_insignias_conquistadas_nomes = []
 
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
 
-        # 1. Obter estatísticas do usuário
-        # Eventos participados
-        cursor.execute("SELECT COUNT(*) AS total_eventos FROM HISTORICO_EVENTO WHERE ID_USUARIO = %s", (id_usuario,))
-        stats_eventos = cursor.fetchone()['total_eventos'] or 0
-
-        # Desafios participados/completados
-        # Assumindo que HISTORICO_DESAFIO registra participação em desafios finalizados pelo usuário
-        cursor.execute("SELECT COUNT(hd.ID_DESAFIO) AS total_desafios FROM HISTORICO_DESAFIO hd JOIN DESAFIOS d ON hd.ID_DESAFIO = d.ID_DESAFIO WHERE hd.ID_USUARIO = %s AND d.finalizado = TRUE", (id_usuario,))
-        # Ou se 'finalizado' na tabela DESAFIOS é global e você quer contar apenas a participação:
-        # cursor.execute("SELECT COUNT(*) AS total_desafios FROM HISTORICO_DESAFIO WHERE ID_USUARIO = %s", (id_usuario,))
-        stats_desafios = cursor.fetchone()['total_desafios'] or 0
-        
-        # Relatos criados
-        # Verifique se a tabela é COMUNIDADE ou RELATO para os relatos que contam para insígnias
-        # Vou usar RELATO conforme seu schema inicial, ajuste se necessário.
-        cursor.execute("SELECT COUNT(*) AS total_relatos FROM RELATO WHERE ID_USUARIO = %s", (id_usuario,))
-        stats_relatos = cursor.fetchone()['total_relatos'] or 0
-
+        # 1. Obter estatísticas completas do usuário
         # XP do usuário
         cursor.execute("SELECT xp_usuario FROM USUARIO WHERE Id_USUARIO = %s", (id_usuario,))
         usuario_data = cursor.fetchone()
-        stats_xp = usuario_data['xp_usuario'] if usuario_data and usuario_data['xp_usuario'] is not None else 0
+        stats_xp = usuario_data['xp_usuario'] if usuario_data else 0
 
-        # Montar um dicionário de estatísticas para usar no eval()
+        # Desafios CRIADOS pelo usuário (usando a coluna ID_USUARIO da tabela DESAFIOS)
+        cursor.execute("SELECT COUNT(*) AS total_criados FROM DESAFIOS WHERE ID_USUARIO = %s", (id_usuario,))
+        stats_desafios_criados = cursor.fetchone()['total_criados'] or 0
+        
+        # Eventos CRIADOS pelo usuário (usando a coluna ID_USUARIO_CRIADOR da tabela EVENTO)
+        cursor.execute("SELECT COUNT(*) AS total_criados FROM EVENTO WHERE ID_USUARIO_CRIADOR = %s", (id_usuario,))
+        stats_eventos_criados = cursor.fetchone()['total_criados'] or 0
+
+        # Eventos PARTICIPADOS pelo usuário
+        cursor.execute("SELECT COUNT(*) AS total_participados FROM HISTORICO_EVENTO WHERE ID_USUARIO = %s", (id_usuario,))
+        stats_eventos_participados = cursor.fetchone()['total_participados'] or 0
+        
+        # Relatos (Comentários) feitos pelo usuário
+        cursor.execute("SELECT COUNT(*) AS total_relatos FROM RELATO WHERE ID_USUARIO = %s", (id_usuario,))
+        stats_relatos = cursor.fetchone()['total_relatos'] or 0
+
+        # Dicionário de estatísticas. As chaves devem corresponder às suas condições!
         estatisticas_usuario = {
-            'eventos': stats_eventos,
-            'desafios': stats_desafios,
-            'relatos': stats_relatos,
-            'xp_usuario': stats_xp
-            # Adicione outras estatísticas que suas insígnias possam precisar
+            'XP': stats_xp,
+            'DESAFIOS_CRIADOS': stats_desafios_criados,
+            'EVENTOS_CRIADOS': stats_eventos_criados,
+            'EVENTOS_PARTICIPADOS': stats_eventos_participados,
+            'COMENTARIOS': stats_relatos # A chave é 'COMENTARIOS' para bater com a condição, mas o valor vem de RELATO.
         }
-        print(f"[Insígnias] Estatísticas para Usuário ID {id_usuario}: {estatisticas_usuario}") # Log para debug
+        print(f"[Insígnias] Estatísticas para Usuário ID {id_usuario}: {estatisticas_usuario}")
 
-        # 2. Buscar insígnias que o usuário ainda NÃO possui
+        # 2. Buscar insígnias que o usuário ainda não possui
         sql_insignias_elegiveis = """
             SELECT i.ID_INSIGNIA, i.nome, i.condicao
             FROM INSIGNIA i
@@ -1451,55 +1455,34 @@ def verificar_e_conceder_insignias(id_usuario):
         insignias_elegiveis = cursor.fetchall()
 
         if not insignias_elegiveis:
-            print(f"[Insígnias] Nenhuma nova insígnia elegível encontrada ou todas já foram conquistadas pelo usuário ID {id_usuario}.")
-            return # Nenhuma nova insígnia para verificar
+            return
 
         # 3. Avaliar condições e conceder insígnias
         for insignia in insignias_elegiveis:
             condicao_str = insignia['condicao']
             try:
-                # ATENÇÃO: eval() pode ser perigoso se a string 'condicao_str' vier de fontes não confiáveis.
-                # Aqui, assumimos que as condições são definidas por administradores e são seguras.
-                # O segundo argumento de eval ({}) é o escopo global (vazio para segurança).
-                # O terceiro argumento (estatisticas_usuario) são as variáveis locais disponíveis para a expressão.
+                # O eval usará as chaves do dicionário 'estatisticas_usuario'
                 if eval(condicao_str, {}, estatisticas_usuario):
-                    # Condição atendida! Conceder a insígnia.
-                    print(f"[Insígnias] Usuário ID {id_usuario} atendeu à condição '{condicao_str}' para a insígnia '{insignia['nome']}'.")
-                    sql_insert_conquista = "INSERT INTO USUARIO_INSIGNIA (ID_USUARIO, ID_INSIGNIA) VALUES (%s, %s)"
-                    cursor.execute(sql_insert_conquista, (id_usuario, insignia['ID_INSIGNIA']))
+                    print(f"[Insígnias] Condição '{condicao_str}' atendida para '{insignia['nome']}'. Concedendo...")
+                    sql_insert = "INSERT INTO USUARIO_INSIGNIA (ID_USUARIO, ID_INSIGNIA) VALUES (%s, %s)"
+                    cursor.execute(sql_insert, (id_usuario, insignia['ID_INSIGNIA']))
                     novas_insignias_conquistadas_nomes.append(insignia['nome'])
-            except NameError as ne:
-                # Ocorre se uma variável na string de condição não existir em 'estatisticas_usuario'
-                print(f"[Insígnias Aviso] Erro ao avaliar condição '{condicao_str}' para insígnia ID {insignia['ID_INSIGNIA']}: Variável não definida - {ne}. Verifique a string de condição e o dict 'estatisticas_usuario'.")
-            except SyntaxError as se:
-                print(f"[Insígnias Aviso] Erro de sintaxe na condição '{condicao_str}' para insígnia ID {insignia['ID_INSIGNIA']}: {se}.")
             except Exception as e:
-                # Outros erros durante a avaliação da condição
-                print(f"[Insígnias Erro] Erro inesperado ao avaliar condição '{condicao_str}' para insígnia ID {insignia['ID_INSIGNIA']}: {e}")
-                # Considere logar o erro `e` de forma mais robusta
-
+                print(f"[Insígnias Erro] Falha ao avaliar condição '{condicao_str}': {e}")
+        
         if novas_insignias_conquistadas_nomes:
             conn.commit()
-            print(f"[Insígnias] Usuário ID {id_usuario} conquistou novas insígnias: {', '.join(novas_insignias_conquistadas_nomes)}")
+            print(f"[Insígnias] Novas conquistas para ID {id_usuario}: {', '.join(novas_insignias_conquistadas_nomes)}")
         else:
-            conn.rollback() # Ou apenas não fazer commit se nada mudou
-            print(f"[Insígnias] Nenhuma nova insígnia concedida ao usuário ID {id_usuario} nesta verificação.")
-
-    except mysql.connector.Error as err_db:
-        if conn:
             conn.rollback()
-        print(f"[Insígnias Erro DB] Erro de banco de dados ao verificar insígnias para usuário ID {id_usuario}: {err_db}")
+
     except Exception as e_geral:
-        if conn:
-            conn.rollback()
-        print(f"[Insígnias Erro Geral] Erro inesperado ao verificar insígnias para usuário ID {id_usuario}: {e_geral}")
+        if conn: conn.rollback()
+        print(f"[Insígnias Erro Fatal] {e_geral}")
     finally:
-        if cursor:
-            cursor.close()
-        if conn and conn.is_connected():
-            conn.close()
+        if cursor: cursor.close()
+        if conn and conn.is_connected(): conn.close()
 
-    # Você pode retornar novas_insignias_conquistadas_nomes se quiser notificar o usuário no frontend
     return novas_insignias_conquistadas_nomes
 
 # CORREÇÃO PARA ELASTIC BEANSTALK
