@@ -1,164 +1,114 @@
-.meus-desafios-page {
-  background-color: #111827; /* bg-gray-900 */
-  color: #ffffff; /* text-white */
-  min-height: 100vh;
-  padding: 2rem; /* p-8 */
+/* Importando fontes e variáveis para manter o padrão */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Chewy&display=swap');
+
+:root {
+  --primary-color: #22c55e;
+  --primary-dark: #16a34a;
+  --secondary-color: #f97316;
+  --light-gray: #e5e7eb;
+  --dark-text: #1f2937;
+  --white-text: #ffffff;
+  --background-light: #f0fdf4;
+  --card-background: #ffffff;
 }
 
-/* Títulos de Seção (ex: "Meus Desafios Criados") */
-.section-title {
-  font-size: 1.875rem; /* text-3xl */
-  line-height: 2.25rem;
-  font-weight: 700; /* font-bold */
-  margin-bottom: 2rem; /* mb-8 */
-  text-align: center;
-}
-
-/* Título da segunda seção */
-.section-title.inscritos {
-  margin-top: 3rem; /* mt-12 */
-}
-
-/* Mensagens de feedback (loading, erro, vazio) */
-.feedback-message {
-  text-align: center;
-  font-size: 1.25rem; /* text-xl */
-  line-height: 1.75rem;
-  margin-top: 2.5rem; /* mt-10 */
-}
-.feedback-message.error {
-  color: #ef4444; /* text-red-500 */
-}
-.feedback-message.empty {
-  color: #9ca3af; /* text-gray-400 */
-}
-
-/* Grid que alinha os cards */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1.5rem; /* gap-6 */
-}
-@media (min-width: 768px) {
-  .cards-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* md:grid-cols-2 */
-  }
-}
-@media (min-width: 1024px) {
-  .cards-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)); /* lg:grid-cols-3 */
-  }
-}
-
-/* Card individual */
-.card-desafio {
-  background-color: #1f2937; /* bg-gray-800 */
-  border-radius: 0.5rem; /* rounded-lg */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-  overflow: hidden;
-  transition: transform 0.3s ease;
+/* Estilos de base e container principal */
+.lista-eventos-container {
+  background-color: var(--background-light);
+  padding: 60px 20px;
   display: flex;
   flex-direction: column;
-}
-.card-desafio:hover {
-  transform: scale(1.05);
-}
-
-.card-desafio .card-image {
+  align-items: center;
+  position: relative;
   width: 100%;
-  height: 12rem; /* h-48 */
-  object-fit: cover;
+} 
+
+.lista-eventos-container h2 {
+  font-family: 'Chewy', cursive;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  font-size: 3rem;
+  text-align: center;
 }
 
-.card-desafio .card-info {
-  padding: 1.5rem; /* p-6 */
+/* Título para a segunda seção "Desafios que me inscrevi" */
+#secao-inscritos {
+  width: 100%;
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titulo-secao-secundaria {
+  font-family: 'Poppins', sans-serif;
+  color: var(--dark-text);
+  margin-bottom: 20px;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  border-top: 2px solid var(--light-gray);
+  padding-top: 40px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Estilos de grid e card (reaproveitados) */
+.info-paginacao { margin-bottom: 20px; text-align: center; }
+.eventos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; justify-content: center; width: 100%; max-width: 1200px; }
+.evento-card { background-color: var(--card-background); border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); overflow: hidden; display: flex; flex-direction: column; padding: 15px; width: 290px; min-height: 480px; justify-self: center; }
+.evento-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+.evento-info { flex-grow: 1; text-align: left; display: flex; flex-direction: column; }
+.evento-info h3 { font-size: 1.3rem; margin-bottom: 10px; }
+.evento-info p { margin-bottom: 8px; font-size: 0.9rem; }
+.evento-info .organizador { font-weight: 600; color: #555; }
+
+/* ===== MUDANÇA AQUI ===== */
+.evento-info .xp {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1rem;
+  margin-top: auto; /* A MÁGICA: Empurra o XP para o fundo do seu container (.evento-info) */
+  padding-top: 10px; /* Adiciona um pequeno respiro acima dele */
+}
+/* ===== FIM DA MUDANÇA ===== */
+
+
+.evento-footer { margin-top: auto; margin-bottom: 10px; padding-top: 15px; width: 100%; }
+.status-finalizado { font-weight: 700; color: var(--secondary-color); text-align: center; font-size: 1.1rem; }
+
+/* === NOVOS ESTILOS PARA OS BOTÕES DE GERENCIAMENTO === */
+.management-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.management-btn {
   flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.card-info h3 {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 600; /* font-semibold */
-  margin-bottom: 0.5rem; /* mb-2 */
-}
-
-.card-info .organizador {
-  font-size: 0.875rem; /* text-sm */
-  color: #9ca3af; /* text-gray-400 */
-  margin-bottom: 0.25rem; /* mb-1 */
-}
-
-.card-info .descricao {
-  font-size: 0.875rem; /* text-sm */
-  color: #d1d5db; /* text-gray-300 */
-  margin-bottom: 0.75rem; /* mb-3 */
-  height: 5rem; /* h-20 */
-  overflow-y: auto;
-}
-
-.card-info .xp {
-  color: #2dd4bf; /* text-teal-400 */
-  font-weight: 700; /* font-bold */
-  margin-bottom: 1rem; /* mb-4 */
-}
-
-/* Status de desafio finalizado */
-.status-finalizado {
-  color: #ef4444; /* text-red-500 */
-  font-weight: 700; /* font-bold */
-}
-
-/* Container para os botões de gerenciamento */
-.gerenciamento-botoes {
-  display: flex;
-  flex-direction: column;
-  margin-top: 1rem; /* mt-4 */
-}
-/* Espaçamento entre botões */
-.gerenciamento-botoes > * + * {
-  margin-top: 0.5rem; /* space-y-2 */
-}
-
-/* Estilo base para botões de gerenciamento */
-.btn-gerenciamento {
-  width: 100%;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
   border: none;
-  border-radius: 0.375rem; /* rounded-md */
-  color: #ffffff;
-  font-weight: 600; /* font-semibold */
-  transition: background-color 0.2s;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--white-text);
+  font-weight: 700;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
 }
 
-.btn-editar {
-  background-color: #f59e0b; /* bg-yellow-500 */
-}
-.btn-editar:hover {
-  background-color: #d97706; /* hover:bg-yellow-600 */
+.management-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
 }
 
-.btn-excluir {
-  background-color: #dc2626; /* bg-red-600 */
-}
-.btn-excluir:hover {
-  background-color: #b91c1c; /* hover:bg-red-700 */
-}
+.management-btn.editar { background-color: #f59e0b; }
+.management-btn.excluir { background-color: #ef4444; }
+.management-btn.finalizar { background-color: #8b5cf6; }
+.management-btn.cancelar { width: 100%; background-color: #ef4444; }
 
-.btn-finalizar {
-  background-color: #9333ea; /* bg-purple-600 */
-}
-.btn-finalizar:hover {
-  background-color: #7e22ce; /* hover:bg-purple-700 */
-}
-
-.btn-cancelar {
-  background-color: #dc2626; /* bg-red-600 */
-}
-.btn-cancelar:hover {
-  background-color: #b91c1c; /* hover:bg-red-700 */
-}
+/* Estilos de Paginação e Mensagens (reaproveitados) */
+.loading, .error { /* ... */ }
+.paginacao { /* ... */ }
+.paginacao-btn { /* ... */ }
+/* (Copie os estilos de paginação, loading e error do seu CSS de Eventos/Desafios se necessário) */

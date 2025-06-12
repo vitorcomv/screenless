@@ -23,6 +23,8 @@
   max-width: 450px; /* ALTERADO: Um pouco mais largo para acomodar textos */
   text-align: center;
   animation: fadeIn 0.3s ease-out;
+  display: flexd;
+  flex-direction: column;
 }
 
 /* Título e mensagem (sem grandes mudanças) */
@@ -47,6 +49,7 @@
   justify-content: center;
   gap: 15px; /* Espaçamento entre os botões */
   width: 100%;
+  margin-top: 80px;
 }
 
 .confirm-button {

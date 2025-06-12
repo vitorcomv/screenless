@@ -8,9 +8,9 @@
   z-index: 2000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   animation: slideIn 0.5s forwards;
-  width: calc(100% - 40px); /* NOVO: Responsivo em telas pequenas */
-  max-width: 400px; /* Mantém o limite para telas maiores */
-  box-sizing: border-box; /* NOVO: Garante que o padding não aumente a largura total */
+  width: calc(100% - 40px);
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 @keyframes slideIn {
@@ -22,7 +22,7 @@
   }
 }
 
-/* Cores (sem alterações) */
+/* Cores */
 .custom-alert-container.success {
   background-color: #28a745;
 }
@@ -37,43 +37,63 @@
   background-color: #17a2b8;
 }
 
-/* AQUI ESTÁ A MELHORA */
+
+/* ================================================================== */
+/* ===== CORREÇÃO PRINCIPAL AQUI ===== */
+
+/* O container principal dos 3 elementos (ícone, texto, botão) */
 .custom-alert-content {
   display: flex;
-  align-items: flex-start; /* ALTERADO: Alinha os itens no topo, fica melhor quando o texto tem múltiplas linhas */
-  width: 100%;
-  gap: 15px; /* NOVO: Cria um espaçamento consistente entre os elementos */
+  align-items: center; /* MUDANÇA: Alinha tudo verticalmente no centro */
+
+  gap: 15px;
 }
 
+/* O ícone à esquerda */
 .alert-icon {
   font-size: 24px;
   font-weight: bold;
-  line-height: 1.3; /* NOVO: Alinha melhor o ícone com a altura da linha do texto */
-  flex-shrink: 0; /* NOVO: Impede que o ícone seja espremido */
+  flex-shrink: 0; /* Impede que o ícone seja espremido */
 }
 
-.custom-alert-content p {
+/* A div que agrupa o título e a mensagem */
+.alert-text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-grow: 1; /* MUDANÇA: Faz este bloco crescer e ocupar o espaço disponível */
+}
+
+.alert-text-content h4 {
   margin: 0;
-  flex-grow: 1; /* Ocupa o espaço disponível */
-  font-size: 0.95rem; /* ALTERADO: Levemente menor para acomodar mais texto */
-  line-height: 1.5; /* ALTERADO: Melhora a legibilidade */
-  text-align: left; /* Garante alinhamento padrão */
-  overflow-wrap: break-word; /* NOVO: A garantia de que o texto sempre quebrará corretamente */
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
 }
 
+.alert-text-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  overflow-wrap: break-word; /* Garante que palavras longas quebrem a linha */
+}
+
+/* O botão 'x' para fechar */
 .alert-close-button {
   background: none;
   border: none;
   color: inherit;
-  font-size: 26px; /* ALTERADO */
+  font-size: 26px;
   font-weight: bold;
   cursor: pointer;
-  padding: 0; /* ALTERADO: Remove padding desnecessário */
-  line-height: 0.8; /* ALTERADO: Alinha melhor o 'x' verticalmente */
+  padding: 0 5px;
   opacity: 0.8;
-  flex-shrink: 0; /* NOVO: Impede que o botão de fechar seja espremido */
+  flex-shrink: 0;
+  max-width: 30px;
 }
 
 .alert-close-button:hover {
   opacity: 1;
 }
+
+/* ================================================================== */
