@@ -528,9 +528,10 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 8px;
+    margin-bottom: 10px;
 }
 
 .comment-container .user .user-info .user-name {
@@ -541,8 +542,10 @@ body {
 
 .comment-container .user .user-info .relato-date {
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--comment-text-light);
+    color: #6b7280;   /* Cor cinza mais clara */
+    margin: 0;
 }
 
 /* NOVO: Conteúdo do relato */
@@ -716,9 +719,9 @@ body {
 }
 
 .user-name-container {
-  display: flex;
+ display: flex;
   align-items: center;
-  gap: 6px; /* Espaço entre o nome e a insígnia */
+  gap: 5px;
 }
 
 .insignia-no-relato {
@@ -883,3 +886,4 @@ body {
         padding: 60px 20px;
     }
 }
+

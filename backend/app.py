@@ -267,8 +267,8 @@ def obter_eventos():
                 e.descricao, 
                 e.foto,
                 e.Status,
-                u.nome AS autor_nome, -- Nome do autor vindo da tabela USUARIO
-                i.icone_url AS autor_insignia_url -- URL da insígnia do autor
+                u.nome AS autor_nome,
+                i.icone_url AS autor_insignia_url
             FROM EVENTO e
             -- Junta com USUARIO para pegar o nome do autor
             JOIN USUARIO u ON e.ID_USUARIO_CRIADOR = u.Id_USUARIO
@@ -291,6 +291,7 @@ def obter_eventos():
             cursor.close()
         if conn and conn.is_connected():
             conn.close()
+
 #Rota para finalizar evento e distribuir XP
 @app.route("/api/finalizar_evento/<int:evento_id>", methods=["POST"])
 @token_obrigatorio

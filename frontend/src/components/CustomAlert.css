@@ -37,31 +37,22 @@
   background-color: #17a2b8;
 }
 
-
-/* ================================================================== */
-/* ===== CORREÇÃO PRINCIPAL AQUI ===== */
-
-/* O container principal dos 3 elementos (ícone, texto, botão) */
 .custom-alert-content {
   display: flex;
-  align-items: center; /* MUDANÇA: Alinha tudo verticalmente no centro */
-
+  align-items: center;
   gap: 15px;
 }
 
-/* O ícone à esquerda */
 .alert-icon {
   font-size: 24px;
   font-weight: bold;
-  flex-shrink: 0; /* Impede que o ícone seja espremido */
+  flex-shrink: 0;
 }
-
-/* A div que agrupa o título e a mensagem */
 .alert-text-content {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex-grow: 1; /* MUDANÇA: Faz este bloco crescer e ocupar o espaço disponível */
+  flex-grow: 1;
 }
 
 .alert-text-content h4 {
@@ -75,10 +66,9 @@
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.4;
-  overflow-wrap: break-word; /* Garante que palavras longas quebrem a linha */
+  overflow-wrap: break-word;
 }
 
-/* O botão 'x' para fechar */
 .alert-close-button {
   background: none;
   border: none;
@@ -95,5 +85,3 @@
 .alert-close-button:hover {
   opacity: 1;
 }
-
-/* ================================================================== */
