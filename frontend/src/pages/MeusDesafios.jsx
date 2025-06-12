@@ -86,11 +86,28 @@ export default function MeusDesafios() {
     const finalizarDesafio = async (desafioId) => {
         showConfirm({
             title: "Finalizar Desafio",
-            message: "Tem certeza que deseja finalizar este desafio? Esta ação não pode ser desfeita.",
+            message: "Tem certeza que deseja finalizar este desafio e distribuir o XP para os participantes? Esta ação não pode ser desfeita.",
             onConfirm: async () => {
-                // ... sua lógica de fetch ...
-                setDesafiosCriados((prev) => prev.map((d) => d.ID_DESAFIO === desafioId ? { ...d, finalizado: true } : d));
-                showAlert({ title: "Finalizado!", message: "O desafio foi marcado como finalizado.", type: 'success' });
+                try {
+                    // Chama a rota POST correta
+                    const response = await fetch(`http://localhost:5000/api/finalizar_desafio_post/${desafioId}`, {
+                        method: "POST",
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Atualiza o estado local para refletir que o desafio foi finalizado
+                        setDesafiosCriados((prev) => prev.map((d) => d.ID_DESAFIO === desafioId ? { ...d, Status: 'finalizado', finalizado: true } : d));
+                        showAlert({ title: "Finalizado!", message: data.mensagem || "O desafio foi finalizado com sucesso.", type: 'success' });
+                    } else {
+                        showAlert({ title: "Erro", message: data.erro || "Não foi possível finalizar o desafio.", type: 'error' });
+                    }
+                } catch (error) {
+                    console.error("Erro ao finalizar desafio:", error);
+                    showAlert({ title: "Erro de Conexão", message: "Falha ao comunicar com o servidor.", type: 'error' });
+                }
             },
         });
     };
@@ -100,9 +117,25 @@ export default function MeusDesafios() {
             title: "Excluir Desafio",
             message: <>Você está prestes a remover o desafio permanentemente. <br/><strong>Esta ação não pode ser desfeita.</strong></>,
             onConfirm: async () => {
-                // ... sua lógica de fetch ...
-                setDesafiosCriados((prev) => prev.filter((d) => d.ID_DESAFIO !== desafioId));
-                showAlert({ title: "Excluído!", message: "O desafio foi removido.", type: 'success' });
+                try {
+                    // Chama a rota DELETE correta
+                    const response = await fetch(`http://localhost:5000/api/excluir_desafio/${desafioId}`, {
+                        method: "DELETE",
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        setDesafiosCriados((prev) => prev.filter((d) => d.ID_DESAFIO !== desafioId));
+                        showAlert({ title: "Excluído!", message: data.mensagem || "O desafio foi removido.", type: 'success' });
+                    } else {
+                        showAlert({ title: "Erro", message: data.erro || "Não foi possível excluir o desafio.", type: 'error' });
+                    }
+                } catch (error) {
+                    console.error("Erro ao excluir desafio:", error);
+                    showAlert({ title: "Erro de Conexão", message: "Falha ao comunicar com o servidor.", type: 'error' });
+                }
             },
         });
     };
