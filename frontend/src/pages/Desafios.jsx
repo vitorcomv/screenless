@@ -18,7 +18,7 @@ export default function ListaDesafios() {
     const token = localStorage.getItem("token");
     const [currentUserId, setCurrentUserId] = useState(null);
     const [paginaAtual, setPaginaAtual] = useState(1);
-    const desafiosPorPagina = 6;
+    const desafiosPorPagina = 8;
 
     const fetchDesafios = useCallback(async () => {
         try {

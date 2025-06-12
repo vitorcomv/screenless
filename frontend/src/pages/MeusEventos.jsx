@@ -298,11 +298,9 @@ export default function MeusEventos() {
             </div>
             {totalPaginasCriados > 1 && (
               <div className="paginacao" style={{ marginTop: '20px' }}>
-                <button className="paginacao-btn anterior" onClick={paginaAnteriorCriados} disabled={!temPaginaAnteriorCriados}>← Anterior</button>
                 <div className="paginacao-numeros">
                   {Array.from({ length: totalPaginasCriados }, (_, i) => (<button key={i+1} className={`paginacao-numero ${paginaAtualCriados === i + 1 ? 'ativo' : ''}`} onClick={() => irParaPaginaCriados(i + 1)}>{i + 1}</button>))}
                 </div>
-                <button className="paginacao-btn proximo" onClick={proximaPaginaCriados} disabled={!temProximaPaginaCriados}>Próximo →</button>
               </div>
             )}
           </>
