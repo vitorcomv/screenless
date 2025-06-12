@@ -121,9 +121,28 @@ export default function MeusDesafios() {
             title: "Cancelar Inscrição",
             message: "Tem certeza que deseja cancelar sua inscrição neste desafio?",
             onConfirm: async () => {
-                // ... sua lógica de fetch ...
-                setDesafiosInscritos((prev) => prev.filter((d) => d.ID_DESAFIO !== desafioId));
-                showAlert({ title: "Inscrição Cancelada", message: "Você não está mais inscrito neste desafio.", type: 'info' });
+                try {
+                    const response = await fetch(`http://localhost:5000/api/cancelar_inscricao_desafio/${desafioId}`, {
+                        method: "DELETE",
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // ATUALIZA A TELA APENAS SE O BACKEND CONFIRMAR
+                        setDesafiosInscritos((prev) => prev.filter((d) => d.ID_DESAFIO !== desafioId));
+                        showAlert({ title: "Inscrição Cancelada", message: data.mensagem, type: 'success' });
+                    } else {
+                        // MOSTRA O ERRO RECEBIDO DO BACKEND
+                        showAlert({ title: "Erro", message: data.erro, type: 'error' });
+                    }
+                } catch (error) {
+                    console.error("Erro ao cancelar inscrição no desafio:", error);
+                    showAlert({ title: "Erro de Conexão", message: "Não foi possível comunicar com o servidor.", type: 'error' });
+                }
             },
         });
     };
