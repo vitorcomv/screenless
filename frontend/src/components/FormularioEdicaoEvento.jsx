@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import "./FormularioEdicaoEvento.css"; // Usaremos um novo CSS
+import "./FormularioEdicaoEvento.css";
+import { useAlert } from "../context/AlertContext"; // Importe o hook
 
 export default function FormularioEdicaoEvento({ eventoParaEditar, onSave, onCancel }) {
+  const { showAlert } = useAlert(); // Use o hook
   const [formData, setFormData] = useState({
     titulo: "",
     descricao: "",
@@ -13,7 +15,6 @@ export default function FormularioEdicaoEvento({ eventoParaEditar, onSave, onCan
 
   useEffect(() => {
     if (eventoParaEditar) {
-      // Formata a data para o input datetime-local
       const dataFormatada = new Date(eventoParaEditar.data_hora)
         .toISOString()
         .slice(0, 16);
@@ -24,7 +25,7 @@ export default function FormularioEdicaoEvento({ eventoParaEditar, onSave, onCan
         endereco: eventoParaEditar.endereco || "",
         data_hora: dataFormatada,
       });
-      setFoto(null); // Reseta a foto ao abrir
+      setFoto(null);
     }
   }, [eventoParaEditar]);
 
@@ -40,8 +41,9 @@ export default function FormularioEdicaoEvento({ eventoParaEditar, onSave, onCan
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) {
-        alert("Sessão expirada. Faça login novamente.");
-        return;
+      showAlert("Sessão expirada. Faça login novamente.", "warning");
+      onCancel(); // Fecha o modal
+      return;
     }
 
     const formPayload = new FormData();
@@ -66,23 +68,20 @@ export default function FormularioEdicaoEvento({ eventoParaEditar, onSave, onCan
       const data = await res.json();
 
       if (res.ok) {
-        alert("Evento atualizado com sucesso!");
-        // Envia o evento atualizado de volta para o componente pai
+        // Agora data.evento existe e contém o objeto completo!
         onSave(data.evento); 
       } else {
-        alert(data.erro || "Erro ao atualizar evento.");
+        showAlert(data.erro || "Erro ao atualizar evento.", "error");
       }
     } catch (err) {
       console.error("Erro na atualização", err);
-      alert("Erro ao conectar com o servidor.");
+      showAlert("Falha na comunicação com o servidor.", "error");
     }
   };
   
-  // Impede que o clique dentro do modal feche o modal
   const stopPropagation = (e) => e.stopPropagation();
 
   return (
-    // A div overlay agora chama onCancel para fechar quando clicada
     <div className="form-edicao-overlay" onClick={onCancel}>
       <div className="form-edicao-modal" onClick={stopPropagation}>
         <button className="fechar-btn" onClick={onCancel}>&times;</button>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./MeusEventos.css";
 import { useNavigate } from "react-router-dom";
 import FormularioEdicaoEvento from "../components/FormularioEdicaoEvento";
+import { useAlert } from "../context/AlertContext";
 
 export default function MeusEventos() {
   const [eventosCriados, setEventosCriados] = useState([]);
@@ -18,6 +19,8 @@ export default function MeusEventos() {
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
+  const { showAlert, showConfirm } = useAlert();
 
   useEffect(() => {
     const fetchEventosCriados = async () => {
@@ -112,117 +115,115 @@ export default function MeusEventos() {
         e.ID_EVENTO === eventoAtualizado.ID_EVENTO ? eventoAtualizado : e
       )
     );
-    setEventoEmEdicao(null); // Fecha o modal após salvar
+    setEventoEmEdicao(null);
+    showAlert("Evento atualizado com sucesso!", "success"); // Feedback de sucesso
   };
 
-  const cancelarInscricao = async (eventoId) => {
+  // 3. SUBSTITUIR AS FUNÇÕES DE ALERTA E CONFIRMAÇÃO
+  const cancelarInscricao = (eventoId) => {
     if (!token) return;
-    const confirmCancel = window.confirm("Tem certeza que deseja cancelar sua inscrição neste evento?");
-    if (!confirmCancel) return;
+    
+    showConfirm({
+      title: "Cancelar Inscrição",
+      message: "Tem certeza que deseja cancelar sua inscrição neste evento?",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/cancelar_inscricao?evento_id=${eventoId}`,
+            {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/cancelar_inscricao?evento_id=${eventoId}`, // A rota parece ser `cancelar_inscricao_evento` no exemplo de desafios
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          if (res.ok) {
+            showAlert("Inscrição cancelada com sucesso.", "success");
+            setEventosInscritos((prevInscritos) =>
+              prevInscritos.filter((e) => e.ID_EVENTO !== eventoId)
+            );
+          } else {
+            const data = await res.json();
+            showAlert(data.erro || "Erro ao cancelar inscrição.", "error");
+          }
+        } catch (err) {
+          console.error("Erro ao cancelar inscrição:", err);
+          showAlert("Erro de comunicação ao cancelar a inscrição.", "error");
         }
-      );
-
-      if (res.ok) {
-        alert("Inscrição cancelada com sucesso.");
-        setEventosInscritos((prevInscritos) =>
-          prevInscritos.filter((e) => e.ID_EVENTO !== eventoId)
-        );
-      } else {
-        const data = await res.json();
-        alert(data.erro || "Erro ao cancelar inscrição.");
       }
-    } catch (err) {
-      console.error("Erro ao cancelar inscrição:", err);
-      alert("Erro na requisição de cancelar inscrição.");
-    }
+    });
   };
 
-  const excluirEvento = async (eventoId) => {
+  const excluirEvento = (eventoId) => {
     if (!token) return;
-    const confirmar = window.confirm(
-      "Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita e removerá todas as inscrições relacionadas."
-    );
-    if (!confirmar) return;
+    
+    showConfirm({
+      title: "Excluir Evento",
+      message: "Tem certeza que deseja excluir este evento? Esta ação é irreversível e removerá todas as inscrições.",
+      onConfirm: async () => {
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/excluir_evento/${eventoId}`,
+            {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/excluir_evento/${eventoId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          const data = await res.json();
+
+          if (res.ok) {
+            showAlert(data.mensagem || "Evento excluído com sucesso.", "success");
+            setEventosCriados((prevCriados) =>
+              prevCriados.filter((e) => e.ID_EVENTO !== eventoId)
+            );
+          } else {
+            showAlert(data.erro || "Erro ao excluir evento.", "error");
+          }
+        } catch (err) {
+          console.error("Erro ao excluir evento:", err);
+          showAlert("Erro de comunicação ao excluir o evento.", "error");
         }
-      );
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert(data.mensagem || "Evento excluído com sucesso.");
-        setEventosCriados((prevCriados) =>
-          prevCriados.filter((e) => e.ID_EVENTO !== eventoId)
-        );
-      } else {
-        alert(data.erro || "Erro ao excluir evento.");
       }
-    } catch (err) {
-      console.error("Erro ao excluir evento:", err);
-      alert("Erro na requisição de excluir evento.");
-    }
+    });
   };
 
-  // NOVA FUNÇÃO: Finalizar Evento
-  const finalizarEvento = async (eventoId) => {
+  const finalizarEvento = (eventoId) => {
     if (!token) {
-      alert("Você precisa estar logado para finalizar um evento.");
+      showAlert("Você precisa estar logado para finalizar um evento.", "warning");
       return;
     }
 
-    const confirmFinalizar = window.confirm(
-      "Tem certeza que deseja finalizar este evento e distribuir XP para os inscritos? Esta ação não pode ser desfeita."
-    );
-    if (!confirmFinalizar) {
-      return;
-    }
+    showConfirm({
+      title: "Finalizar Evento",
+      message: "Deseja finalizar este evento e distribuir XP para os inscritos? Esta ação não pode ser desfeita.",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/finalizar_evento/${eventoId}`,
+            {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/finalizar_evento/${eventoId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json", // Backend espera JSON para algumas rotas, mas esta não tem body
-          },
+          const data = await response.json();
+
+          if (response.ok) {
+            showAlert(data.mensagem || "Evento finalizado com sucesso!", "success");
+            setEventosCriados((prevEventos) =>
+              prevEventos.map((e) =>
+                e.ID_EVENTO === eventoId ? { ...e, Status: "finalizado" } : e
+              )
+            );
+          } else {
+            showAlert(data.erro || "Erro ao finalizar evento.", "error");
+          }
+        } catch (error) {
+          console.error("Erro na requisição de finalizar evento:", error);
+          showAlert("Erro de comunicação ao finalizar o evento.", "error");
         }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert(data.mensagem || "Evento finalizado com sucesso!");
-        // Atualiza o estado para refletir que o evento foi finalizado
-        setEventosCriados((prevEventos) =>
-          prevEventos.map((e) =>
-            e.ID_EVENTO === eventoId ? { ...e, Status: "finalizado" } : e
-          )
-        );
-      } else {
-        alert(data.erro || "Erro ao finalizar evento.");
       }
-    } catch (error) {
-      console.error("Erro na requisição de finalizar evento:", error);
-      alert("Erro na requisição de finalizar evento. Verifique o console para mais detalhes.");
-    }
+    });
   };
 
   const renderCard = (evento, isCriado = false) => (

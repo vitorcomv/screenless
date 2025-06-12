@@ -719,54 +719,69 @@ def cancelar_inscricao():
 
 @app.route('/api/editar_evento/<int:evento_id>', methods=['PUT'])
 @token_obrigatorio
-def editar_evento(evento_id):
+def editar_evento(evento_id): # << VOLTAMOS À ASSINATURA ORIGINAL
     conn = None
     cursor = None
     try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
+        # Pegamos o ID do usuário do objeto request, como deve ser com seu decorador
+        user_id = request.usuario_id 
 
-        user_id = request.usuario_id
-
+        # Pega os dados do formulário
         titulo = request.form.get("titulo")
         descricao = request.form.get("descricao")
         endereco = request.form.get("endereco")
         data_hora = request.form.get("data_hora")
         foto = request.files.get("foto")
-        nome_foto = None
-
+        
         if not all([titulo, descricao, endereco, data_hora]):
-            return jsonify({"erro": "Todos os campos são obrigatórios"}), 400
+            return jsonify({"erro": "Todos os campos de texto são obrigatórios"}), 400
 
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Verifica se o evento pertence ao usuário logado
+        cursor.execute("SELECT FOTO FROM EVENTO WHERE ID_EVENTO = %s AND ID_USUARIO_CRIADOR = %s", (evento_id, user_id))
+        evento_existente = cursor.fetchone()
+
+        if not evento_existente:
+            return jsonify({"erro": "Evento não encontrado ou você não tem permissão para editar."}), 404
+
+        # Prepara o UPDATE
+        update_query = "UPDATE EVENTO SET TITULO = %s, DESCRICAO = %s, ENDERECO = %s, DATA_HORA = %s"
+        params = [titulo, descricao, endereco, data_hora]
+
+        # Lida com o upload da foto
         if foto and allowed_file(foto.filename):
             nome_seguro = secure_filename(foto.filename)
-            nome_foto = os.path.join(app.config['UPLOAD_FOLDER'], nome_seguro)
-            foto.save(nome_foto)
-            nome_foto = nome_seguro  # Apenas o nome salvo no DB
+            caminho_salvar = os.path.join(app.config['UPLOAD_FOLDER'], nome_seguro)
+            foto.save(caminho_salvar)
+            
+            update_query += ", FOTO = %s"
+            params.append(nome_seguro)
 
-            cursor.execute("""
-                UPDATE EVENTO
-                SET TITULO = %s, DESCRICAO = %s, ENDERECO = %s, DATA_HORA = %s, FOTO = %s
-                WHERE ID_EVENTO = %s AND ID_USUARIO_CRIADOR = %s
-            """, (titulo, descricao, endereco, data_hora, nome_foto, evento_id, user_id))
-        else:
-            cursor.execute("""
-                UPDATE EVENTO
-                SET TITULO = %s, DESCRICAO = %s, ENDERECO = %s, DATA_HORA = %s
-                WHERE ID_EVENTO = %s AND ID_USUARIO_CRIADOR = %s
-            """, (titulo, descricao, endereco, data_hora, evento_id, user_id))
-
+        update_query += " WHERE ID_EVENTO = %s"
+        params.append(evento_id)
+        
+        cursor.execute(update_query, tuple(params))
         conn.commit()
 
-        if cursor.rowcount == 0:
-            return jsonify({"erro": "Evento não encontrado ou sem permissão"}), 404
+        # BUSQUE O EVENTO ATUALIZADO PARA RETORNAR AO FRONTEND
+        cursor.execute("""
+            SELECT 
+                e.ID_EVENTO, e.titulo, e.descricao, e.endereco, e.data_hora, e.foto, e.Status,
+                u.nome as organizador_nome 
+            FROM EVENTO e
+            JOIN USUARIO u ON e.ID_USUARIO_CRIADOR = u.ID_USUARIO
+            WHERE e.ID_EVENTO = %s
+        """, (evento_id,))
+        
+        evento_atualizado = cursor.fetchone()
 
-        return jsonify({"mensagem": "Evento atualizado com sucesso"}), 200
+        return jsonify({"evento": evento_atualizado}), 200
 
     except Exception as e:
-        print("Erro ao editar evento:", e)
-        return jsonify({"erro": "Erro interno"}), 500
-
+        print(f"ERRO CRÍTICO AO EDITAR EVENTO: {e}") # Melhora o log do erro
+        return jsonify({"erro": "Erro interno do servidor ao tentar editar o evento"}), 500
     finally:
         if cursor:
             cursor.close()
