@@ -33,6 +33,7 @@ export default function MeusEventos() {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         const data = await res.json();
+         console.log("Dados recebidos de /eventos_criados:", data);
         // Assumindo que a API retorna o campo 'Status' para cada evento
         setEventosCriados(data);
       } catch (err) {
@@ -238,7 +239,7 @@ export default function MeusEventos() {
         <h3>{evento.titulo}</h3>
         <p>Organizador: {evento.organizador_nome || "Não informado"}</p>
         <p>Endereço: {evento.endereco}</p>
-        <p>Data: {new Date(evento.data_hora).toLocaleString('pt-BR')}</p>
+        <p className="data">Data: {new Date(evento.data_hora).toLocaleString('pt-BR')}</p>
         {evento.descricao && <p className="descricao">Descrição: {evento.descricao}</p>}
         {isCriado ? (
           evento.Status === "finalizado" ? (

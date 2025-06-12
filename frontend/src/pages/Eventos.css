@@ -125,7 +125,7 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   text-align: center;
   font-weight: bold;
   color: var(--secondary-color);
-  padding: 12px 20px;
+  height: 30px;
   background-color: #fff7ed;
   border-radius: 50px;
 }
