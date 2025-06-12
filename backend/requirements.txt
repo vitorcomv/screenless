@@ -4,5 +4,3 @@ flask-mysql
 mysql-connector-python
 werkzeug
 pyjwt
-gunicorn
-python-dotenv

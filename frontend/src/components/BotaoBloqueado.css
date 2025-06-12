@@ -1,0 +1,61 @@
+/* O contêiner que permite a dica aparecer no hover */
+.botao-bloqueado-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: not-allowed;
+}
+
+/* O estilo base para todos os botões bloqueados */
+.botao-bloqueado-base {
+  background-color: #4b5563;
+  color: #9ca3af;
+  border: none;
+  cursor: not-allowed;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* A dica (tooltip) que fica escondida por padrão */
+.tooltip-bloqueado {
+  visibility: hidden;
+  width: 220px;
+  background-color: #1f2937;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 100; /* Aumentado para garantir que fique sobre tudo */
+  left: 50%;
+  bottom: calc(100% + 8px); 
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.tooltip-bloqueado::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1f2937 transparent transparent transparent;
+}
+
+/* Mostra a dica quando o mouse passa por cima do contêiner */
+.botao-bloqueado-wrapper:hover .tooltip-bloqueado {
+  visibility: visible;
+  opacity: 1;
+}
+
+.cadeado-icone {
+  margin-right: 4px;
+}

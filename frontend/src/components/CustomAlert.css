@@ -1,0 +1,94 @@
+.custom-alert-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: white;
+  z-index: 2000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.5s forwards;
+  width: calc(100% - 40px);
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(110%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Cores */
+.custom-alert-container.success {
+  background-color: #28a745;
+}
+.custom-alert-container.error {
+  background-color: #dc3545;
+}
+.custom-alert-container.warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+.custom-alert-container.info {
+  background-color: #17a2b8;
+}
+
+.custom-alert-content {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+}
+
+.alert-icon {
+  font-size: 24px;
+  font-weight: bold;
+  flex-shrink: 0; /* Impede que o ícone seja espremido */
+}
+
+.alert-text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-grow: 1; /* MUDANÇA: Faz este bloco crescer e ocupar o espaço disponível */
+}
+
+.alert-text-content h4 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.alert-text-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  overflow-wrap: break-word; /* Garante que palavras longas quebrem a linha */
+}
+
+/* O botão 'x' para fechar */
+.alert-close-button {
+  background: none;
+  border: none;
+  /* MUDANÇA 1: Cor fixa para não herdar. Um branco semi-transparente fica elegante. */
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 24px; /* Opcional: Reduzir um pouco o tamanho */
+  /* MUDANÇA 2: Deixar a fonte normal em vez de negrito a torna mais sutil. */
+  font-weight: normal; 
+  cursor: pointer;
+  padding: 0 5px;
+  opacity: 0.8;
+  transition: all 0.2s; /* Adicionado para suavizar a mudança de opacidade */
+  flex-shrink: 0;
+  max-width: 30px;
+}
+
+.alert-close-button:hover {
+  opacity: 1;
+  transform: scale(1.1); /* Opcional: Um hover sutil */
+}

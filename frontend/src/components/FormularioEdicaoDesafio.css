@@ -1,0 +1,91 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #1f2937;
+  color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  width: 90%;
+  max-width: 500px;
+}
+
+.form-edicao {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-edicao h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #2dd4bf;
+}
+
+.form-edicao label {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.form-edicao input,
+.form-edicao textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #4b5563;
+  background-color: #374151;
+  color: white;
+  font-size: 1rem;
+}
+
+.modal-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.modal-botoes button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  text-align: center;
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1; /* Adiciona esta linha */
+  height: 50px;   /* Altura fixa para manter todos iguais */
+}
+
+
+.btn-cancelar {
+  background-color: #dc3545; /* Vermelho */
+  color: white;
+}
+.btn-cancelar:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+
+.btn-salvar {
+  background-color: #16a34a; /* Verde */
+  color: white;
+}
+.btn-salvar:hover {
+  background-color: #22c55e;
+  transform: translateY(-1px);
+}

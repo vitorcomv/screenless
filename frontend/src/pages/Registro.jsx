@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import logo2 from "../assets/logo2.png";
 import "./Registro.css";
+import { useAlert } from "../context/AlertContext"; // 1. IMPORTAR O HOOK
 
 export default function Registro() {
   const [form, setForm] = useState({
@@ -17,6 +18,7 @@ export default function Registro() {
 
   const [erros, setErros] = useState({});
   const navigate = useNavigate();
+  const { showAlert } = useAlert(); // 2. OBTER A FUNÇÃO DO CONTEXTO
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -34,46 +36,48 @@ export default function Registro() {
     if (!emailRegex.test(email)) {
       novosErros.email = "Email inválido";
     }
-
     if (!usuario || usuario.length < 3) {
       novosErros.usuario = "Usuário deve ter pelo menos 3 caracteres";
     }
-
     if (!nome) {
-      novosErros.nome = "- ⚠️ Nome é obrigatório";
+      novosErros.nome = "Nome é obrigatório";
     }
-
     if (!sobrenome) {
-      novosErros.sobrenome = "- ⚠️ Sobrenome é obrigatório";
+      novosErros.sobrenome = "Sobrenome é obrigatório";
     }
-
     if (!cpfRegex.test(cpf.replace(/\D/g, ""))) {
-      novosErros.cpf = "CPF (11 números, sem sinais)";
+      novosErros.cpf = "CPF inválido (11 números, sem sinais)";
     }
-
     if (!telefoneRegex.test(telefone.replace(/\D/g, ""))) {
       novosErros.telefone = "Telefone inválido (somente números com DDD)";
     }
-
     if (senha.length < 6) {
-      novosErros.senha = "- ⚠️ A senha deve ter no mínimo 6 caracteres";
+      novosErros.senha = "A senha deve ter no mínimo 6 caracteres";
     }
-
     if (senha !== repetirSenha) {
-      novosErros.repetirSenha = "- ⚠️ As senhas não coincidem";
+      novosErros.repetirSenha = "As senhas não coincidem";
     }
 
     setErros(novosErros);
     return Object.keys(novosErros).length === 0;
   };
 
+  // 3. ATUALIZAR A FUNÇÃO DE REGISTRO COM `showAlert`
   const handleRegistro = async (e) => {
     e.preventDefault();
 
-    if (!validarFormulario()) return;
+    if (!validarFormulario()) {
+      // Adiciona um alerta geral para erros de validação
+      showAlert({
+      title: "Atenção", // Opcional: você pode adicionar um título
+      message: "Por favor, corrija os erros indicados no formulário.",
+      type: "warning" // Agora 'type' será 'warning' corretamente
+    });
+      return;
+    }
 
     try {
-      const response = await fetch("https://screenless-8k2p.onrender.com/api/registro", {
+      const response = await fetch("http://localhost:5000/api/registro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -82,11 +86,13 @@ export default function Registro() {
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.mensagem || "Cadastro realizado com sucesso!");
-        navigate("/");
+        // Substitui o alert() nativo pelo showAlert()
+        showAlert({message: data.mensagem || "Cadastro realizado com sucesso!", type:"success"});
+        navigate("/login"); // Redireciona para o login após o sucesso
       } else {
+        // Mantém os erros inline, mas usa showAlert para erros gerais
         const novosErros = {};
-        const erroMsg = data.erro; // Pega a string de erro diretamente
+        const erroMsg = data.erro;
 
         if (erroMsg === "Email já cadastrado") {
           novosErros.email = erroMsg;
@@ -97,17 +103,19 @@ export default function Registro() {
         } else if (erroMsg === "Telefone já cadastrado") {
           novosErros.telefone = erroMsg;
         } else {
-          novosErros.geral = erroMsg; // Para outros erros, exibe a mensagem recebida
+          // Para outros erros, exibe um alerta em vez de um texto no final do form
+          showAlert({message: erroMsg || "Ocorreu um erro desconhecido.", type: "error"});
         }
-
         setErros(novosErros);
       }
     } catch (error) {
-      setErros({ geral: "Erro ao conectar com o servidor." });
+      // Substitui o setErros({ geral: ... }) por um alerta mais visível
+      showAlert({message: "Erro ao conectar com o servidor. Tente novamente mais tarde.", type: "error"});
     }
   };
 
   return (
+    // O JSX do seu formulário permanece o mesmo, sem necessidade de alterações.
     <div className="form-container">
       <form onSubmit={handleRegistro}>
         <div className="div-imagem">
@@ -149,7 +157,7 @@ export default function Registro() {
             <div className="input-group">
               <div className="label-wrapper">
                 <label htmlFor="nome">Nome</label>
-                {erros.nome && <span className="erro">{erros.nome}</span>}
+                {erros.nome && <span className="erro">{erros.nome.replace("- ⚠️ ", "")}</span>}
               </div>
               <input
                 type="text"
@@ -164,7 +172,7 @@ export default function Registro() {
             <div className="input-group">
               <div className="label-wrapper">
                 <label htmlFor="sobrenome">Sobrenome</label>
-                {erros.sobrenome && <span className="erro">{erros.sobrenome}</span>}
+                {erros.sobrenome && <span className="erro">{erros.sobrenome.replace("- ⚠️ ", "")}</span>}
               </div>
               <input
                 type="text"
@@ -208,7 +216,7 @@ export default function Registro() {
         <div className="input-group">
           <div className="label-wrapper">
             <label htmlFor="senha">Senha</label>
-            {erros.senha && <span className="erro">{erros.senha}</span>}
+            {erros.senha && <span className="erro">{erros.senha.replace("- ⚠️ ", "")}</span>}
           </div>
           <input
             type="password"
@@ -222,7 +230,7 @@ export default function Registro() {
         <div className="input-group">
           <div className="label-wrapper">
             <label htmlFor="repetirSenha">Repita a Senha</label>
-            {erros.repetirSenha && <span className="erro">{erros.repetirSenha}</span>}
+            {erros.repetirSenha && <span className="erro">{erros.repetirSenha.replace("- ⚠️ ", "")}</span>}
           </div>
           <input
             type="password"
@@ -243,5 +251,5 @@ export default function Registro() {
         </div>
       </form>
     </div>
-  );      
+  );       
 }

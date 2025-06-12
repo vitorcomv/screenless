@@ -1,100 +1,288 @@
-.lista-desafios-container {
-    background-color: #f0f8f7;
-    padding: 40px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
+/* Importação de fontes para manter o padrão */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Chewy&display=swap');
+
+/* Variáveis de cores da página de Eventos */
+:root {
+  --primary-color: #22c55e;
+  --primary-dark: #16a34a;
+  --secondary-color: #f97316;
+  --light-gray: #e5e7eb;
+  --dark-text: #1f2937;
+  --white-text: #ffffff;
+  --background-light: #f0fdf4;
+  --card-background: #ffffff;
 }
 
-.lista-desafios-container h2 {
-    color: #26a69a;
-    margin-bottom: 30px;
-    font-size: 28px;
-    font-weight: bold;
-    text-align: center;
+/* Reset e estilos de corpo idênticos */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow-x: hidden; }
+body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-text); background-color: var(--background-light); }
+
+/* Container principal (usando classe de eventos) */
+.lista-eventos-container {
+  background-color: var(--background-light);
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 100%;
+} 
+
+.lista-eventos-container h2 {
+  font-family: 'Chewy', cursive;
+  color: var(--primary-color);
+  margin-bottom: 30px;
+  font-size: 3.5rem;
+  text-align: center;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
-.desafios-grid {
-    display: flex;
-    gap: 20px;
-    width: 90%;
-    margin-bottom: 20px;
-    justify-content: center;
+.eventos-visiveis .info-paginacao { display: block; }
+.eventos-visiveis .eventos-grid { display: grid; }
+.eventos-visiveis .paginacao { display: flex; }
+
+.info-paginacao {
+  color: var(--dark-text);
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+  text-align: center;
+  font-weight: 500;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.desafio-card {
-    background-color: #00796b;
-    border-radius: 15px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    width: 300px;
-    flex-shrink: 0;
+/* Grid de cards (usando classe de eventos) */
+.eventos-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 60px;
+  min-height: 60vh;
 }
 
-.desafio-card img {
-    width: 100%;
-    height: auto;
-    max-height: 300px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 10px;
+/* Card (usando classe de eventos) */
+.evento-card {
+  background-color: var(--card-background);
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 3px solid transparent;
+  width: 290px;
+  min-height: 460px;
+  justify-self: center;
 }
 
-.desafio-info {
-    padding: 0;
-    flex-grow: 1;
-    text-align: left;
+.evento-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-color);
 }
 
-.desafio-info h3 {
-    color: #ffff;
-    margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 18px;
-    font-weight: bold;
-    text-align: left;
+.evento-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 15px;
 }
 
-.desafio-info p {
-    margin-bottom: 5px;
-    font-size: 12px;
-    color: #ffff;
+.evento-info {
+  padding: 0;
+  flex-grow: 1;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
 }
 
-.proxima-imagem {
-    width: 100%;
-    position: relative;
+.evento-info h3 { color: var(--dark-text); margin-bottom: 10px; font-size: 1.3rem; }
+.evento-info p { margin-bottom: 8px; font-size: 0.9rem; color: #4b5563; }
+.evento-info .organizador { font-weight: 600; color: var(--primary-dark); }
+
+/* Estilo específico para o XP do desafio */
+.evento-info .xp {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1rem;
 }
 
-.imagem-fundo {
-    height: 100%;
-    max-height: 800px;
+.evento-footer {
+  margin-top: auto; 
+  padding-top: 15px;
+  width: 100%;
 }
 
-.criar-seu-desafio-button {
-    background-color: #00796b;
-    color: white;
-    width: 400px;
-    padding: 14px 30px;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
+/* Botão (usando classe de eventos) */
+.inscrever-button {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.criar-seu-desafio-button:hover {
-    background-color: #00796b;
+.inscrever-button:hover:not(:disabled) { background-color: var(--primary-dark); transform: translateY(-2px); }
+.inscrever-button:disabled { background-color: #a7f3d0; color: #10b981; cursor: not-allowed; opacity: 0.8; }
+
+.autor-container { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; }
+.insignia-no-card { width: 28px; height: 28px; object-fit: contain; margin-bottom: 0; border-radius: 0; }
+
+/* Estilos de Paginação e Mensagens de Status */
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
-    
+
+.paginacao-btn {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.paginacao-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.paginacao-btn:disabled {
+  background-color: var(--light-gray);
+  color: #a1a1aa;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.paginacao-numeros {
+  display: flex;
+  gap: 8px;
+}
+
+.paginacao-numero {
+  background-color: var(--card-background);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 45px;
+}
+
+.paginacao-numero:hover {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  transform: translateY(-2px);
+}
+
+.paginacao-numero.ativo {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  pointer-events: none;
+}
+
+/* Mensagens de 'sem desafios', 'loading', etc. */
+.sem-eventos-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  min-height: calc(80vh - 120px);
+}
+
+.cta-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.cta-texto {
+  font-size: 1.3rem;
+  color: var(--dark-text);
+  font-weight: 400;
+  max-width: 400px;
+  opacity: 0.9;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+.loading,
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-size: 1.5rem;
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.error {
+  color: var(--secondary-color);
+}
+
+
+/* Botão principal de Criar Desafio */
+.botao-wrapper { margin-top: 40px; }
+a.criar-seu-evento-button { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+.criar-seu-evento-button, .criar-seu-evento-button-bloqueado {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  padding: 16px 32px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+.criar-seu-evento-button:hover { background-color: var(--primary-dark); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); }
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .lista-eventos-container { padding: 40px 15px; }
+  .lista-eventos-container h2 { font-size: 2.5rem; }
+  .eventos-grid { grid-template-columns: 1fr; }
+  .evento-card { width: 95%; }
+  .cta-texto { font-size: 1.3rem; }
+}
+
+@media (max-width: 480px) {
+  .lista-eventos-container h2 { font-size: 2rem; }
+  .evento-info h3 { font-size: 1.2rem; }
+  .criar-seu-evento-button, .criar-seu-evento-button-bloqueado { font-size: 1rem; padding: 14px 28px; width: 100%; }
+  .cta-texto { font-size: 1.1rem; }
+}

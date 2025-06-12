@@ -1,0 +1,113 @@
+/* Importando fontes e variáveis para manter o padrão */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Chewy&display=swap');
+
+:root {
+  --primary-color: #22c55e;
+  --primary-dark: #16a34a;
+  --secondary-color: #f97316;
+  --light-gray: #e5e7eb;
+  --dark-text: #1f2937;
+  --white-text: #ffffff;
+  --background-light: #f0fdf4;
+  --card-background: #ffffff;
+}
+
+/* Estilos de base e container principal */
+.lista-eventos-container {
+  background-color: var(--background-light);
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 100%;
+} 
+
+.lista-eventos-container h2 {
+  font-family: 'Chewy', cursive;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  font-size: 3rem;
+  text-align: center;
+}
+
+/* Título para a segunda seção "Desafios que me inscrevi" */
+#secao-inscritos {
+  width: 100%;
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titulo-secao-secundaria {
+  font-family: 'Poppins', sans-serif;
+  color: var(--dark-text);
+  margin-bottom: 20px;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  border-top: 2px solid var(--light-gray);
+  padding-top: 40px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Estilos de grid e card (reaproveitados) */
+.info-paginacao { margin-bottom: 20px; text-align: center; }
+.eventos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; justify-content: center; width: 100%; max-width: 1200px; }
+.evento-card { background-color: var(--card-background); border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); overflow: hidden; display: flex; flex-direction: column; padding: 15px; width: 290px; min-height: 480px; justify-self: center; }
+.evento-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+.evento-info { flex-grow: 1; text-align: left; display: flex; flex-direction: column; }
+.evento-info h3 { font-size: 1.3rem; margin-bottom: 10px; }
+.evento-info p { margin-bottom: 8px; font-size: 0.9rem; }
+.evento-info .organizador { font-weight: 600; color: #555; }
+
+/* ===== MUDANÇA AQUI ===== */
+.evento-info .xp {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1rem;
+  margin-top: auto; /* A MÁGICA: Empurra o XP para o fundo do seu container (.evento-info) */
+  padding-top: 10px; /* Adiciona um pequeno respiro acima dele */
+}
+/* ===== FIM DA MUDANÇA ===== */
+
+
+.evento-footer { margin-top: auto; margin-bottom: 10px; padding-top: 15px; width: 100%; }
+.status-finalizado { font-weight: 700; color: var(--secondary-color); text-align: center; font-size: 1.1rem; }
+
+/* === NOVOS ESTILOS PARA OS BOTÕES DE GERENCIAMENTO === */
+.management-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.management-btn {
+  flex-grow: 1;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--white-text);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.management-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+
+.management-btn.editar { background-color: #f59e0b; }
+.management-btn.excluir { background-color: #ef4444; }
+.management-btn.finalizar { background-color: #8b5cf6; }
+.management-btn.cancelar { width: 100%; background-color: #ef4444; }
+
+.loading, .error { /* ... */ }
+.paginacao { /* ... */ }
+.paginacao-btn { /* ... */ }
+
