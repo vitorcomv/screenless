@@ -79,7 +79,7 @@ export default function CriarDesafio() {
     }
   
     try {
-      const response = await fetch("http://localhost:5000/api/criar_desafio", {
+      const response = await fetch("https://screenless-8k2p.onrender.com/api/criar_desafio", {
         method: "POST",
         body: formData,
         headers: {

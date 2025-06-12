@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
       return;
     }
     try {
-      const response = await fetch("http://localhost:5000/api/usuario_xp", {
+      const response = await fetch("https://screenless-8k2p.onrender.com/api/usuario_xp", {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       if (!response.ok) throw new Error("Falha ao buscar XP");

@@ -25,7 +25,7 @@ const MeuPerfil = () => {
     useEffect(() => {
         if (!token) return;
 
-        fetch('http://localhost:5000/api/perfil', {
+        fetch('https://screenless-8k2p.onrender.com/api/perfil', {
             headers: { Authorization: `Bearer ${token}` },
         })
         .then(res => res.json())
@@ -42,7 +42,7 @@ const MeuPerfil = () => {
                     cpf: data.CPF || '',
                     foto_perfil: data.foto_perfil || null
                 });
-                setFotoPreview(data.foto_url || (data.foto_perfil ? `http://localhost:5000/uploads/${data.foto_perfil}` : null));
+                setFotoPreview(data.foto_url || (data.foto_perfil ? `https://screenless-8k2p.onrender.com/uploads/${data.foto_perfil}` : null));
             }
         });
     }, [token]);
@@ -69,7 +69,7 @@ const MeuPerfil = () => {
             formData.append('foto_perfil', fotoFile);
         }
         try {
-            const res = await fetch("http://localhost:5000/api/perfil", {
+            const res = await fetch("https://screenless-8k2p.onrender.com/api/perfil", {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,

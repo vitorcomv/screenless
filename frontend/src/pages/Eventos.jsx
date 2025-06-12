@@ -22,7 +22,7 @@ export default function ListaEventos() {
   useEffect(() => {
     const fetchEventos = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/eventos");
+        const response = await fetch("https://screenless-8k2p.onrender.com/api/eventos");
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -40,7 +40,7 @@ export default function ListaEventos() {
     const fetchInscricoes = async () => {
       if (!token) return;
       try {
-        const response = await fetch("http://localhost:5000/api/meus_eventos", { headers: { Authorization: `Bearer ${token}` }});
+        const response = await fetch("https://screenless-8k2p.onrender.com/api/meus_eventos", { headers: { Authorization: `Bearer ${token}` }});
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'number') {
           setInscritos(data);
@@ -75,7 +75,7 @@ export default function ListaEventos() {
     formData.append("evento_id", eventoId);
     
     try {
-      const response = await fetch("http://localhost:5000/api/inscrever_evento", { 
+      const response = await fetch("https://screenless-8k2p.onrender.com/api/inscrever_evento", { 
         method: "POST", 
         headers: { Authorization: `Bearer ${token}` }, 
         body: formData 

@@ -20,14 +20,14 @@ const Home = () => {
 
     useEffect(() => {
         // ... seu useEffect para buscar dados permanece o mesmo ...
-        fetch('http://localhost:5000/api/mensagem')
+        fetch('https://screenless-8k2p.onrender.com/api/mensagem')
             .then((res) => res.json())
             .then((data) => setMensagem(data.mensagem))
             .catch((err) => console.error('Erro ao buscar mensagem da API:', err));
 
         const fetchRelatos = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/relatos');
+                const response = await fetch('https://screenless-8k2p.onrender.com/api/relatos');
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 const relatosComIds = data.map(relato => ({ ...relato, ID_RELATO: relato.ID_RELATO || Math.random().toString(36).substr(2, 9) }));
@@ -49,7 +49,7 @@ const Home = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/criar_relato', {
+            const response = await fetch('https://screenless-8k2p.onrender.com/api/criar_relato', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
                 body: JSON.stringify({ titulo: relatoTitulo, relato: relatoTexto }),
@@ -78,7 +78,7 @@ const Home = () => {
             setRelatoTitulo('');
             setRelatoTexto('');
 
-            const updatedRelatosResponse = await fetch('http://localhost:5000/api/relatos');
+            const updatedRelatosResponse = await fetch('https://screenless-8k2p.onrender.com/api/relatos');
             const updatedRelatos = await updatedRelatosResponse.json();
             const updatedRelatosComIds = updatedRelatos.map(relato => ({ ...relato, ID_RELATO: relato.ID_RELATO || Math.random().toString(36).substr(2, 9) }));
             setRelatos(updatedRelatosComIds);

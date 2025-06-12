@@ -57,7 +57,7 @@ export default function FormularioEdicaoEvento({ eventoParaEditar, onSave, onCan
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/editar_evento/${eventoParaEditar.ID_EVENTO}`,
+        `https://screenless-8k2p.onrender.com/api/editar_evento/${eventoParaEditar.ID_EVENTO}`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },

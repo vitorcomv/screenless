@@ -28,7 +28,7 @@ export default function EditarEventoForm({ evento, onClose, onSave }) {
     e.preventDefault();
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5000/api/editar_evento/${evento.ID_EVENTO}`, {
+      const res = await fetch(`https://screenless-8k2p.onrender.com/api/editar_evento/${evento.ID_EVENTO}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -33,7 +33,7 @@ export default function MeusDesafios() {
                 return;
             }
             try {
-                const response = await fetch("http://localhost:5000/api/desafios_criados", {
+                const response = await fetch("https://screenless-8k2p.onrender.com/api/desafios_criados", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -52,7 +52,7 @@ export default function MeusDesafios() {
                 return;
             }
             try {
-                const response = await fetch("http://localhost:5000/api/desafios_inscritos", {
+                const response = await fetch("https://screenless-8k2p.onrender.com/api/desafios_inscritos", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -90,7 +90,7 @@ export default function MeusDesafios() {
             onConfirm: async () => {
                 try {
                     // Chama a rota POST correta
-                    const response = await fetch(`http://localhost:5000/api/finalizar_desafio_post/${desafioId}`, {
+                    const response = await fetch(`https://screenless-8k2p.onrender.com/api/finalizar_desafio_post/${desafioId}`, {
                         method: "POST",
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -119,7 +119,7 @@ export default function MeusDesafios() {
             onConfirm: async () => {
                 try {
                     // Chama a rota DELETE correta
-                    const response = await fetch(`http://localhost:5000/api/excluir_desafio/${desafioId}`, {
+                    const response = await fetch(`https://screenless-8k2p.onrender.com/api/excluir_desafio/${desafioId}`, {
                         method: "DELETE",
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -146,7 +146,7 @@ export default function MeusDesafios() {
             message: "Tem certeza que deseja cancelar sua inscrição neste desafio?",
             onConfirm: async () => {
                 try {
-                    const response = await fetch(`http://localhost:5000/api/cancelar_inscricao_desafio/${desafioId}`, {
+                    const response = await fetch(`https://screenless-8k2p.onrender.com/api/cancelar_inscricao_desafio/${desafioId}`, {
                         method: "DELETE",
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -223,7 +223,7 @@ export default function MeusDesafios() {
                             {/* ... seu .map() para desafios criados ... */}
                             {desafiosCriadosPaginados.map((desafio) => (
                                 <div className="evento-card" key={desafio.ID_DESAFIO}>
-                                    <img src={desafio.foto ? `http://localhost:5000/uploads/${desafio.foto}` : "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"} alt={desafio.Titulo} onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}/>
+                                    <img src={desafio.foto ? `https://screenless-8k2p.onrender.com/uploads/${desafio.foto}` : "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"} alt={desafio.Titulo} onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}/>
                                     <div className="evento-info">
                                         <h3>{desafio.Titulo}</h3>
                                         <p className="organizador">Organizado por: {desafio.nome_usuario || "Você"}</p>
@@ -266,7 +266,7 @@ export default function MeusDesafios() {
                             {/* ... seu .map() para desafios inscritos ... */}
                             {desafiosInscritosPaginados.map((desafio) => (
                                 <div className="evento-card" key={desafio.ID_DESAFIO}>
-                                    <img src={desafio.foto ? `http://localhost:5000/uploads/${desafio.foto}`: "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"} alt={desafio.Titulo} onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}/>
+                                    <img src={desafio.foto ? `https://screenless-8k2p.onrender.com/uploads/${desafio.foto}`: "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"} alt={desafio.Titulo} onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}/>
                                     <div className="evento-info">
                                         <h3>{desafio.Titulo}</h3>
                                         <p className="organizador">Organizado por: {desafio.nome_usuario || "Anônimo"}</p>

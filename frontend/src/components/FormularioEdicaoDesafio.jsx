@@ -45,7 +45,7 @@ export default function FormularioEdicaoDesafio({ desafioParaEditar, onSave, onC
 
     try {
       // Usa a mesma rota PUT de antes
-      const response = await fetch(`http://localhost:5000/api/editar_desafio/${desafioParaEditar.ID_DESAFIO}`, {
+      const response = await fetch(`https://screenless-8k2p.onrender.com/api/editar_desafio/${desafioParaEditar.ID_DESAFIO}`, {
         method: "PUT",
         body: formData,
         headers: { 'Authorization': `Bearer ${token}` }

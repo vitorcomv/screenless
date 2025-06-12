@@ -26,7 +26,7 @@ export default function MeusEventos() {
     const fetchEventosCriados = async () => {
       if (!token) return; // Adicionado para evitar chamada sem token
       try {
-        const res = await fetch("http://localhost:5000/api/eventos_criados", {
+        const res = await fetch("https://screenless-8k2p.onrender.com/api/eventos_criados", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) { // Adicionado tratamento de erro
@@ -45,7 +45,7 @@ export default function MeusEventos() {
     const fetchEventosInscritos = async () => {
       if (!token) return; // Adicionado para evitar chamada sem token
       try {
-        const res = await fetch("http://localhost:5000/api/eventos_inscritos", {
+        const res = await fetch("https://screenless-8k2p.onrender.com/api/eventos_inscritos", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) { // Adicionado tratamento de erro
@@ -130,7 +130,7 @@ export default function MeusEventos() {
       onConfirm: async () => {
         try {
           const res = await fetch(
-            `http://localhost:5000/api/cancelar_inscricao?evento_id=${eventoId}`,
+            `https://screenless-8k2p.onrender.com/api/cancelar_inscricao?evento_id=${eventoId}`,
             {
               method: "DELETE",
               headers: { Authorization: `Bearer ${token}` },
@@ -163,7 +163,7 @@ export default function MeusEventos() {
       onConfirm: async () => {
         try {
           const res = await fetch(
-            `http://localhost:5000/api/excluir_evento/${eventoId}`,
+            `https://screenless-8k2p.onrender.com/api/excluir_evento/${eventoId}`,
             {
               method: "DELETE",
               headers: { Authorization: `Bearer ${token}` },
@@ -200,7 +200,7 @@ export default function MeusEventos() {
       onConfirm: async () => {
         try {
           const response = await fetch(
-            `http://localhost:5000/api/finalizar_evento/${eventoId}`,
+            `https://screenless-8k2p.onrender.com/api/finalizar_evento/${eventoId}`,
             {
               method: "POST",
               headers: { Authorization: `Bearer ${token}` },
@@ -231,7 +231,7 @@ export default function MeusEventos() {
     <div className="meus-evento-card" key={evento.ID_EVENTO}>
       <img
         className="meus-evento-imagem"
-        src={`http://localhost:5000/uploads/${evento.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
+        src={`https://screenless-8k2p.onrender.com/uploads/${evento.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
         alt={evento.titulo}
         onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel"; }}
       />

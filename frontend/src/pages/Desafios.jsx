@@ -22,7 +22,7 @@ export default function ListaDesafios() {
 
     const fetchDesafios = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/desafios");
+            const response = await fetch("https://screenless-8k2p.onrender.com/api/desafios");
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             const desafiosOrdenados = data.sort((a, b) => b.ID_DESAFIO - a.ID_DESAFIO);
@@ -38,7 +38,7 @@ export default function ListaDesafios() {
     const fetchInscricoesDesafiosIds = useCallback(async () => {
         if (!token) return;
         try {
-            const response = await fetch("http://localhost:5000/api/meus_desafios_ids", {
+            const response = await fetch("https://screenless-8k2p.onrender.com/api/meus_desafios_ids", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!response.ok) throw new Error("Falha ao buscar inscrições");
@@ -78,7 +78,7 @@ export default function ListaDesafios() {
         try {
             const formData = new FormData();
             formData.append('desafio_id', desafioId);
-            const response = await fetch("http://localhost:5000/api/inscrever_desafio", {
+            const response = await fetch("https://screenless-8k2p.onrender.com/api/inscrever_desafio", {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,

@@ -72,10 +72,11 @@ app = Flask(__name__)
 CORS(app)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
 db_config = {
-    'host': 'localhost',
-    'user': 'screenless_user',
-    'password': 'screenless',
-    'database': 'screenless'
+    "host": os.getenv("DB_HOST"),
+    "port": int(os.getenv("DB_PORT")),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASS"),
+    "database": os.getenv("DB_NAME")
 }
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
@@ -152,10 +153,10 @@ def login_usuario():
         if user and check_password_hash(user["senha"], data["senha"]):
             foto_url_completa = None
             if user.get("foto_perfil"):
-                foto_url_completa = f"http://localhost:5000/uploads/{user['foto_perfil']}"
+                foto_url_completa = f"https://screenless-8k2p.onrender.com/uploads/{user['foto_perfil']}"
             insignia_icone_url_completa = None
             if user.get("insignia_icone_url_db"):
-                insignia_icone_url_completa = f"http://localhost:5000/uploads/{user['insignia_icone_url_db']}"
+                insignia_icone_url_completa = f"https://screenless-8k2p.onrender.com/uploads/{user['insignia_icone_url_db']}"
             token_payload = {
                 'id': user["id"],
                 'usuario': user["usuario"],
@@ -282,9 +283,9 @@ def obter_eventos():
         eventos = cursor.fetchall()
         for evento in eventos:
             if evento['foto']:
-                evento['foto_url'] = f"http://localhost:5000/uploads/{evento['foto']}"
+                evento['foto_url'] = f"https://screenless-8k2p.onrender.com/uploads/{evento['foto']}"
             if evento['autor_insignia_url']:
-                evento['autor_insignia_url'] = f"http://localhost:5000/uploads/{evento['autor_insignia_url']}"
+                evento['autor_insignia_url'] = f"https://screenless-8k2p.onrender.com/uploads/{evento['autor_insignia_url']}"
         return jsonify(eventos), 200
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
@@ -423,9 +424,9 @@ def obter_desafios():
         desafios = cursor.fetchall()
         for desafio in desafios:
             if desafio.get('foto'):
-                desafio['foto_url'] = f"http://localhost:5000/uploads/{desafio['foto']}"
+                desafio['foto_url'] = f"https://screenless-8k2p.onrender.com/uploads/{desafio['foto']}"
             if desafio.get('autor_insignia_url'):
-                desafio['autor_insignia_url'] = f"http://localhost:5000/uploads/{desafio['autor_insignia_url']}"
+                desafio['autor_insignia_url'] = f"https://screenless-8k2p.onrender.com/uploads/{desafio['autor_insignia_url']}"
         return jsonify(desafios), 200
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
@@ -1091,7 +1092,7 @@ def obter_relatos():
                 relato['data_criacao_formatada'] = relato['data_criacao'].strftime('%d/%m/%Y')
             
             if relato.get('autor_insignia_url'):
-                relato['autor_insignia_url'] = f"http://localhost:5000/uploads/{relato['autor_insignia_url']}"
+                relato['autor_insignia_url'] = f"https://screenless-8k2p.onrender.com/uploads/{relato['autor_insignia_url']}"
 
         return jsonify(relatos), 200
 
@@ -1128,7 +1129,7 @@ def obter_perfil():
         
         # Adicionar URL completa da foto
         if usuario["foto_perfil"]:
-            usuario["foto_url"] = f"http://localhost:5000/uploads/{usuario['foto_perfil']}"
+            usuario["foto_url"] = f"https://screenless-8k2p.onrender.com/uploads/{usuario['foto_perfil']}"
         else:
             usuario["foto_url"] = None
 
@@ -1187,7 +1188,7 @@ def atualizar_perfil():
 
         resposta = {"mensagem": "Perfil atualizado com sucesso"}
         if nome_foto:
-            resposta["foto_url"] = f"http://localhost:5000/uploads/{nome_foto}"  # URL completa
+            resposta["foto_url"] = f"https://screenless-8k2p.onrender.com/uploads/{nome_foto}"
 
         return jsonify(resposta), 200
 
@@ -1288,8 +1289,7 @@ def get_mural_insignias():
             icone_url_final = None
             if insignia_db.get('icone_url'):
                 # Constrói a URL completa para o ícone
-                # Ex: se icone_url for "insignias/pioneiro.png", a URL será "http://localhost:5000/uploads/insignias/pioneiro.png"
-                icone_url_final = f"http://localhost:5000/uploads/{insignia_db['icone_url']}"
+                icone_url_final = f"https://screenless-8k2p.onrender.com/uploads/{insignia_db['icone_url']}"
 
             resultado_mural.append({
                 'ID_INSIGNIA': insignia_db['ID_INSIGNIA'],
@@ -1364,7 +1364,7 @@ def selecionar_insignia_para_usuario():
             cursor.execute(sql_update_usuario, (id_insignia_para_selecionar, id_usuario_logado))
             
             if insignia_info.get('icone_url'):
-                nova_insignia_icone_url = f"http://localhost:5000/uploads/{insignia_info['icone_url']}"
+                nova_insignia_icone_url = f"https://screenless-8k2p.onrender.com/uploads/{insignia_info['icone_url']}"
             mensagem_sucesso = "Insígnia selecionada com sucesso!"
 
         else:

@@ -69,7 +69,7 @@ export default function CriarEvento() {
     // formData.append("organizador", form.organizador);
 
     try {
-      const response = await fetch("http://localhost:5000/api/criar_evento", {
+      const response = await fetch("https://screenless-8k2p.onrender.com/api/criar_evento", {
         method: "POST",
         body: formData,
         headers: {

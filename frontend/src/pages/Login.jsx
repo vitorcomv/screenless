@@ -28,7 +28,7 @@ export default function Login() {
     
     // Adicionado try...catch para lidar com erros de rede (servidor offline, etc.)
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch("https://screenless-8k2p.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

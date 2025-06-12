@@ -89,7 +89,7 @@ export default function MuralInsignias() {
 
     if (userId && token) { // Só faz o fetch se tiver userId e token válidos
       setLoading(true);
-      fetch(`http://localhost:5000/api/mural-insignias`, { // A rota não precisa do ID na URL se o backend pega do token
+      fetch(`https://screenless-8k2p.onrender.com/api/mural-insignias`, { // A rota não precisa do ID na URL se o backend pega do token
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -125,7 +125,7 @@ export default function MuralInsignias() {
     }
     setMensagem('Selecionando insígnia...');
     try {
-      const response = await fetch(`http://localhost:5000/api/usuario/insignia-selecionada`, {
+      const response = await fetch(`https://screenless-8k2p.onrender.com/api/usuario/insignia-selecionada`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
