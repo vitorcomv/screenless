@@ -2,15 +2,14 @@ import React, { createContext, useState, useContext } from 'react';
 import CustomAlert from '../components/CustomAlert';
 import CustomConfirm from '../components/CustomConfirm';
 
-// 1. Cria o Context
 const AlertContext = createContext();
 
-// 2. Cria o Provider (o componente que vai envolver sua aplicação)
 export const AlertProvider = ({ children }) => {
   const [alert, setAlert] = useState({
     isOpen: false,
+    title: '', // Adicionamos title aqui
     message: '',
-    type: 'success', // success, error, warning, info
+    type: 'success',
   });
 
   const [confirm, setConfirm] = useState({
@@ -20,18 +19,19 @@ export const AlertProvider = ({ children }) => {
     onConfirm: () => {},
   });
 
-  // Função para mostrar o alerta de feedback
-  const showAlert = (message, type = 'success') => {
+  // ===== MUDANÇA PRINCIPAL AQUI =====
+  // A função agora aceita argumentos simples, não um objeto
+  const showAlert = (title, message, type = 'success') => {
     setAlert({
       isOpen: true,
+      title,
       message,
       type,
     });
-    // Opcional: fechar automaticamente após um tempo
     setTimeout(() => handleCloseAlert(), 4000);
   };
+  // ===================================
 
-  // Função para mostrar o diálogo de confirmação
   const showConfirm = ({ title, message, onConfirm }) => {
     setConfirm({
       isOpen: true,
@@ -53,15 +53,11 @@ export const AlertProvider = ({ children }) => {
   };
 
   return (
-    <AlertContext.Provider
-      value={{
-        showAlert,
-        showConfirm,
-      }}
-    >
+    <AlertContext.Provider value={{ showAlert, showConfirm }}>
       {children}
       <CustomAlert
         isOpen={alert.isOpen}
+        title={alert.title} // Passando o title para o componente
         message={alert.message}
         type={alert.type}
         onClose={handleCloseAlert}
@@ -77,7 +73,6 @@ export const AlertProvider = ({ children }) => {
   );
 };
 
-// 3. Cria um hook customizado para facilitar o uso do contexto
 export const useAlert = () => {
   const context = useContext(AlertContext);
   if (context === undefined) {
