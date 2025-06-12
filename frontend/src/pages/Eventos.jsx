@@ -136,24 +136,41 @@ export default function ListaEventos() {
       <div className="eventos-grid">
         {eventos.map((evento) => (
           <div className="evento-card" key={evento.ID_EVENTO}>
-            {evento.foto_url && <img src={evento.foto_url} alt={evento.titulo} onError={(e) => { e.target.onerror = null; e.target.src = "/placeholder.png"; }} />}
-            
+            <img
+              src={evento.foto_url || "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"}
+              alt={evento.titulo}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel";
+              }}
+            />
+
             <div className="evento-info">
               <h3>{evento.titulo}</h3>
               <div className="autor-container">
                 <p className="organizador">{evento.autor_nome}</p>
-                {evento.autor_insignia_url && <img src={evento.autor_insignia_url} alt="Insígnia do organizador" className="insignia-no-card"/>}
+                {evento.autor_insignia_url && (
+                  <img
+                    src={evento.autor_insignia_url}
+                    alt="Insígnia do organizador"
+                    className="insignia-no-card"
+                  />
+                )}
               </div>
               <p className="endereco">{evento.endereco}</p>
               <p className="descricao">{evento.descricao}</p>
               <p className="data-hora">{evento.data_hora}</p>
             </div>
-            
+
             <div className="evento-footer">
               {evento.Status === "finalizado" ? (
                 <p className="evento-status-finalizado">Evento Finalizado!</p>
               ) : (
-                <button className="inscrever-button" onClick={() => inscreverEmEvento(evento.ID_EVENTO)} disabled={inscritos.includes(evento.ID_EVENTO)}>
+                <button
+                  className="inscrever-button"
+                  onClick={() => inscreverEmEvento(evento.ID_EVENTO)}
+                  disabled={inscritos.includes(evento.ID_EVENTO)}
+                >
                   {inscritos.includes(evento.ID_EVENTO) ? "Inscrito" : "Inscrever-se"}
                 </button>
               )}

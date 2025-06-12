@@ -133,7 +133,7 @@ export default function ListaDesafios() {
                             <img
                                 src={desafio.foto_url || "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"}
                                 alt={desafio.Titulo}
-                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Erro"; }}
+                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}
                             />
                             <div className="evento-info">
                                 <h3>{desafio.Titulo}</h3>

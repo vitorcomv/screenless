@@ -72,17 +72,19 @@
 
 /* Cores dos botões (sem alterações) */
 .confirm-button.cancel {
-  background-color: #6c757d;
+  background-color: #dc3545; /* Vermelho */
   color: white;
 }
 .confirm-button.cancel:hover {
-  background-color: #5a6268;
+  background-color: #c82333;
+  transform: translateY(-1px);
 }
 
 .confirm-button.confirm {
-  background-color: #dc3545;
+  background-color: #16a34a; /* Verde */
   color: white;
 }
 .confirm-button.confirm:hover {
-  background-color: #c82333;
+  background-color: #22c55e;
+  transform: translateY(-1px);
 }
