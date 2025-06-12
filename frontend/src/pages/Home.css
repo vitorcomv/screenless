@@ -360,17 +360,13 @@ body {
 
 /* NOVO: Estilo para cada item de relato (o card individual) */
 .comment-item {
-    display: grid;
-    grid-template-columns: 35px 1fr;
-    gap: 20px;
-    background-color: var(--white-text);
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--comment-border);
-    width: 100%;
-    /* Adicionado para permitir transição de altura */
-    transition: all 0.3s ease-in-out; 
+  background-color: var(--white-text);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--comment-border);
+  width: 100%;
+  transition: all 0.3s ease-in-out; 
 }
 
 /* Estilo para o texto do relato - INICIALMENTE CORTADO */
@@ -472,10 +468,6 @@ body {
 
 /* NOVO: Container do conteúdo do comentário/relato */
 .comment-container {
-    display: flex;
-    flex-direction: column;
-    /* Ajustado para controlar melhor o espaçamento geral */
-    gap: 2px; /* Reduzindo o espaçamento geral para aproximar os elementos */
     padding: 0;
     margin: 0;
 }
@@ -528,9 +520,9 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start; /* <<< CORREÇÃO: Alinha à esquerda */
     justify-content: center;
-    gap: 8px;
+    gap: 3px; /* Reduzido para melhor espaçamento */
     margin-bottom: 10px;
 }
 
@@ -842,9 +834,10 @@ body {
     }
 
     .how-content {
-        flex-direction: row;
-        text-align: left;
-    }
+    flex-direction: row;
+    text-align: left;
+    align-items: flex-start; /* << ADICIONE ESTA LINHA */
+  }
 
     .how-text {
         text-align: left;

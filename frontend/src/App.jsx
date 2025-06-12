@@ -14,6 +14,7 @@ import MeusEventos from "./pages/MeusEventos";
 import MeusDesafios from "./pages/MeusDesafios";
 import MeuPerfil from './pages/MeuPerfil';
 import MuralInsignias from './pages/MuralInsignias';
+import SobreNos from './pages/SobreNos';
 
 function AppWrapper() {
   const location = useLocation();
@@ -35,6 +36,7 @@ function AppWrapper() {
           <Route path="/meus-desafios" element={<MeusDesafios />} />
           <Route path="/meu-perfil" element={<MeuPerfil />} />
           <Route path="/mural-de-insignias" element={<MuralInsignias />} />
+          <Route path="/sobre-nos" element={<SobreNos />} />
         </Routes>
       </main>
       {/* 2. Adicione o Footer aqui com a mesma condição */}

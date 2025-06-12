@@ -81,6 +81,9 @@ export default function Navbar() {
         <button className="btn" onClick={() => navigate("/desafios")}>
           Desafios
         </button>
+        <button className="btn" onClick={() => navigate("/sobre-nos")}>
+          Sobre Nós
+        </button>
       </div>
 
       <div className="auth">
