@@ -107,19 +107,3 @@
 .btn-cancelar:hover {
     background-color: #95a5a6;
 }
-
-.fechar-btn {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 28px;
-  color: #7f8c8d;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.fechar-btn:hover {
-  color: #ecf0f1;
-}

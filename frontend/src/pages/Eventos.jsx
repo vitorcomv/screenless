@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import "./Eventos.css";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useAlert } from "../context/AlertContext"; // 1. IMPORTAR O HOOK
 import BotaoBloqueado from "../components/BotaoBloqueado";
 
 export default function ListaEventos() {
   const { nivelUsuario } = useContext(AuthContext);
+  const { showAlert } = useAlert(); // 2. OBTER A FUNÇÃO DO CONTEXTO
+  
   const [todosEventos, setTodosEventos] = useState([]);
   const [eventos, setEventos] = useState([]);
   const [inscritos, setInscritos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); // Manter para erro de bloqueio da página
   const [paginaAtual, setPaginaAtual] = useState(1);
   
   const eventosPorPagina = 8;
@@ -20,15 +23,20 @@ export default function ListaEventos() {
     const fetchEventos = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/eventos");
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         const eventosOrdenados = data.sort((a, b) => new Date(b.data_hora_original) - new Date(a.data_hora_original));
         setTodosEventos(eventosOrdenados);
       } catch (e) {
-        setError(e);
+        setError(e); // Mantém o erro para exibir a mensagem de falha na página
+        showAlert("Falha ao carregar eventos. Tente recarregar a página.", "error"); // Exibe um alerta
       } finally {
         setLoading(false);
       }
     };
+
     const fetchInscricoes = async () => {
       if (!token) return;
       try {
@@ -41,11 +49,17 @@ export default function ListaEventos() {
         } else {
           setInscritos([]);
         }
-      } catch (e) { console.error("Erro ao buscar inscrições:", e); }
+      } catch (e) { 
+        console.error("Erro ao buscar inscrições:", e);
+        // Opcional: mostrar um alerta discreto sobre a falha em buscar as inscrições
+        // showAlert("Não foi possível verificar suas inscrições.", "error");
+      }
     };
+
     fetchEventos();
     fetchInscricoes();
-  }, [token]);
+    // Adicionamos showAlert como dependência pois ele vem de um contexto
+  }, [token, showAlert]);
 
   useEffect(() => {
     const indiceInicio = (paginaAtual - 1) * eventosPorPagina;
@@ -53,16 +67,36 @@ export default function ListaEventos() {
     setEventos(todosEventos.slice(indiceInicio, indiceFim));
   }, [todosEventos, paginaAtual]);
 
-  const inscreverEmEvento = async (eventoId) => {
-    if (!token) { alert("Você precisa estar logado para se inscrever."); return; }
+  // 3. SUBSTITUIR OS ALERTAS PELA FUNÇÃO `showAlert`
+  const inscreverEmEvento = useCallback(async (eventoId) => {
+    if (!token) {
+      showAlert("Você precisa estar logado para se inscrever.", "warning");
+      return;
+    }
+    
     const formData = new FormData();
     formData.append("evento_id", eventoId);
+    
     try {
-      const response = await fetch("http://localhost:5000/api/inscrever_evento", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: formData });
+      const response = await fetch("http://localhost:5000/api/inscrever_evento", { 
+        method: "POST", 
+        headers: { Authorization: `Bearer ${token}` }, 
+        body: formData 
+      });
+
       const data = await response.json();
-      if (response.status === 201) { alert(data.mensagem); setInscritos([...inscritos, eventoId]); } else { alert(data.erro || "Erro ao se inscrever no evento."); }
-    } catch (error) { alert("Erro na requisição."); }
-  };
+      
+      if (response.ok) { // Checar por response.ok é mais robusto
+        showAlert(data.mensagem, "success");
+        setInscritos(prevInscritos => [...prevInscritos, eventoId]);
+      } else {
+        showAlert(data.erro || "Erro ao se inscrever no evento.", "error");
+      }
+    } catch (error) {
+      console.error("Erro na requisição de inscrição:", error);
+      showAlert("Falha na comunicação ao tentar se inscrever.", "error");
+    }
+  }, [token, showAlert]); // Adicionar dependências ao useCallback
 
   const totalPaginas = Math.ceil(todosEventos.length / eventosPorPagina);
 
@@ -70,7 +104,6 @@ export default function ListaEventos() {
     setPaginaAtual(numeroPagina);
     document.querySelector('.lista-eventos-container')?.scrollIntoView({ behavior: 'smooth' });
   };
-
 
   if (loading) return <div className="loading">Carregando eventos...</div>;
   if (error) return <div className="error">Erro ao carregar eventos: {error.message}</div>;
@@ -106,10 +139,8 @@ export default function ListaEventos() {
       <div className="eventos-grid">
         {eventos.map((evento) => (
           <div className="evento-card" key={evento.ID_EVENTO}>
-            {/* A imagem continua aqui em cima */}
             {evento.foto_url && <img src={evento.foto_url} alt={evento.titulo} onError={(e) => { e.target.onerror = null; e.target.src = "/placeholder.png"; }} />}
             
-            {/* O corpo agora só contém os textos */}
             <div className="evento-info">
               <h3>{evento.titulo}</h3>
               <div className="autor-container">
@@ -146,7 +177,7 @@ export default function ListaEventos() {
         </div>
       )}
       
-      {!temEventos && (
+      {!temEventos && !loading && ( // Adicionado !loading para não mostrar enquanto carrega
         <div className="sem-eventos-container">
           <div className="cta-container">
             <p className="cta-texto">

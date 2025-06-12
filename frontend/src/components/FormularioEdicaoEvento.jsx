@@ -84,7 +84,6 @@ export default function FormularioEdicaoEvento({ eventoParaEditar, onSave, onCan
   return (
     <div className="form-edicao-overlay" onClick={onCancel}>
       <div className="form-edicao-modal" onClick={stopPropagation}>
-        <button className="fechar-btn" onClick={onCancel}>&times;</button>
         <h2>Editar Evento</h2>
         <form onSubmit={handleSubmit} className="form-edicao-conteudo">
           <label>Título do Evento</label>
