@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import "./Desafios.css";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../context/AuthContext";
+import { useAlert } from "../context/AlertContext"; // 1. IMPORTAR O HOOK
 import BotaoBloqueado from "../components/BotaoBloqueado";
 
 export default function ListaDesafios() {
     const { nivelUsuario } = useContext(AuthContext);
+    const { showAlert } = useAlert(); // 2. OBTER A FUNÇÃO DO CONTEXTO
+
     const [todosDesafios, setTodosDesafios] = useState([]);
     const [desafios, setDesafios] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,6 +20,36 @@ export default function ListaDesafios() {
     const [paginaAtual, setPaginaAtual] = useState(1);
     const desafiosPorPagina = 6;
 
+    const fetchDesafios = useCallback(async () => {
+        try {
+            const response = await fetch("http://localhost:5000/api/desafios");
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            const desafiosOrdenados = data.sort((a, b) => b.ID_DESAFIO - a.ID_DESAFIO);
+            setTodosDesafios(desafiosOrdenados);
+        } catch (e) {
+            setError(e.message);
+            showAlert({message: "Falha ao carregar os desafios. Tente recarregar a página.", type: "error"});
+        } finally {
+            setLoading(false);
+        }
+    }, [showAlert]);
+
+    const fetchInscricoesDesafiosIds = useCallback(async () => {
+        if (!token) return;
+        try {
+            const response = await fetch("http://localhost:5000/api/meus_desafios_ids", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!response.ok) throw new Error("Falha ao buscar inscrições");
+            const data = await response.json();
+            setInscritosDesafiosIds(data);
+        } catch (e) {
+            console.error("Erro ao buscar IDs de inscrições:", e);
+            showAlert({message: "Não foi possível verificar suas inscrições nos desafios.", type: "error"});
+        }
+    }, [token, showAlert]);
+
     useEffect(() => {
         if (token) {
             try {
@@ -26,35 +59,9 @@ export default function ListaDesafios() {
                 console.error("Erro ao decodificar o token:", e);
             }
         }
-        const fetchDesafios = async () => {
-            try {
-                const response = await fetch("http://localhost:5000/api/desafios");
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                const desafiosOrdenados = data.sort((a, b) => b.ID_DESAFIO - a.ID_DESAFIO);
-                setTodosDesafios(desafiosOrdenados);
-            } catch (e) {
-                setError(e.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        const fetchInscricoesDesafiosIds = async () => {
-            if (!token) return;
-            try {
-                const response = await fetch("http://localhost:5000/api/meus_desafios_ids", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!response.ok) throw new Error("Falha ao buscar inscrições");
-                const data = await response.json();
-                setInscritosDesafiosIds(data);
-            } catch (e) {
-                console.error("Erro ao buscar IDs de inscrições:", e);
-            }
-        };
         fetchDesafios();
         fetchInscricoesDesafiosIds();
-    }, [token]);
+    }, [token, fetchDesafios, fetchInscricoesDesafiosIds]);
 
     useEffect(() => {
         const indiceInicio = (paginaAtual - 1) * desafiosPorPagina;
@@ -62,9 +69,10 @@ export default function ListaDesafios() {
         setDesafios(todosDesafios.slice(indiceInicio, indiceFim));
     }, [todosDesafios, paginaAtual]);
 
-    const inscreverEmDesafio = async (desafioId) => {
+    // 3. ATUALIZAR A FUNÇÃO DE INSCRIÇÃO COM `showAlert`
+    const inscreverEmDesafio = useCallback(async (desafioId) => {
         if (!token) {
-            alert("Você precisa estar logado para se inscrever.");
+            showAlert({message: "Você precisa estar logado para se inscrever.", type: "warning"});
             return;
         }
         try {
@@ -77,16 +85,16 @@ export default function ListaDesafios() {
             });
             const data = await response.json();
             if (response.ok) {
-                alert(data.mensagem || "Inscrição realizada com sucesso!");
+                showAlert({message: data.mensagem || "Inscrição realizada com sucesso!", type: "success"});
                 setInscritosDesafiosIds((prevInscritos) => [...prevInscritos, desafioId]);
             } else {
-                alert(data.erro || "Erro ao se inscrever no desafio.");
+                showAlert({message: data.erro || "Erro ao se inscrever no desafio.", type: "error"});
             }
         } catch (error) {
             console.error("Erro na requisição de inscrição:", error);
-            alert("Ocorreu um erro na comunicação com o servidor.");
+            showAlert({message: "Ocorreu um erro na comunicação com o servidor.", type: "error"});
         }
-    };
+    }, [token, showAlert]); // Adicionar dependências
 
     const totalPaginas = Math.ceil(todosDesafios.length / desafiosPorPagina);
     const irParaPagina = (numeroPagina) => {
@@ -120,8 +128,6 @@ export default function ListaDesafios() {
             <div className="eventos-grid">
                 {desafios.map((desafio) => {
                     const jaInscrito = inscritosDesafiosIds.includes(desafio.ID_DESAFIO);
-                    // A variável 'isCriador' não é mais necessária para a lógica do botão, mas pode ser útil para outras coisas.
-                    const isCriador = currentUserId === desafio.ID_USUARIO; 
                     return (
                         <div className="evento-card" key={desafio.ID_DESAFIO}>
                             <img
@@ -141,7 +147,6 @@ export default function ListaDesafios() {
                                 <p className="xp">Recompensa: {desafio.XP} XP</p>
                             </div>
                             <div className="evento-footer">
-                                {/* ===== MUDANÇA AQUI: Removida a condição "!isCriador" ===== */}
                                 {token && (
                                     jaInscrito ? (
                                         <button className="inscrever-button" disabled>Inscrito</button>

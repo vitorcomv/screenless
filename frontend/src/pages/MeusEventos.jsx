@@ -117,7 +117,7 @@ export default function MeusEventos() {
       )
     );
     setEventoEmEdicao(null);
-    showAlert("Evento atualizado com sucesso!", "success"); // Feedback de sucesso
+    showAlert({message: "Evento atualizado com sucesso!", type:"success"}); // Feedback de sucesso
   };
 
   // 3. SUBSTITUIR AS FUNÇÕES DE ALERTA E CONFIRMAÇÃO
@@ -138,17 +138,17 @@ export default function MeusEventos() {
           );
 
           if (res.ok) {
-            showAlert("Inscrição cancelada com sucesso.", "success");
+            showAlert({ message: "Inscrição cancelada com sucesso.", type: "success" });
             setEventosInscritos((prevInscritos) =>
               prevInscritos.filter((e) => e.ID_EVENTO !== eventoId)
             );
           } else {
             const data = await res.json();
-            showAlert(data.erro || "Erro ao cancelar inscrição.", "error");
+            showAlert({message: data.erro || "Erro ao cancelar inscrição.", type: "error"});
           }
         } catch (err) {
           console.error("Erro ao cancelar inscrição:", err);
-          showAlert("Erro de comunicação ao cancelar a inscrição.", "error");
+          showAlert({message:"Erro de comunicação ao cancelar a inscrição.", type: "error"});
         }
       }
     });
@@ -173,16 +173,16 @@ export default function MeusEventos() {
           const data = await res.json();
 
           if (res.ok) {
-            showAlert(data.mensagem || "Evento excluído com sucesso.", "success");
+            showAlert({message: data.mensagem || "Evento excluído com sucesso.", type: "success"});
             setEventosCriados((prevCriados) =>
               prevCriados.filter((e) => e.ID_EVENTO !== eventoId)
             );
           } else {
-            showAlert(data.erro || "Erro ao excluir evento.", "error");
+            showAlert({message: data.erro || "Erro ao excluir evento.", type: "error"});
           }
         } catch (err) {
           console.error("Erro ao excluir evento:", err);
-          showAlert("Erro de comunicação ao excluir o evento.", "error");
+          showAlert({message: "Erro de comunicação ao excluir o evento.", type: "error"});
         }
       }
     });
@@ -190,7 +190,7 @@ export default function MeusEventos() {
 
   const finalizarEvento = (eventoId) => {
     if (!token) {
-      showAlert("Você precisa estar logado para finalizar um evento.", "warning");
+      showAlert({message: "Você precisa estar logado para finalizar um evento.", type: "warning"});
       return;
     }
 
@@ -210,18 +210,18 @@ export default function MeusEventos() {
           const data = await response.json();
 
           if (response.ok) {
-            showAlert(data.mensagem || "Evento finalizado com sucesso!", "success");
+            showAlert({message: data.mensagem || "Evento finalizado com sucesso!", type: "success"});
             setEventosCriados((prevEventos) =>
               prevEventos.map((e) =>
                 e.ID_EVENTO === eventoId ? { ...e, Status: "finalizado" } : e
               )
             );
           } else {
-            showAlert(data.erro || "Erro ao finalizar evento.", "error");
+            showAlert({message: data.erro || "Erro ao finalizar evento.", type: "error"});
           }
         } catch (error) {
           console.error("Erro na requisição de finalizar evento:", error);
-          showAlert("Erro de comunicação ao finalizar o evento.", "error");
+          showAlert({message: "Erro de comunicação ao finalizar o evento.", type: "error"});
         }
       }
     });

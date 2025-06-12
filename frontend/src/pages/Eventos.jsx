@@ -31,7 +31,7 @@ export default function ListaEventos() {
         setTodosEventos(eventosOrdenados);
       } catch (e) {
         setError(e); // Mantém o erro para exibir a mensagem de falha na página
-        showAlert("Falha ao carregar eventos. Tente recarregar a página.", "error"); // Exibe um alerta
+        showAlert({message: "Falha ao carregar eventos. Tente recarregar a página.", type: "error"});
       } finally {
         setLoading(false);
       }
@@ -51,14 +51,11 @@ export default function ListaEventos() {
         }
       } catch (e) { 
         console.error("Erro ao buscar inscrições:", e);
-        // Opcional: mostrar um alerta discreto sobre a falha em buscar as inscrições
-        // showAlert("Não foi possível verificar suas inscrições.", "error");
       }
     };
 
     fetchEventos();
     fetchInscricoes();
-    // Adicionamos showAlert como dependência pois ele vem de um contexto
   }, [token, showAlert]);
 
   useEffect(() => {
@@ -70,7 +67,7 @@ export default function ListaEventos() {
   // 3. SUBSTITUIR OS ALERTAS PELA FUNÇÃO `showAlert`
   const inscreverEmEvento = useCallback(async (eventoId) => {
     if (!token) {
-      showAlert("Você precisa estar logado para se inscrever.", "warning");
+      showAlert({message: "Você precisa estar logado para se inscrever.", type:"warning"});
       return;
     }
     
@@ -87,14 +84,14 @@ export default function ListaEventos() {
       const data = await response.json();
       
       if (response.ok) { // Checar por response.ok é mais robusto
-        showAlert(data.mensagem, "success");
+        showAlert({message: data.mensagem, type: "success"});
         setInscritos(prevInscritos => [...prevInscritos, eventoId]);
       } else {
-        showAlert(data.erro || "Erro ao se inscrever no evento.", "error");
+        showAlert({message:data.erro || "Erro ao se inscrever no evento.", type: "error"});
       }
     } catch (error) {
       console.error("Erro na requisição de inscrição:", error);
-      showAlert("Falha na comunicação ao tentar se inscrever.", "error");
+      showAlert({message: "Falha na comunicação ao tentar se inscrever.", type: "error"});
     }
   }, [token, showAlert]); // Adicionar dependências ao useCallback
 

@@ -85,11 +85,11 @@ export default function MeusDesafios() {
     const handleSaveEdicao = (desafioAtualizado) => {
         setDesafiosCriados(prev => prev.map(d => d.ID_DESAFIO === desafioAtualizado.ID_DESAFIO ? desafioAtualizado : d));
         setDesafioEmEdicao(null);
-    showAlert(
-          "Sucesso!",                     
-          "O desafio foi atualizado.",        
-          "success"                           
-      );
+    showAlert({
+          title: "Sucesso!",                     
+          message: "O desafio foi atualizado.",        
+          type: "success"                           
+    });
     };
 
     const finalizarDesafio = async (desafioId) => {

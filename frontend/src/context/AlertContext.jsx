@@ -7,7 +7,7 @@ const AlertContext = createContext();
 export const AlertProvider = ({ children }) => {
   const [alert, setAlert] = useState({
     isOpen: false,
-    title: '', // Adicionamos title aqui
+    title: '', // Garanta que 'title' exista no estado inicial
     message: '',
     type: 'success',
   });
@@ -19,19 +19,20 @@ export const AlertProvider = ({ children }) => {
     onConfirm: () => {},
   });
 
-  // ===== MUDANÇA PRINCIPAL AQUI =====
-  // A função agora aceita argumentos simples, não um objeto
-  const showAlert = (title, message, type = 'success') => {
+  // ===== A CORREÇÃO CRÍTICA ESTÁ AQUI =====
+  // Adicionamos as chaves {} nos argumentos para "desestruturar" o objeto recebido
+  const showAlert = ({ title, message, type = 'success' }) => {
     setAlert({
       isOpen: true,
       title,
       message,
       type,
     });
+    // Opcional: fechar automaticamente após um tempo
     setTimeout(() => handleCloseAlert(), 4000);
   };
-  // ===================================
 
+  // A função de confirmação já usava um objeto, então está correta
   const showConfirm = ({ title, message, onConfirm }) => {
     setConfirm({
       isOpen: true,
@@ -53,11 +54,16 @@ export const AlertProvider = ({ children }) => {
   };
 
   return (
-    <AlertContext.Provider value={{ showAlert, showConfirm }}>
+    <AlertContext.Provider
+      value={{
+        showAlert,
+        showConfirm,
+      }}
+    >
       {children}
       <CustomAlert
         isOpen={alert.isOpen}
-        title={alert.title} // Passando o title para o componente
+        title={alert.title} // Passa o título para o componente CustomAlert
         message={alert.message}
         type={alert.type}
         onClose={handleCloseAlert}
