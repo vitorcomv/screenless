@@ -107,8 +107,7 @@
 .management-btn.finalizar { background-color: #8b5cf6; }
 .management-btn.cancelar { width: 100%; background-color: #ef4444; }
 
-/* Estilos de Paginação e Mensagens (reaproveitados) */
 .loading, .error { /* ... */ }
 .paginacao { /* ... */ }
 .paginacao-btn { /* ... */ }
-/* (Copie os estilos de paginação, loading e error do seu CSS de Eventos/Desafios se necessário) */
+

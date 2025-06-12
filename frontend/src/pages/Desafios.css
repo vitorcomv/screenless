@@ -141,21 +141,117 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
 .insignia-no-card { width: 28px; height: 28px; object-fit: contain; margin-bottom: 0; border-radius: 0; }
 
 /* Estilos de Paginação e Mensagens de Status */
-.paginacao { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 20px; margin-bottom: 20px; flex-wrap: wrap;}
-.paginacao-btn { background-color: var(--primary-color); color: var(--white-text); padding: 12px 24px; border: none; border-radius: 50px; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; font-weight: 700; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); }
-.paginacao-btn:hover:not(:disabled) { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); }
-.paginacao-btn:disabled { background-color: var(--light-gray); color: #a1a1aa; cursor: not-allowed; box-shadow: none; transform: none; }
-.paginacao-numeros { display: flex; gap: 8px; }
-.paginacao-numero { background-color: var(--card-background); color: var(--primary-color); border: 2px solid var(--primary-color); padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease; min-width: 45px; }
-.paginacao-numero:hover { background-color: var(--primary-color); color: var(--white-text); transform: translateY(-2px); }
-.paginacao-numero.ativo { background-color: var(--primary-color); color: var(--white-text); pointer-events: none; }
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.paginacao-btn {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.paginacao-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.paginacao-btn:disabled {
+  background-color: var(--light-gray);
+  color: #a1a1aa;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.paginacao-numeros {
+  display: flex;
+  gap: 8px;
+}
+
+.paginacao-numero {
+  background-color: var(--card-background);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 45px;
+}
+
+.paginacao-numero:hover {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  transform: translateY(-2px);
+}
+
+.paginacao-numero.ativo {
+  background-color: var(--primary-color);
+  color: var(--white-text);
+  pointer-events: none;
+}
 
 /* Mensagens de 'sem desafios', 'loading', etc. */
-.sem-eventos-container { width: 100%; display: flex; justify-content: center; align-items: center; text-align: center; padding: 40px 20px; min-height: calc(80vh - 120px); }
-.cta-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
-.cta-texto { font-size: 1.3rem; color: var(--dark-text); font-weight: 400; max-width: 400px; opacity: 0.9; line-height: 1.4; margin-bottom: 20px; }
-.loading, .error { display: flex; justify-content: center; align-items: center; min-height: 50vh; font-size: 1.5rem; color: var(--primary-dark); font-weight: 600; }
-.error { color: var(--secondary-color); }
+.sem-eventos-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  min-height: calc(80vh - 120px);
+}
+
+.cta-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.cta-texto {
+  font-size: 1.3rem;
+  color: var(--dark-text);
+  font-weight: 400;
+  max-width: 400px;
+  opacity: 0.9;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+.loading,
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-size: 1.5rem;
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.error {
+  color: var(--secondary-color);
+}
+
 
 /* Botão principal de Criar Desafio */
 .botao-wrapper { margin-top: 40px; }

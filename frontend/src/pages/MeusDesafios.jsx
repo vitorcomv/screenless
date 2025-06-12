@@ -180,7 +180,7 @@ export default function MeusDesafios() {
                 <h2>Meus Desafios Criados</h2>
                 {errorCriados && <p className="feedback-message error">Erro: {errorCriados}</p>}
                 {!errorCriados && desafiosCriados.length === 0 ? (
-                    <p className="feedback-message empty">Você ainda não criou nenhum desafio.</p>
+                    <p className="feedback-message empty" style={{ color: 'black' }}>Você ainda não criou nenhum desafio.</p>
                 ) : (
                     <>
                         <div className="info-paginacao">
@@ -223,7 +223,7 @@ export default function MeusDesafios() {
                 <h2 className="titulo-secao-secundaria">Desafios que me Inscrevi</h2>
                 {errorInscritos && <p className="feedback-message error">Erro: {errorInscritos}</p>}
                 {!errorInscritos && desafiosInscritos.length === 0 ? (
-                    <p className="feedback-message empty">Você ainda não está inscrito em nenhum desafio.</p>
+                    <p className="feedback-message-empty" style={{ color: 'black' }}>Você ainda não está inscrito em nenhum desafio.</p>
                 ) : (
                     <>
                         <div className="info-paginacao">

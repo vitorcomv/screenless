@@ -37,7 +37,6 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* --- LÓGICA DE VISIBILIDADE --- */
 .eventos-visiveis .info-paginacao { display: block; }
 .eventos-visiveis .eventos-grid { display: grid; }
 .eventos-visiveis .paginacao { display: flex; }
@@ -45,7 +44,6 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   display: flex;
 }
 
-/* --- SEÇÃO COM EVENTOS --- */
 .info-paginacao {
   color: var(--dark-text);
   font-size: 1.1rem;
@@ -79,7 +77,7 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   border: 3px solid transparent;
   width: 290px;
   min-height: 300px;
-  max-height: 500px;
+  max-height: 550px;
   justify-self: center;
 }
 
@@ -126,7 +124,6 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   font-weight: bold;
   color: var(--secondary-color);
   height: 30px;
-  background-color: #fff7ed;
   border-radius: 50px;
 }
 
@@ -151,19 +148,6 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
 .organizador { margin: 0; }
 
 .paginacao { align-items: center; justify-content: center; gap: 15px; margin-top: 20px; margin-bottom: 20px; flex-wrap: wrap;}
-
-.paginacao-btn {
-  background-color: var(--primary-color);
-  color: var(--white-text);
-  padding: 12px 24px;
-  border: none;
-  border-radius: 50px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
 
 .paginacao-btn:hover:not(:disabled) {
   background-color: var(--primary-dark);

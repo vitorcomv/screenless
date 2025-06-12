@@ -167,16 +167,23 @@ body {
 .evento-btn.excluir { background-color: var(--danger-color); }
 .evento-btn.excluir:hover { background-color: var(--danger-dark); }
 
-.meus-evento-status-finalizado {
-  font-weight: bold;
+#evento-finalizado {
   color: var(--secondary-color);
+  font-weight: bold;
   margin-top: auto;
   height: 30px;
-  background-color: #fff7ed;
   border-radius: 8px;
   text-align: center;
   font-size: 1rem;
-  border: 1px solid var(--secondary-color);
+}
+
+.meus-evento-status-finalizado {
+  font-weight: bold;
+  margin-top: auto;
+  height: 30px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1rem;
 }
 
 .info-paginacao {
@@ -196,18 +203,6 @@ body {
   flex-wrap: wrap;
 }
 
-.paginacao-btn {
-  background-color: var(--primary-color);
-  color: var(--white-text);
-  padding: 10px 20px;
-  border: none;
-  border-radius: 50px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
 
 .paginacao-btn:hover:not(:disabled) {
   background-color: var(--primary-dark);

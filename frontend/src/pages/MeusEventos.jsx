@@ -243,7 +243,7 @@ export default function MeusEventos() {
         {evento.descricao && <p className="descricao">Descrição: {evento.descricao}</p>}
         {isCriado ? (
           evento.Status === "finalizado" ? (
-            <p className="meus-evento-status-finalizado">Evento Finalizado!</p>
+            <p className="meus-evento-status-finalizado" id="evento-finalizado">Evento Finalizado!</p>
           ) : (
             <div className="botoes-acao-evento">
               <button className="evento-btn editar" onClick={() => handleEditarClick(evento)}>
