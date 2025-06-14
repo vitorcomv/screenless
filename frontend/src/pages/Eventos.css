@@ -62,6 +62,9 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   width: 100%;
   max-width: 1200px;
   margin-bottom: 60px;
+}
+
+.eventos-grid:not(:empty) {
   min-height: 60vh;
 }
 
@@ -199,8 +202,7 @@ body { font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--dark-t
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 40px 20px;
-  min-height: calc(80vh - 120px);
+  padding: 80px 20px;
 }
 
 .cta-container {
