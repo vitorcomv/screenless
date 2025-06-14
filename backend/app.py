@@ -911,6 +911,77 @@ def obter_perfil():
     finally:
         if cursor: cursor.close()
         if conn and conn.is_connected(): conn.close()
+        
+@app.route('/api/perfil', methods=['PUT'])
+@token_obrigatorio
+def atualizar_perfil():
+    conn = None
+    cursor = None
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        usuario_id = request.usuario_id
+
+        # Dicionários para construir a query dinamicamente
+        updates = []
+        params = []
+        
+        # Coleta os campos de texto do formulário
+        for field in ['nome', 'sobrenome', 'email', 'telefone', 'usuario']:
+            if field in request.form:
+                updates.append(f"{field}=%s")
+                params.append(request.form[field])
+
+        # Verifica se uma nova foto foi enviada
+        foto = request.files.get("foto_perfil")
+        foto_url = None # Variável para guardar a URL do Cloudinary
+        
+        if foto and allowed_file(foto.filename):
+            # Faz o upload para o Cloudinary
+            upload_result = cloudinary.uploader.upload(foto)
+            foto_url = upload_result.get('secure_url')
+            
+            # Adiciona a atualização da foto na query
+            updates.append("foto_perfil=%s")
+            params.append(foto_url)
+        
+        # Se não houver nada para atualizar, retorna um erro
+        if not updates:
+            return jsonify({"erro": "Nenhum dado para atualizar"}), 400
+
+        # Monta a query SQL final
+        sql = f"UPDATE USUARIO SET {', '.join(updates)} WHERE Id_USUARIO=%s"
+        params.append(usuario_id)
+        
+        cursor.execute(sql, tuple(params))
+        conn.commit()
+
+        # Prepara a resposta para o frontend
+        resposta = {"mensagem": "Perfil atualizado com sucesso"}
+        if foto_url:
+            # Se uma nova foto foi enviada, retorna a URL dela
+            resposta["foto_url"] = foto_url
+
+        return jsonify(resposta), 200
+
+    except mysql.connector.IntegrityError as e:
+        # Tratamento de erros de duplicação (email, usuário, etc.)
+        error_message = str(e).lower()
+        if "for key 'usuario.email'" in error_message:
+            return jsonify({"erro": "Email já cadastrado"}), 400
+        elif "for key 'usuario.usuario'" in error_message:
+            return jsonify({"erro": "Nome de usuário já está em uso"}), 400
+        elif "for key 'usuario.telefone'" in error_message:
+            return jsonify({"erro": "Telefone já cadastrado"}), 400
+        else:
+            return jsonify({"erro": f"Erro de integridade de dados: {e}"}), 400
+    except Exception as e:
+        return jsonify({"erro": f"Erro interno: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn and conn.is_connected():
+            conn.close()
 
 @app.route("/api/meus_desafios_ids", methods=["GET"])
 @token_obrigatorio

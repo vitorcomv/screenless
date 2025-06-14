@@ -231,7 +231,7 @@ export default function MeusEventos() {
     <div className="meus-evento-card" key={evento.ID_EVENTO}>
       <img
         className="meus-evento-imagem"
-        src={`https://screenless-8k2p.onrender.com/uploads/${evento.foto}` || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
+        src={evento.foto_url || "https://placehold.co/600x400/1f2937/7ca1f0?text=Sem+Imagem"}
         alt={evento.titulo}
         onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/1f2937/7ca1f0?text=Imagem+Indisponivel"; }}
       />

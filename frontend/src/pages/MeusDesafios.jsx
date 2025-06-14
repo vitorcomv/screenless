@@ -223,7 +223,7 @@ export default function MeusDesafios() {
                             {/* ... seu .map() para desafios criados ... */}
                             {desafiosCriadosPaginados.map((desafio) => (
                                 <div className="evento-card" key={desafio.ID_DESAFIO}>
-                                    <img src={desafio.foto ? `https://screenless-8k2p.onrender.com/uploads/${desafio.foto}` : "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"} alt={desafio.Titulo} onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}/>
+                                    <img src={desafio.foto_url || "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"} alt={desafio.Titulo} onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}/>
                                     <div className="evento-info">
                                         <h3>{desafio.Titulo}</h3>
                                         <p className="organizador">Organizado por: {desafio.nome_usuario || "Você"}</p>
@@ -266,7 +266,7 @@ export default function MeusDesafios() {
                             {/* ... seu .map() para desafios inscritos ... */}
                             {desafiosInscritosPaginados.map((desafio) => (
                                 <div className="evento-card" key={desafio.ID_DESAFIO}>
-                                    <img src={desafio.foto ? `https://screenless-8k2p.onrender.com/uploads/${desafio.foto}`: "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"} alt={desafio.Titulo} onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}/>
+                                    <img src={desafio.foto_url || "https://placehold.co/600x400/cccccc/ffffff?text=Sem+Imagem"} alt={desafio.Titulo} onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/ffffff?text=Imagem+Indisponivel"; }}/>
                                     <div className="evento-info">
                                         <h3>{desafio.Titulo}</h3>
                                         <p className="organizador">Organizado por: {desafio.nome_usuario || "Anônimo"}</p>

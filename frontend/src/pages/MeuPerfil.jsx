@@ -42,7 +42,7 @@ const MeuPerfil = () => {
                     cpf: data.CPF || '',
                     foto_perfil: data.foto_perfil || null
                 });
-                setFotoPreview(data.foto_url || (data.foto_perfil ? `https://screenless-8k2p.onrender.com/uploads/${data.foto_perfil}` : null));
+                setFotoPreview(data.foto_url || (data.foto_perfil));
             }
         });
     }, [token]);
