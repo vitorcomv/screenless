@@ -278,3 +278,7 @@ a.criar-seu-evento-button {
   }
   .cta-texto { font-size: 1.1rem; }
 }
+.evento-info .data-hora {
+  margin-top: auto;
+  padding-top: 10px; 
+}

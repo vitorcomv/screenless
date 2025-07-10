@@ -37,7 +37,7 @@ const membros = [
         imagem: autor3Img,
         linkedin: "https://www.linkedin.com/in/vitor-hugo-258130258/",
         github: "https://github.com/vitorcomv",
-        role: "Desenvolvedor Full-Stack"
+        role: "Desenvolvedor Full-Stack e Analista de Infraestrutura"
     }
 ];
 

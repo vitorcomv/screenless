@@ -126,7 +126,7 @@
     margin-bottom: 1rem; 
 }
 .member-name { font-size: 1.25rem; font-weight: 700; color: black;}
-.member-role { color: #6b7280; margin-bottom: 1rem; }
+.member-role { color: #6b7280; margin-bottom: 2rem; }
 .member-contact { display: flex; justify-content: center; gap: 1rem; }
 .member-contact a { color: #374151; transition: all 0.2s ease; }
 .member-contact a:hover { color: #16a34a; transform: scale(1.1); }
