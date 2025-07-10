@@ -17,6 +17,9 @@
 
 ---
 
+👉🏻 Veja o Screenless na prática (CPF fictício permitido): https://screenless-a9410.web.app/
+
+
 ## 📝 Descrição
 
 O projeto **Screenless** é uma plataforma comunitária inovadora que visa fortalecer o bem-estar, promover a educação de qualidade e prevenir a dependência digital entre crianças e adolescentes. Em um mundo cada vez mais conectado, a iniciativa oferece alternativas de convivência offline, incentivando hábitos saudáveis, a interação social e o desenvolvimento de competências socioemocionais. Através de eventos educativos, atividades dinâmicas e ações de valorização da participação, o Screenless busca fortalecer os vínculos familiares e sociais, promover o uso consciente da tecnologia e contribuir para a formação integral de jovens, criando um ambiente mais equilibrado e acolhedor.
