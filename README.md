@@ -11,8 +11,6 @@
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Funcionalidades](#funcionalidades)
-- [Pré-requisitos](#pré-requisitos)
-- [Como Rodar a Aplicação](#como-rodar-a-aplicação)
 - [Contribuição](#contribuição)
 - [Licença](#licença)
 - [Equipe](#equipe)
