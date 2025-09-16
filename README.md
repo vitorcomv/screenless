@@ -90,11 +90,11 @@ Este projeto utiliza as seguintes tecnologias:
 
 - **React Icons**: Biblioteca de ícones.
 
-- **Python:** Linguagem utilizada no Back-end
-
 - **Web Vitals**: Para medição de métricas de desempenho web.
 
 ### Backend
+
+- **Python:** Linguagem utilizada no Back-end
 
 - **Flask**: Microframework web para Python.
 
